@@ -1,3 +1,5 @@
+//<?php
+
 // ✅ Generate Nonce for Upload Form (Pending Only)
 add_action('wp_ajax_get_meme_nonce', 'generate_meme_nonce');
 add_action('wp_ajax_nopriv_get_meme_nonce', 'generate_meme_nonce');

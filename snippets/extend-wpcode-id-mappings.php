@@ -1,3 +1,4 @@
+//<?php
 function my_wpcode_mapping_extension_enqueue($hook) {
     if (strpos($hook, 'wpcode') === false) {
         return;

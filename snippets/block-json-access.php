@@ -1,3 +1,5 @@
+//<?php
+
 // ✅ Block direct access to JSON files for security
 function block_json_file_access() {
     if (preg_match('/\.json$/', $_SERVER['REQUEST_URI'])) {

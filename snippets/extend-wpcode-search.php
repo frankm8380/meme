@@ -1,3 +1,4 @@
+//<?php
 function my_wpcode_search_extension_enqueue($hook) {
     // Only load on WPCode snippet editor pages
     if (strpos($hook, 'wpcode') === false) {

@@ -1,3 +1,5 @@
+//<?php
+
 // ✅ Allow JSON file uploads in WordPress
 function allow_json_uploads($mimes) {
     $mimes['json'] = 'application/json';

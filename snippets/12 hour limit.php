@@ -1,3 +1,4 @@
+//<?php
 function limit_user_submissions() {
     if (!is_user_logged_in()) {
         return; // Skip for guests
