@@ -1,4 +1,5 @@
 //<?php
+//
 function my_wpcode_extension_enqueue($hook) {
     // Only load on WPCode snippet editor pages
     if (strpos($hook, 'wpcode') === false) {
@@ -9,30 +10,6 @@ function my_wpcode_extension_enqueue($hook) {
 
     $custom_js = <<<JS
 jQuery(document).ready(function($) {
-    // Function to show temporary messages and log them
-    function showMessage(message) {
-        console.log("[WPCode Custom]: " + message);
-        var messageBox = $('<div class="my-temp-message">' + message + '</div>');
-        $('body').append(messageBox);
-        messageBox.css({
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            background: '#007cba',
-            color: '#fff',
-            padding: '10px 20px',
-            borderRadius: '5px',
-            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
-            zIndex: 9999
-        }).fadeIn();
-
-        setTimeout(function() {
-            messageBox.fadeOut(function() {
-                $(this).remove();
-            });
-        }, 3000);
-    }
-
     // Function to determine the correct file extension based on snippet type
     function getFileExtension(snippetType) {
         switch (snippetType.toLowerCase()) {
@@ -70,19 +47,11 @@ jQuery(document).ready(function($) {
             await writable.write(fileContent);
             await writable.close();
 
-            showMessage(`File successfully saved as \${fileName}`);
+            wpcodeShowMessage(`File successfully saved as \${fileName}`);
         } catch (error) {
             console.error('Failed to manually save file:', error);
-            showMessage('Manual save failed or was canceled.');
+            wpcodeShowMessage('Manual save failed or was canceled.');
         }
-    }
-
-    // Prevent WPCode auto-save from triggering when clicking custom buttons
-    function preventAutoSaveOnButtonClick(buttonSelector) {
-        $(buttonSelector).on('mousedown click focus', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-        });
     }
 
     // Poll for the WPCode editor container until it appears
@@ -103,16 +72,16 @@ jQuery(document).ready(function($) {
             editorContainer.prepend(customButtons);
 
             // Prevent auto-save from triggering when clicking custom buttons
-            preventAutoSaveOnButtonClick('#export-clipboard');
-            preventAutoSaveOnButtonClick('#import-clipboard');
-            preventAutoSaveOnButtonClick('#export-file-picker');
-            preventAutoSaveOnButtonClick('#import-file');
+            wpcodePreventAutoSave('#export-clipboard');
+            wpcodePreventAutoSave('#import-clipboard');
+            wpcodePreventAutoSave('#export-file-picker');
+            wpcodePreventAutoSave('#import-file');
 
             // Import from Clipboard
             $('#import-clipboard').on('click', function() {
                 navigator.clipboard.readText().then(function(clipboardText) {
                     if (clipboardText.trim() === "") {
-                        showMessage('Clipboard is empty. Nothing to import.');
+                        wpcodeShowMessage('Clipboard is empty. Nothing to import.');
                         return;
                     }
                     insertCodeIntoEditor(clipboardText);
@@ -122,7 +91,7 @@ jQuery(document).ready(function($) {
                     if (manualPaste && manualPaste.trim() !== "") {
                         insertCodeIntoEditor(manualPaste);
                     } else {
-                        showMessage('No code imported.');
+                        wpcodeShowMessage('No code imported.');
                     }
                 });
             });
@@ -131,9 +100,9 @@ jQuery(document).ready(function($) {
             $('#export-clipboard').on('click', function() {
                 var code = $('#wpcode_snippet_code').val();
                 navigator.clipboard.writeText(code).then(function() {
-                    showMessage('Code copied to clipboard!');
+                    wpcodeShowMessage('Code copied to clipboard!');
                 }).catch(function(err) {
-                    showMessage('Error copying code: ' + err);
+                    wpcodeShowMessage('Error copying code: ' + err);
                 });
             });
 
@@ -157,7 +126,7 @@ jQuery(document).ready(function($) {
                 input.on('change', function(event) {
                     var file = event.target.files[0];
                     if (!file) {
-                        showMessage('No file selected.');
+                        wpcodeShowMessage('No file selected.');
                         return;
                     }
 
@@ -169,7 +138,7 @@ jQuery(document).ready(function($) {
                     };
 
                     reader.onerror = function() {
-                        showMessage('Error reading the file.');
+                        wpcodeShowMessage('Error reading the file.');
                     };
 
                     reader.readAsText(file);
@@ -185,7 +154,7 @@ jQuery(document).ready(function($) {
                     cmElement.CodeMirror.setValue(code);
                     cmElement.CodeMirror.refresh();
                 }
-                showMessage('Code successfully imported!');
+                wpcodeShowMessage('Code successfully imported!');
             }
         }
     }, 500);
