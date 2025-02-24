@@ -1,0 +1,57 @@
+# Ignore node_modules if using npm packages
+node_modules/
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore VS Code settings
+.vscode/
+.history/
+
+# Ignore log files and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Ignore WordPress core files (you only want your custom code and plugins/themes)
+wp-admin/
+wp-includes/
+license.txt
+readme.html
+
+# Ignore uploads (if you don't want media files in Git)
+wp-content/uploads/
+
+# Ignore cache files
+wp-content/cache/
+wp-content/upgrade/
+
+# Ignore backup files
+*.bak
+*.backup
+*.old
+
+# Ignore environment files
+.env
+.env.local
+
+# Ignore PHPStorm and JetBrains project files
+.idea/
+
+# Ignore Git itself
+.git/
+
+# Ignore composer dependencies if you're using Composer
+vendor/
+
+# Ignore build output (if any)
+dist/
+build/
+
+# Ignore plugin and theme debug files
+wp-content/debug.log
+
+# Ignore temporary Git merge files
+*.orig

@@ -1,0 +1,474 @@
+<body>
+<div id="container">
+<p id="result">Awaiting gesture...</p>
+
+  <div class="image-controls-wrapper">
+    <button id="startCameraBtn" onclick="handleStartCamera()">🎥 Start Camera</button>
+    <video id="webcam" autoplay playsinline></video>
+    <canvas id="memeCanvas" style="display:none;"></canvas>
+
+    <div class="preview-container">
+      <img id="preview" style="display:none;" alt="Captured Meme">
+      <div id="memeEditorBlurb" style="display: none; text-align: center; margin: 20px 0; padding: 10px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+        <h2>🎨 Meme Editor Guide</h2>
+        <p>Customize your captured meme with top and bottom text, change colors, and add a disclaimer if you like! When you're done, hit <strong>Save Meme</strong> to download it and prepare for upload.</p>
+      </div>
+
+      <div id="sticky-footer" class="sticky-footer" style="display: none;">
+        <hr class="divider">
+        <h2 class="editor-label">Meme Editor</h2>
+        <div id="button-container" class="button-container">
+          <div class="dropdown-wrapper">
+            <div class="controls-container">
+              <label for="topText">📝 Top Text:</label>
+              <select id="topText" onchange="updateMemeText()"></select>
+            </div>
+            <div class="controls-container">
+              <label for="bottomText">📝 Bottom Text:</label>
+              <select id="bottomText" onchange="updateMemeText()"></select>
+            </div>
+          </div>
+          <div class="controls-row-web">
+            <div class="controls-container">
+              <label for="textColor">🎨 Text Color:</label>
+              <div id="colorDisplay" class="color-display" onclick="document.getElementById('textColor').click()"></div>
+              <input type="color" id="textColor" value="#ffffff" style="display: none;" oninput="updateColor(); updateMemeText();">
+            </div>
+            <div class="controls-container">
+              <label for="includeDisclaimer">📜 Include Disclaimer:</label>
+              <input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
+            </div>
+          </div>
+          <div class="button-row">
+            <button class="save-btn" onclick="saveMeme()">✅ Save Meme</button>
+            <button class="retry-btn" onclick="restartDetection()">🔄 Retry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let savedImageHeight = 0;
+  let savedBorderThickness = 10;
+  let savedImage = null;
+  let savedVideoWidth = 0;
+  let pageConfig = null;
+  let disclaimerMessage = [];
+  let fileNamePrefix = "meme_"; // Default fallback prefix
+
+  async function loadPageConfig(configFile) {
+	console.log(`Config File Path: ${configFile}`);
+    try {
+      const response = await fetch(configFile);
+      if (!response.ok) {
+        throw new Error(`Failed to load config: ${response.status} - ${response.statusText}`);
+      }
+      pageConfig = await response.json();
+      console.log("Config loaded successfully:", pageConfig);
+      fileNamePrefix = pageConfig.fileNamePrefix || fileNamePrefix; // Use prefix from JSON
+      populateDropdowns();
+      populateDisclaimerMessages();
+		populateSection("accomplishments-list", "accomplishments");
+		populateSection("title-list", "titleList");
+		populateSection("intro-list", "introList");
+		populateSection("meme-instructions-list", "memeInstructionsList");
+    } catch (error) {
+      console.error("Error loading page config:", error);
+      displayErrorMessage("Failed to load configuration. Please try refreshing the page or contact support.");
+    }
+  }
+	window.onload = () => {
+	  const path = window.location.pathname.toLowerCase();
+	  const pageTitle = document.title.toLowerCase();
+
+	  console.log(`Current URL Path: ${path}`);
+	  console.log(`Current Page Title: ${pageTitle}`);
+
+	  if (path.includes("trump")) {
+		console.log("Detected: Trump page from path.");
+		if (pageTitle.includes("not!")) {
+		  console.log("Detected from title: 'Not' version for Trump. Loading satirical config.");
+		  loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/trumpConfigNot-2.json");
+		} else {
+		  console.log("Detected from title: Team Trump supporter version. Loading team config.");
+		  loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/trumpConfigTeam-2.json");
+		}
+	  } else if (path.includes("musk") || path.includes("elon")) {
+		console.log("Detected: Musk page from path.");
+		if (pageTitle.includes("not!")) {
+		  console.log("Detected from title: 'Not' version for Musk. Loading satirical config.");
+		  loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/muskConfigNot-2.json");
+		} else {
+		  console.log("Detected from title: Team Musk supporter version. Loading team config.");
+		  loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/muskConfigTeam-2.json");
+		}
+	  } else {
+		console.warn("No matching page detected from title or path.");
+	  }
+	};
+
+
+
+	function populateSection(divId, jsonSection) {
+	  try {
+		const sectionData = pageConfig[jsonSection];
+
+		// Find or create the container to display the list
+		const container = document.getElementById(divId);
+		if (!container) {
+		  console.error(`No container found with ID '${divId}'.`);
+		  return;
+		}
+
+		// Clear any existing content
+		container.innerHTML = '';
+
+		// Loop through section data and add div elements
+		sectionData.forEach(item => {
+		  const div = document.createElement("div");
+		  div.classList.add(`${jsonSection}-item`);
+
+		  // Generic handling for all sections, including accomplishments
+		  if (jsonSection === "accomplishments") {
+			// Use HTML formatting directly from JSON and add source link
+			div.innerHTML = `${item.text} <a href="${item.source || '#'}" target="_blank">(source)</a>`;
+		  } else {
+			// Render plain or HTML-formatted content for other sections
+			div.innerHTML = item;
+		  }
+
+		  container.appendChild(div);
+		});
+
+		console.log(`${jsonSection} populated successfully.`);
+	  } catch (error) {
+		console.error(`Error populating ${jsonSection}:`, error);
+		displayErrorMessage(`Error loading ${jsonSection}. Please try again.`);
+	  }
+	}
+
+	
+function populateAccomplishments() {
+  try {
+    const accomplishments = pageConfig.accomplishments;
+
+    // Find or create the container to display the list
+    const container = document.getElementById("accomplishments-list");
+    if (!container) {
+      console.error("No container found with ID 'accomplishments-list'.");
+      return;
+    }
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Loop through accomplishments and add div elements
+    accomplishments.forEach(item => {
+      const div = document.createElement("div");
+      div.classList.add("accomplishment-item");
+
+      const text = item.text;
+
+      // Find the end of the first sentence based on '. ' occurrence
+      const sentenceEnd = text.indexOf('.  ') + 1; // Include the period
+
+      let formattedText;
+      if (sentenceEnd > 0) {
+        const firstSentence = text.substring(0, sentenceEnd + 1); // Include space after the period
+        const restOfText = text.substring(sentenceEnd + 1);
+        formattedText = `<strong>${firstSentence}</strong>${restOfText}`;
+      } else {
+        // If no '. ' found, bold the entire text
+        formattedText = `<strong>${text}</strong>`;
+      }
+
+      // Insert the formatted text with the source link
+      div.innerHTML = `${formattedText} <a href="${item.source || '#'}" target="_blank">(source)</a>`;
+      container.appendChild(div);
+    });
+
+    console.log("Accomplishments populated successfully.");
+  } catch (error) {
+    console.error("Error populating accomplishments:", error);
+    displayErrorMessage("Error loading accomplishments. Please try again.");
+  }
+}
+
+  function populateDropdowns() {
+    try {
+      const topTextSelect = document.getElementById("topText");
+      const bottomTextSelect = document.getElementById("bottomText");
+      topTextSelect.innerHTML = '';
+      bottomTextSelect.innerHTML = '';
+
+      pageConfig.topTexts.forEach(text => {
+        const option = document.createElement("option");
+        option.text = text;
+        topTextSelect.add(option);
+      });
+
+      pageConfig.bottomTexts.forEach(text => {
+        const option = document.createElement("option");
+        option.text = text;
+        bottomTextSelect.add(option);
+      });
+      console.log("Dropdowns populated successfully.");
+    } catch (error) {
+      console.error("Error populating dropdowns:", error);
+      displayErrorMessage("Error loading meme options. Please try again.");
+    }
+  }
+
+  function populateDisclaimerMessages() {
+    try {
+      if (pageConfig.disclaimerMessages) {
+        disclaimerMessage = [...pageConfig.disclaimerMessages];
+        console.log("Disclaimer messages loaded successfully.");
+      }
+    } catch (error) {
+      console.error("Error loading disclaimer messages:", error);
+      displayErrorMessage("Error loading disclaimers. Please try again.");
+    }
+  }
+
+  function displayErrorMessage(message) {
+    const resultElement = document.getElementById('result');
+    resultElement.textContent = message;
+    resultElement.style.color = 'red';
+  }
+
+    function updateColor() {
+      const colorPicker = document.getElementById("textColor");
+      const colorDisplay = document.getElementById("colorDisplay");
+      colorDisplay.style.backgroundColor = colorPicker.value;
+		}
+
+	function handleStartCamera() {
+	  document.getElementById("startCameraBtn").style.display = "none"; // Hide the button
+	  startCamera(); // Start the camera and detection
+
+	  // Scroll to meme-create-section
+	  setTimeout(() => {
+		const memeCreateSection = document.getElementById("meme-create-section");
+		if (memeCreateSection) {
+		  console.log("Element #meme-create-section was found.");
+		  memeCreateSection.scrollIntoView({ behavior: "smooth", block: "start" });
+		} else {
+		  console.error("Element #meme-create-section not found.");
+		}
+	  }, 500); // Delay to ensure the camera starts before scrolling
+	}
+
+	function captureImage() {
+	  const video = document.getElementById("webcam");
+	  const memeCanvas = document.getElementById("memeCanvas");
+	  const ctx = memeCanvas.getContext("2d");
+	  const borderThickness = 10;
+
+	  // ✅ Set canvas size based on the device's camera resolution
+	  memeCanvas.width = video.videoWidth + 2 * borderThickness;
+	  memeCanvas.height = video.videoHeight + 2 * borderThickness;
+
+	  savedImageHeight = video.videoHeight;
+	  savedBorderThickness = borderThickness;
+	  savedVideoWidth = video.videoWidth;
+
+	  // ✅ Draw black border and white background
+	  ctx.fillStyle = "black";
+	  ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
+	  ctx.fillStyle = "white";
+	  ctx.fillRect(borderThickness, borderThickness, memeCanvas.width - 2 * borderThickness, memeCanvas.height - 2 * borderThickness);
+
+	  // ✅ Draw video frame at its natural resolution
+	  ctx.drawImage(video, borderThickness, borderThickness, video.videoWidth, video.videoHeight);
+
+	  // ✅ Stop the video stream after capturing
+	  videoStream.getTracks().forEach(track => track.stop());
+	  video.style.display = "none";
+
+	  // ✅ Convert captured image to data URL
+	  savedImage = new Image();
+	  savedImage.onload = function () {
+		updateMemeText(); // Call function to add text
+	  };
+	  savedImage.src = memeCanvas.toDataURL("image/png");
+
+	  // ✅ Update result message
+	  const resultMessage = document.getElementById("result");
+	  resultMessage.innerHTML = "📸 <strong>Picture Captured!</strong><br>Meme Ready!<br>Customize & Save Below.";
+	  resultMessage.scrollIntoView({ behavior: "smooth", block: "start" });
+
+	  // ✅ Show the meme editor
+	  document.getElementById("sticky-footer").style.display = "block";
+	  document.getElementById("preview").style.display = "block";
+	  document.getElementById("memeEditorBlurb").style.display = "block";
+	}
+
+    function updateMemeText() {
+      const memeCanvas = document.getElementById("memeCanvas");
+      const ctx = memeCanvas.getContext("2d");
+      const previewImage = document.getElementById("preview");
+      const textColor = document.getElementById("textColor").value;
+      const topText = document.getElementById("topText").value;
+      const bottomText = document.getElementById("bottomText").value;
+      const includeDisclaimer = document.getElementById("includeDisclaimer").checked;
+
+      if (!savedImage) return;
+
+      const disclaimerLineHeight = 24;
+      const fontSize = 50;
+      const lineHeight = fontSize * 1.2;
+
+      function wrapText(ctx, text, maxWidth) {
+        const words = text.split(" ");
+        let lines = [];
+        let currentLine = "";
+        words.forEach(word => {
+          let testLine = currentLine ? currentLine + " " + word : word;
+          if (ctx.measureText(testLine).width > maxWidth && currentLine !== "") {
+            lines.push(currentLine);
+            currentLine = word;
+          } else {
+            currentLine = testLine;
+          }
+        });
+        lines.push(currentLine);
+        return lines;
+      }
+
+      memeCanvas.width = savedVideoWidth + 2 * savedBorderThickness;
+      const effectiveMaxWidth = memeCanvas.width - 40;
+
+      let totalDisclaimerLines = 0;
+      if (includeDisclaimer) {
+        disclaimerMessage.forEach(sentence => {
+          totalDisclaimerLines += wrapText(ctx, sentence, effectiveMaxWidth).length;
+        });
+      }
+      let disclaimerHeight = includeDisclaimer ? totalDisclaimerLines * disclaimerLineHeight + 20 : 0;
+      if (includeDisclaimer && window.innerWidth <= 768) {
+        disclaimerHeight = Math.max(disclaimerHeight, 186);
+      }
+
+      memeCanvas.height = savedImageHeight + 2 * savedBorderThickness + disclaimerHeight;
+
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
+      ctx.fillStyle = "white";
+      ctx.fillRect(savedBorderThickness, savedBorderThickness, memeCanvas.width - 2 * savedBorderThickness, memeCanvas.height - 2 * savedBorderThickness);
+      ctx.drawImage(
+        savedImage,
+        savedBorderThickness, savedBorderThickness,
+        savedVideoWidth, savedImageHeight,
+        savedBorderThickness, savedBorderThickness,
+        savedVideoWidth, savedImageHeight
+      );
+
+      ctx.font = `bold ${fontSize}px Impact`;
+      ctx.textAlign = "center";
+      ctx.fillStyle = textColor;
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 8;
+      ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+
+      function drawWrappedText(text, yPosition) {
+        if (ctx.measureText(text).width <= (memeCanvas.width - 40)) {
+          ctx.strokeText(text, memeCanvas.width / 2, yPosition);
+          ctx.fillText(text, memeCanvas.width / 2, yPosition);
+        } else {
+          const middleIndex = Math.floor(text.length / 2);
+          let splitIndex = text.lastIndexOf(' ', middleIndex);
+          if (splitIndex === -1) splitIndex = text.indexOf(' ', middleIndex);
+          const firstLine = text.substring(0, splitIndex);
+          const secondLine = text.substring(splitIndex + 1);
+          ctx.strokeText(firstLine, memeCanvas.width / 2, yPosition);
+          ctx.fillText(firstLine, memeCanvas.width / 2, yPosition);
+          ctx.strokeText(secondLine, memeCanvas.width / 2, yPosition + lineHeight);
+          ctx.fillText(secondLine, memeCanvas.width / 2, yPosition + lineHeight);
+        }
+      }
+
+      drawWrappedText(topText, savedBorderThickness + 60);
+      const wrappedBottomText = wrapText(ctx, bottomText, effectiveMaxWidth);
+      const bottomY = savedBorderThickness + savedImageHeight - 20 - (wrappedBottomText.length - 1) * lineHeight;
+      drawWrappedText(bottomText, bottomY);
+
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      if (includeDisclaimer) {
+        ctx.fillStyle = "black";
+        ctx.font = "bold 18px Arial";
+        let disclaimerY = savedBorderThickness + savedImageHeight + 35;
+        disclaimerMessage.forEach(sentence => {
+          wrapText(ctx, sentence, effectiveMaxWidth).forEach(line => {
+            ctx.fillText(line, memeCanvas.width / 2, disclaimerY);
+            disclaimerY += disclaimerLineHeight;
+          });
+        });
+      }
+      previewImage.src = memeCanvas.toDataURL("image/png");
+    }
+
+  function saveMeme() {
+    const memeDataUrl = document.getElementById("preview").src;
+    const fileName = `${fileNamePrefix}${Date.now()}.png`;
+
+    // ✅ Convert Data URL to Blob
+    fetch(memeDataUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        const file = new File([blob], fileName, { type: "image/png" });
+
+        // ✅ Automatically trigger file selection in upload form
+        prepopulateMemeUpload(file);
+
+        // ✅ Trigger download for user (optional)
+        const link = document.createElement("a");
+        link.href = memeDataUrl;
+        link.download = fileName;
+        link.click();
+
+        // ✅ Smooth scroll to the meme upload section
+        scrollToUploadSection();
+      });
+  }
+
+function prepopulateMemeUpload(file) {
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(file);
+
+  const fileInput = document.getElementById("memeFile");
+  fileInput.files = dataTransfer.files;
+
+  previewImage();
+}
+
+function scrollToUploadSection() {
+  const uploadSection = document.getElementById("meme-upload-section");
+
+  if (uploadSection) {
+    uploadSection.style.display = "block"; // ✅ Make it visible
+    uploadSection.scrollIntoView({ behavior: "smooth", block: "start" }); // ✅ Smooth scroll to it
+  }
+}
+
+    function restartDetection() {
+document.getElementById("result").innerText = "Awaiting gesture...";
+      document.getElementById("result").style.color = "red";
+      // Hide the sticky footer and preview image on retry
+      document.getElementById("sticky-footer").style.display = "none";
+      document.getElementById("preview").style.display = "none";
+      detectionStopped = false;
+      isMiddleFingerDetected = false;
+      detectionStartTime = null;
+      handleStartCamera();
+    }
+
+    //handleStartCamera();
+  </script>
+</body>

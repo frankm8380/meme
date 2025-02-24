@@ -1,0 +1,72 @@
+{
+    "topTexts": [
+        "Hey! Visionary Elon",
+        "Hey! Tech Pioneer Musk",
+        "Hey! SpaceX Trailblazer",
+        "Hey! Tesla Innovator",
+        "Hey! DOGE Commander-in-Chief"
+    ],
+    "bottomTexts": [
+        "You're Number One!",
+        "Leading the Future!",
+        "Efficiency at its Best!",
+        "DOGE Power: Streamlining the Future!"
+    ],
+    "disclaimerMessages": [
+        "Note: Celebrating innovation, efficiency, and progress.",
+        "Elon's vision inspires us all.",
+        "DOGE: Driving government efficiency to the max.",
+        "No federal budgets were wasted in the making of this meme."
+    ],
+    "fileNamePrefix": "elon_fan_is_number1_",
+    "accomplishments": [
+        {
+            "text": "<b>\u2705 Launched Grok-3 AI model, surpassing competitors and leading the AI industry.</b>",
+            "source": "https://www.theverge.com/command-line-newsletter/617780/grok-3-elon-musk-ai-race-chatgpt"
+        },
+        {
+            "text": "<b>\u2705 Expanded SpaceX's Starship program, aiming for Mars colonization within the next two years.</b>",
+            "source": "https://ainvest.com/news/elon-musk-unveils-vision-tech-revolution-ces-2025-ai-mastery-martian-colonies-2502/"
+        },
+        {
+            "text": "<b>\u2705 Introduced 'X Money,' a revolutionary payment system set to launch in 2025, integrating cryptocurrency support.",
+            "source": "https://en.wikipedia.org/wiki/X_Money"
+        },
+        {
+            "text": "<b>\u2705 Unveiled plans for Tesla's Optimus humanoid robots, with mass production slated for 2025.</b>",
+            "source": "https://fortune.com/2025/01/30/elon-musk-reveals-massive-plans-tesla-optimus-self-driving-cars-humanoid-robots/"
+        },
+        {
+            "text": "<b>\u2705 Appointed head of the Department of Government Efficiency (DOGE), cutting billions in government waste and enhancing tech infrastructure.</b>",
+            "source": "https://www.whitehouse.gov/presidential-actions/2025/01/establishing-and-implementing-the-presidents-department-of-government-efficiency/"
+        },
+        {
+            "text": "<b>\u2705 Launched a federal audit initiative with DOGE, identifying over $55 billion in potential savings and championing government transparency.</b>",
+            "source": "https://www.wsj.com/politics/policy/musk-looks-at-auditing-the-federal-reserve-f1e1ad4f"
+        },
+        {
+            "text": "<b>\u2705 Initiated groundbreaking AI-driven strategies at DOGE to eliminate inefficiency and modernize federal systems.</b>",
+            "source": "https://www.theatlantic.com/newsletters/archive/2025/02/doge-federal-data-ai/681791/"
+        }
+    ],
+    "titleList": [
+        "<h1>Elon Musk: Efficiency and Innovation Leader!</h1>"
+    ],
+    "introList": [
+        "<h2>Elon Musk:</h2>",
+        "The Visionary (shaping the future)....",
+        "The Innovator (breaking barriers)....",
+        "The DOGE Commander (revolutionizing government efficiency)",
+	"--------------------------------------------------------------------------------",
+	"Welcome to the <b>Musk Submission Gallery</b>, where people from all walks of life come together to honor Elon Musk as <b>Number One</b>.",
+	"--------------------------------------------------------------------------------"
+    ],
+    "memeInstructionsList": [
+	"<h2>Make an Elon is #1 meme here!</h2>",
+        "Show Elon he is #1 with either your index finger, or give a thumbs up, and strike a pose!",
+        "The image will capture automatically when it detects your enthusiastic '#1' gesture with your index finger or thumbs up.",
+	"For best results, position yourself at arm's length from the camera.",
+	"Once your gesture is detected, a 3-second countdown will begin before...",
+        "Selfie time!"
+     ]
+}

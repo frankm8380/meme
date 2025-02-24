@@ -1,0 +1,63 @@
+{
+    "topTexts": [
+        "Hey! President Trump",
+        "Hey! Commander-in-Chief",
+        "Hey! Leader of the Free World",
+        "Hey! Mr. President",
+        "Hey! Donald J. Trump"
+    ],
+    "bottomTexts": [
+        "You're Number One!",
+        "Making America Great Again!",
+        "Leading with Strength!"
+    ],
+    "disclaimerMessages": [
+        "Note: Celebrating leadership and patriotism.",
+        "President Trump's vision inspires us all.",
+        "DOGE: Driving government efficiency forward.",
+        "(No bureaucrats were harmed in the making of this meme)"
+    ],
+    "fileNamePrefix": "team_trump_is_number1_",
+    "accomplishments": [
+        {
+            "text": "<b>\u2705 Established the Department of Government Efficiency (DOGE) to streamline federal operations and reduce waste.</b>",
+            "source": "https://www.whitehouse.gov/presidential-actions/2025/01/establishing-and-implementing-the-presidents-department-of-government-efficiency/"
+        },
+        {
+            "text": "<b>\u2705 Proposed a $5,000 stimulus for taxpayers, funded by savings from DOGE's initiatives.</b>",
+            "source": "https://www.thetelegraph.com/news/article/trump-musk-taxpayer-stimulus-doge-20179648.php"
+        },
+        {
+            "text": "<b>\u2705 Signed over 50 executive orders in the first month, focusing on restoring American values and competitiveness.</b>",
+            "source": "https://www.theguardian.com/us-news/2025/jan/29/donald-trump-executive-orders-signed-list"
+        },
+        {
+            "text": "<b>\u2705 Established the National Energy Dominance Council to boost U.S. oil and gas production.</b>",
+            "source": "https://apnews.com/article/f0e0d3b2dfb0f6a3e81cadd2dcd56696"
+        },
+        {
+            "text": "<b>\u2705 Implemented policies to reduce federal bureaucracy and enhance government efficiency.</b>",
+            "source": "https://www.whitehouse.gov/fact-sheets/2025/02/fact-sheet-president-donald-j-trump-reduces-the-federal-bureaucracy/"
+        }
+    ],
+    "titleList": [
+        "<h1>Donald J. Trump: America's #1 Leader!</h1>"
+    ],
+    "introList": [
+        "<h2>Donald J. Trump:</h2>",
+        "The President (leading with conviction)....",
+        "The Patriot (putting America first)....",
+        "The Reformer (championing efficiency)",
+	"--------------------------------------------------------------------------------",
+	"Welcome to the <b>Trump Submission Gallery</b>, where people from all walks of life come together to honor Donald Trump as <b>Number One</b>.",
+	"--------------------------------------------------------------------------------"
+    ],
+    "memeInstructionsList": [
+    	"<h2>Make a Trump is #1 meme here!</h2>",
+        "Show Trump he is #1 with either your index finger, or give a thumbs up, and strike a pose!",
+        "The image will capture automatically when it detects your enthusiastic '#1' gesture with your index finger or thumbs up.",
+        "For best results, position yourself at arm's length from the camera.",
+        "Once your gesture is detected, a 3-second countdown will begin before...",
+        "Selfie time!"
+    ]
+}
