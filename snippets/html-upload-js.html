@@ -1,0 +1,273 @@
+<script>
+// ✅ Get a fresh Nonce when the page loads
+fetch('/wp-admin/admin-ajax.php?action=get_meme_nonce')
+	.then(response => response.json())
+	.then(data => {
+		if (data.success) {
+			document.getElementById("memeUploadNonce").value = data.data.nonce;
+		}
+	})
+	.catch(error => console.error("Nonce Error:", error));
+
+// ✅ Check if IP has reached limit for a specific action and page
+async function checkIpLimit(actionType, pageTitle) {
+	const encodedTitle = encodeURIComponent(pageTitle);
+	const response = await fetch(`/wp-admin/admin-ajax.php?action=check_ip_limit&action_type=${actionType}&page_title=${encodedTitle}`);
+	const data = await response.json();
+	return data.allowed;
+}
+
+// ✅ Log successful action after upload or email
+async function logIpAction(actionType, pageTitle) {
+	const encodedTitle = encodeURIComponent(pageTitle);
+	await fetch(`/wp-admin/admin-ajax.php?action=log_ip_action&action_type=${actionType}&page_title=${encodedTitle}`);
+}
+	
+// ✅ Clear limits for testing
+async function clearLimits() {
+	const response = await fetch('/wp-admin/admin-ajax.php?action=clear_ip_limits');
+	const data = await response.json();
+
+	if (data.success) {
+		alert("✅ Limits cleared successfully for testing.");
+		document.getElementById("uploadStatus").innerText = "✅ Limits cleared. You can test again.";
+	} else {
+		alert("❌ Failed to clear limits. Please try again.");
+	}
+}
+
+// ✅ Handle Email Function with IP and Page Title Limiting
+async function emailMeme() {
+	const pageTitle = document.title;
+	const emailAllowed = await checkIpLimit('email', pageTitle);
+	if (!emailAllowed) {
+		document.getElementById("uploadStatus").innerText = `❌ Email limit reached for "${pageTitle}". You can only send one email every 12 hours on this page.`;
+		return;
+	}
+
+	const emailButton = document.getElementById("emailMemeButton");
+	emailButton.disabled = true;
+
+	const fileInput = document.getElementById("memeFile");
+	const file = fileInput.files[0];
+	const postContent = document.getElementById("postContent").value.trim();
+	const previewImage = document.getElementById("imagePreview").src;
+
+	if (!file) {
+		console.error("No file selected.");
+		document.getElementById("uploadStatus").innerText = "❌ Please select a file.";
+		emailButton.disabled = false;
+		return;
+	}
+	if (!postContent) {
+		console.error("No post content provided.");
+		document.getElementById("uploadStatus").innerText = "❌ Please enter some text for your post.";
+		emailButton.disabled = false;
+		return;
+	}
+
+	try {
+		let pasteInstructions = "The meme could not be copied automatically. Please attach the meme manually.\n\nHighlight and delete these instructions before attaching your meme.\n\n";
+
+		// Attempt to copy the image to clipboard
+		const response = await fetch(previewImage);
+		const blob = await response.blob();
+
+		if (navigator.clipboard && navigator.clipboard.write) {
+			await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+			pasteInstructions = "The meme has been copied to your clipboard. Paste it here using Ctrl+V (Cmd+V on Mac).\n\nHighlight and delete these instructions before pasting your meme.\n\n";
+			document.getElementById("uploadStatus").innerText = "✅ Meme copied to clipboard! Paste it into the email using Ctrl+V (Cmd+V on Mac).";
+		} else {
+			document.getElementById("uploadStatus").innerText = "❌ Clipboard image copy is not supported. Attach manually.";
+		}
+
+		const recipient = pageTitle.toLowerCase().includes("trump")
+			? "president@whitehouse.gov"
+			: "elon@example.com";
+		const encodedSubject = urlEncode("You're #1");
+		const encodedBody = legacyURLEncode(`${postContent}\n\n${pasteInstructions}`);
+
+		const mailtoLink = `mailto:${recipient}?subject=${encodedSubject}&body=${encodedBody}`;
+
+		// Open email client and log action
+		window.location.href = mailtoLink;
+		await logIpAction('email', pageTitle); // ✅ Log successful email action
+
+	} catch (error) {
+		console.error("Email or clipboard error:", error);
+		document.getElementById("uploadStatus").innerText = `❌ Email failed: ${error.message}`;
+		emailButton.disabled = false;
+	}
+}
+
+// ✅ Handle Upload Function with IP and Page Title Limiting
+async function uploadMeme() {
+	const pageTitle = document.title;
+	const uploadAllowed = await checkIpLimit('upload', pageTitle);
+	if (!uploadAllowed) {
+		document.getElementById("uploadStatus").innerText = `❌ Upload limit reached for "${pageTitle}". You can only upload one meme every 12 hours on this page.`;
+		return;
+	}
+
+	const uploadButton = document.getElementById("uploadMemeButton");
+	uploadButton.disabled = true;
+
+	const fileInput = document.getElementById("memeFile");
+	const file = fileInput.files[0];
+	const postContent = document.getElementById("postContent").value.trim();
+	const nonce = document.getElementById("memeUploadNonce").value;
+
+	if (!file) {
+		console.error("No file selected.");
+		document.getElementById("uploadStatus").innerText = "❌ Please select a file.";
+		uploadButton.disabled = false;
+		return;
+	}
+	if (!postContent) {
+		console.error("No post content provided.");
+		document.getElementById("uploadStatus").innerText = "❌ Please enter some text for your post.";
+		uploadButton.disabled = false;
+		return;
+	}
+
+	attemptDetection(file, 1)
+		.then(async (isGestureDetected) => {
+			if (!isGestureDetected) {
+				let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
+				document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
+				uploadButton.disabled = false;
+				return;
+			}
+
+			// Perform the upload
+			await performUpload(file, postContent, nonce, 1, pageTitle);
+		})
+		.catch((error) => {
+			console.error("Gesture detection failed:", error);
+			document.getElementById("uploadStatus").innerText = "❌ Gesture detection error.";
+			uploadButton.disabled = false;
+		});
+}
+
+// ✅ Perform Upload with Page Title
+async function performUpload(file, postContent, nonce, attempt, pageTitle) {
+	const uploadButton = document.getElementById("uploadMemeButton");
+	const formData = new FormData();
+	formData.append("file", file);
+	formData.append("post_content", postContent);
+	formData.append("action", "upload_meme");
+	formData.append("nonce", nonce);
+
+	try {
+		const response = await fetch("/wp-admin/admin-ajax.php", {
+			method: "POST",
+			body: formData
+		});
+		const data = await response.json();
+
+		if (data.success) {
+			document.getElementById("uploadStatus").innerHTML = `✅ Meme uploaded successfully! <br> <a href="${data.data.url}" target="_blank">View Meme</a>`;
+			await logIpAction('upload', pageTitle); // ✅ Log successful upload action
+		} else {
+			if (attempt < 2) {
+				await performUpload(file, postContent, nonce, attempt + 1, pageTitle);
+			} else {
+				document.getElementById("uploadStatus").innerText = `❌ Upload failed: ${data.data.message || "Unknown error"}`;
+				uploadButton.disabled = false;
+			}
+		}
+	} catch (error) {
+		if (attempt < 2) {
+			await performUpload(file, postContent, nonce, attempt + 1, pageTitle);
+		} else {
+			document.getElementById("uploadStatus").innerText = `❌ Upload error: ${error.message}`;
+			uploadButton.disabled = false;
+		}
+	}
+}
+
+// ✅ Gesture Detection Functions
+function detectGestureFromFile(fileURL) {
+	if (document.title.indexOf("NOT") > -1) {
+		return detectMiddleFingerFromFile(fileURL);
+	} else {
+		return detectThumbsUpFromFile(fileURL);
+	}
+}
+
+function attemptDetection(file, attempt) {
+	const fileBlob = new Blob([file], { type: file.type });
+	const fileURL = URL.createObjectURL(fileBlob);
+
+	return detectGestureFromFile(fileURL)
+		.then((isDetected) => {
+			URL.revokeObjectURL(fileURL);
+			if (isDetected) {
+				return true;
+			} else if (attempt < 2) {
+				return attemptDetection(file, attempt + 1);
+			} else {
+				return false;
+			}
+		})
+		.catch((error) => {
+			URL.revokeObjectURL(fileURL);
+			if (attempt < 2) {
+				return attemptDetection(file, attempt + 1);
+			} else {
+				throw error;
+			}
+		});
+}
+
+// ✅ Preview Selected Image
+function previewImage() {
+	const fileInput = document.getElementById("memeFile");
+	const previewContainer = document.getElementById("imagePreviewContainer");
+	const previewImage = document.getElementById("imagePreview");
+
+	if (!fileInput.files || fileInput.files.length === 0) {
+		previewContainer.style.display = "none";
+		return;
+	}
+
+	const file = fileInput.files[0];
+
+	if (!file.type.startsWith("image/")) {
+		document.getElementById("uploadStatus").innerText = "❌ Please select a valid image file.";
+		previewContainer.style.display = "none";
+		return;
+	}
+
+	const reader = new FileReader();
+	reader.onload = function (e) {
+		previewImage.src = e.target.result;
+		previewContainer.style.display = "block";
+	};
+
+	reader.readAsDataURL(file);
+}
+
+// ✅ URL Encoding Functions
+function urlEncode(text) {
+	return encodeURIComponent(text);
+}
+
+function legacyURLEncode(text) {
+	return escape(text);
+}
+
+// ✅ Re-enable Upload and Email Buttons on Input Change
+document.getElementById("memeFile").addEventListener("change", function () {
+	document.getElementById("uploadMemeButton").disabled = false;
+	document.getElementById("emailMemeButton").disabled = false;
+	document.getElementById("uploadStatus").innerText = "";
+	previewImage();
+});
+
+document.getElementById("postContent").addEventListener("input", function () {
+	document.getElementById("uploadMemeButton").disabled = false;
+	document.getElementById("emailMemeButton").disabled = false;
+	document.getElementById("uploadStatus").innerText = "";
+});
+</script>

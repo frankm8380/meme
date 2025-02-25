@@ -1,0 +1,47 @@
+<!-- ✅ Custom Meme Upload Form -->
+<form id="memeUploadForm">
+	<div class="form-group">
+		<label for="memeFile">📁 Select Your Meme:</label>
+		<input type="file" id="memeFile" accept="image/png, image/jpeg, image/gif" required onchange="previewImage()">
+	</div>
+
+	<div class="form-group">
+		<label for="postContent">📝 Why are you posting this meme?:</label>
+		<textarea id="postContent" rows="3" placeholder="Write something about your meme..." required></textarea>
+	</div>
+
+	<!-- ✅ Hidden Nonce Field -->
+	<input type="hidden" id="memeUploadNonce" value="">
+
+	<!-- Added an id for clarity -->
+	<button type="button" id="uploadMemeButton" class="save-btn" onclick="uploadMeme()">✅ Upload Meme</button>
+	<button type="button" id="emailMemeButton"  class="save-btn" onclick="emailMeme()">📧 Email Meme</button>
+	<button type="button" id="clearLimitButton" class="save-btn" onclick="clearLimits()">Clear Limits (Test)</button>
+
+	<!-- ✅ Upload Status -->
+	<p id="uploadStatus"></p>
+
+	<!-- ✅ Image Thumbnail Preview -->
+	<div id="imagePreviewContainer" style="display: none; margin-top: 10px;">
+		<img id="imagePreview" src="none" style="width: 150px; height: auto; border: 2px solid #ddd; padding: 5px; border-radius: 5px;">
+	</div>
+</form>
+
+<style>
+	/* ✅ Ensure fields stack in vertical order */
+	.form-group {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 10px;
+	}
+	textarea {
+		resize: vertical;
+	}
+	/* ✅ Style for disabled button */
+	.save-btn:disabled {
+		background-color: #ccc;
+		color: #666;
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+</style>
