@@ -1,52 +1,51 @@
-<body>
 <div id="container">
 <p id="result">Awaiting gesture...</p>
+	
+	<div class="image-controls-wrapper">
+		<button id="startCameraBtn" onclick="handleStartCamera()">🎥 Start Camera</button>
+		<video id="webcam" autoplay playsinline></video>
+		<canvas id="memeCanvas" style="display:none;"></canvas>
 
-  <div class="image-controls-wrapper">
-    <button id="startCameraBtn" onclick="handleStartCamera()">🎥 Start Camera</button>
-    <video id="webcam" autoplay playsinline></video>
-    <canvas id="memeCanvas" style="display:none;"></canvas>
+		<div class="preview-container">
+			<img id="preview" style="display:none;" alt="Captured Meme">
+			<div id="memeEditorBlurb" style="display: none; text-align: center; margin: 20px 0; padding: 10px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+				<h2>🎨 Meme Editor Guide</h2>
+				<p>Customize your captured meme with top and bottom text, change colors, and add a disclaimer if you like! When you're done, hit <strong>Save Meme</strong> to download it and prepare for upload.</p>
+			</div>
 
-    <div class="preview-container">
-      <img id="preview" style="display:none;" alt="Captured Meme">
-      <div id="memeEditorBlurb" style="display: none; text-align: center; margin: 20px 0; padding: 10px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
-        <h2>🎨 Meme Editor Guide</h2>
-        <p>Customize your captured meme with top and bottom text, change colors, and add a disclaimer if you like! When you're done, hit <strong>Save Meme</strong> to download it and prepare for upload.</p>
-      </div>
-
-      <div id="sticky-footer" class="sticky-footer" style="display: none;">
-        <hr class="divider">
-        <h2 class="editor-label">Meme Editor</h2>
-        <div id="button-container" class="button-container">
-          <div class="dropdown-wrapper">
-            <div class="controls-container">
-              <label for="topText">📝 Top Text:</label>
-              <select id="topText" onchange="updateMemeText()"></select>
-            </div>
-            <div class="controls-container">
-              <label for="bottomText">📝 Bottom Text:</label>
-              <select id="bottomText" onchange="updateMemeText()"></select>
-            </div>
-          </div>
-          <div class="controls-row-web">
-            <div class="controls-container">
-              <label for="textColor">🎨 Text Color:</label>
-              <div id="colorDisplay" class="color-display" onclick="document.getElementById('textColor').click()"></div>
-              <input type="color" id="textColor" value="#ffffff" style="display: none;" oninput="updateColor(); updateMemeText();">
-            </div>
-            <div class="controls-container">
-              <label for="includeDisclaimer">📜 Include Disclaimer:</label>
-              <input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
-            </div>
-          </div>
-          <div class="button-row">
-            <button class="save-btn" onclick="saveMeme()">✅ Save Meme</button>
-            <button class="retry-btn" onclick="restartDetection()">🔄 Retry</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+			<div id="sticky-footer" class="sticky-footer" style="display: none;">
+				<hr class="divider">
+				<h2 class="editor-label">Meme Editor</h2>
+				<div id="button-container" class="button-container">
+					<div class="dropdown-wrapper">
+						<div class="controls-container">
+							<label for="topText">📝 Top Text:</label>
+							<select id="topText" onchange="updateMemeText()"></select>
+						</div>
+						<div class="controls-container">
+							<label for="bottomText">📝 Bottom Text:</label>
+							<select id="bottomText" onchange="updateMemeText()"></select>
+						</div>
+					</div>
+					<div class="controls-row-web">
+						<div class="controls-container">
+							<label for="textColor">🎨 Text Color:</label>
+							<div id="colorDisplay" class="color-display" onclick="document.getElementById('textColor').click()"></div>
+							<input type="color" id="textColor" value="#ffffff" style="display: none;" oninput="updateColor(); updateMemeText();">
+						</div>
+						<div class="controls-container">
+							<label for="includeDisclaimer">📜 Include Disclaimer:</label>
+							<input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
+						</div>
+					</div>
+					<div class="button-row">
+						<button class="save-btn" onclick="saveMeme()">✅ Save Meme</button>
+						<button class="retry-btn" onclick="restartDetection()">🔄 Retry</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
@@ -471,4 +470,3 @@ document.getElementById("result").innerText = "Awaiting gesture...";
 
     //handleStartCamera();
   </script>
-</body>
