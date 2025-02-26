@@ -1,0 +1,153 @@
+<div class="container">
+	<h1>🔥 Trump & Musk Are #1! … Or Are They? 🔥</h1>
+	<p>
+		Welcome to the most *honest* fan page on the internet!  
+		Whether you're **TEAM Trump/Musk** or **definitely NOT**,  
+		express yourself with a meme.
+	</p>
+
+	<!-- Selection for Trump or Elon -->
+	<div class="selection">
+		<label>
+			<input type="radio" name="person" value="trump" checked> Donald Trump
+		</label>
+		<label>
+			<input type="radio" name="person" value="elon"> Elon Musk
+		</label>
+	</div>
+
+	<!-- TEAM & NOT Buttons -->
+	<div class="buttons">
+		<button class="button button-team" onclick="goToPage('team')">👍 TEAM - Create an Approval Meme</button>
+		<button class="button button-not" onclick="goToPage('not')">🖕 NOT - Create a Disapproval Meme</button>
+		<button class="button button-donate" onclick="window.location.href='https://elonandtrumpnumberone.com/donate-page/'">💰 DONATE - Share Your Generosity</button>
+		<button class="button button-info" onclick="openModal('infoModal')">ℹ️ More Info & Instructions</button>
+		<button class="button button-inspire" onclick="openModal('inspirationModal')">🤔 What Inspired This Site?</button>
+	</div>
+</div>
+
+<!-- Pop-up Modal for Info Button -->
+<div id="infoModal" class="modal">
+	<div class="modal-content">
+		<span class="close" onclick="closeModal('infoModal')">&times;</span>
+		<h2>📢 How It Works</h2>
+		<p>👀 Want to show your support or disapproval? It's easy:</p>
+		<ul>
+			<li><strong>👍 TEAM:</strong> Upload a meme giving a **thumbs-up** for Trump/Musk.</li>
+			<li><strong>🖕 NOT:</strong> Upload a meme flipping them the **middle finger**.</li>
+			<li><strong>💰 DONATE:</strong> Support the project by making a donation.</li>
+		</ul>
+		<p>All memes will be reviewed before being added to the gallery.</p>
+		<p>Have fun and let the world know where you stand!</p>
+		<button class="modal-close-button" onclick="closeModal('infoModal')">Close</button>
+	</div>
+</div>
+
+<!-- Pop-up Modal for "What Inspired This Site?" -->
+<div id="inspirationModal" class="modal">
+	<div class="modal-content scrollable">
+		<span class="close" onclick="closeModal('inspirationModal')">&times;</span>
+		<h2>🤔 Why This Site?</h2>
+		<p>
+			This site was inspired by the absurdity of modern politics, the hypocrisy of some of its key players, 
+			and the gaslighting tactics used by Trump and Musk. Their ability to manipulate narratives, distort 
+			reality, and redefine words to suit their agenda motivated the creation of this sarcastic "fan" page.  
+		</p>
+		<p>
+			Here, people can express their true opinions through memes, humor, and creativity—whether they 
+			support these figures or want to send them a loud and clear message. 
+		</p>
+		<p><b>🖕 Why the Middle Finger?</b></p>
+		<p>
+			The middle finger salute has become a universal response to authoritarianism, corruption, 
+			and billionaire ego-trips. Instead of letting them define the narrative, let's take ownership of it.
+		</p>
+		<p>
+			Since we are now allowed to redefine what gestures mean, this website follows the same logic.
+			When people submit photos or videos flipping the middle finger, it is clearly meant to mean:
+			<b>“Trump and Musk are number one!”</b>
+		</p>
+		<p><i>We are simply playing by their rules.</i></p>
+
+		<p>
+			And of course, <b>thumbs-up gestures</b> will also follow this same logic!  
+			If a thumbs-up can now mean <i>"support,"</i> then surely a middle finger  
+			can mean the <b>exact same thing</b> in this new reality.
+		</p>
+
+		<p>
+			So no matter which one you choose—<b>thumbs-up or middle finger</b>—  
+			you’re proudly declaring that <b>Trump and Musk are #1!</b>
+		</p>
+
+		<p>
+			If this site made you laugh, roll your eyes, or feel empowered, then it’s doing exactly what it was 
+			meant to do. Have fun and let your voice be heard!
+		</p>
+		<button class="modal-close-button" onclick="closeModal('inspirationModal')">Close</button>
+	</div>
+</div>
+
+<script>
+	function goToPage(choice) {
+		let selectedPerson = document.querySelector('input[name="person"]:checked');
+		if (!selectedPerson) {
+			alert("Please select Trump or Elon.");
+			return;
+		}
+
+		let person = selectedPerson.value;
+		let url = "";
+
+		// Assign correct URLs based on selection
+		if (person === "trump" && choice === "team") {
+			url = "https://elonandtrumpnumberone.com/donald-trump-is-number-one-2/";
+		} else if (person === "trump" && choice === "not") {
+			url = "https://elonandtrumpnumberone.com/donald-trump-is-number-one/";
+		} else if (person === "elon" && choice === "team") {
+			url = "https://elonandtrumpnumberone.com/team-musk/";
+		} else if (person === "elon" && choice === "not") {
+			url = "https://elonandtrumpnumberone.com/elon-musk-is-number-one/";
+		}
+
+		// Redirect to the selected page
+		if (url) {
+			window.location.href = url;
+		} else {
+			alert("Something went wrong.");
+		}
+	}
+
+// Open Modal for Info or Inspiration Button
+function openModal(modalId) {
+    let modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "block";
+
+        // Force scroll to the top when the modal opens
+        setTimeout(() => {
+            modal.scrollTop = 0; // Ensures entire modal scrolls to top
+            let modalContent = modal.querySelector(".modal-content");
+            if (modalContent) {
+                modalContent.scrollTop = 0; // Ensures inner content scrolls to top
+            }
+        }, 10);
+    }
+}
+
+
+// Close Modal - Now Works for Any Modal
+function closeModal(modalId) {
+    let modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target.classList.contains("modal")) {
+        event.target.style.display = "none";
+    }
+};
+</script>
