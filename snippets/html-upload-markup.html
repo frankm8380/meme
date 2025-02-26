@@ -1,47 +1,128 @@
-<!-- ✅ Custom Meme Upload Form -->
-<form id="memeUploadForm">
+<!-- ✅ Stylish Meme Upload Form Without Title -->
+<form id="memeUploadForm" class="meme-upload-card">
 	<div class="form-group">
 		<label for="memeFile">📁 Select Your Meme:</label>
 		<input type="file" id="memeFile" accept="image/png, image/jpeg, image/gif" required onchange="previewImage()">
 	</div>
 
 	<div class="form-group">
-		<label for="postContent">📝 Why are you posting this meme?:</label>
-		<textarea id="postContent" rows="3" placeholder="Write something about your meme..." required></textarea>
+		<label for="postContent">📝 Why are you posting this meme?</label>
+		<textarea id="postContent" rows="3" placeholder="Share your reason for posting..." required></textarea>
 	</div>
 
-	<!-- ✅ Hidden Nonce Field -->
 	<input type="hidden" id="memeUploadNonce" value="">
 
-	<!-- Added an id for clarity -->
-	<button type="button" id="uploadMemeButton" class="save-btn" onclick="uploadMeme()">✅ Upload Meme</button>
-	<button type="button" id="emailMemeButton"  class="save-btn" onclick="emailMeme()">📧 Email Meme</button>
-	<button type="button" id="clearLimitButton" class="save-btn" onclick="clearLimits()">Clear Limits (Test)</button>
+	<div class="button-group">
+		<button type="button" id="uploadMemeButton" class="action-btn" onclick="uploadMeme()">✅ Upload</button>
+		<button type="button" id="emailMemeButton" class="action-btn" onclick="emailMeme()">📧 Email</button>
+		<button type="button" id="twitterMemeButton" class="action-btn" onclick="twitterMeme()">🐦 Twitter</button>
+		<button type="button" id="clearLimitButton" class="action-btn clear-btn" onclick="clearLimits()">🗑️ Clear Limits (Test)</button>
+	</div>
 
-	<!-- ✅ Upload Status -->
-	<p id="uploadStatus"></p>
+	<p id="uploadStatus" class="status-text"></p>
 
-	<!-- ✅ Image Thumbnail Preview -->
-	<div id="imagePreviewContainer" style="display: none; margin-top: 10px;">
-		<img id="imagePreview" src="none" style="width: 150px; height: auto; border: 2px solid #ddd; padding: 5px; border-radius: 5px;">
+	<div id="imagePreviewContainer" class="image-preview" style="display: none;">
+		<img id="imagePreview" src="none" alt="Meme Preview">
 	</div>
 </form>
 
+<!-- ✅ Modern Styling Without Title -->
 <style>
-	/* ✅ Ensure fields stack in vertical order */
+	/* Main form container */
+	.meme-upload-card {
+		max-width: 500px;
+		margin: 20px auto;
+		padding: 20px;
+		background: #fff;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		border-radius: 15px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
+	/* Group styling */
 	.form-group {
 		display: flex;
 		flex-direction: column;
-		margin-bottom: 10px;
+		margin-bottom: 15px;
 	}
+
+	label {
+		font-weight: 600;
+		margin-bottom: 5px;
+		color: #555;
+	}
+
+	input[type="file"],
+	textarea {
+		border: 1px solid #ccc;
+		border-radius: 8px;
+		padding: 10px;
+		font-size: 1rem;
+	}
+
 	textarea {
 		resize: vertical;
+		min-height: 100px;
 	}
-	/* ✅ Style for disabled button */
-	.save-btn:disabled {
-		background-color: #ccc;
-		color: #666;
+
+	/* Button group styling */
+	.button-group {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 10px;
+	}
+
+	.action-btn {
+		flex: 1;
+		padding: 10px;
+		font-size: 1rem;
+		border: none;
+		border-radius: 10px;
+		background: #007bff;
+		color: white;
+		cursor: pointer;
+		transition: background 0.3s ease;
+	}
+
+	.action-btn:hover {
+		background: #0056b3;
+	}
+
+	.clear-btn {
+		background: #dc3545;
+	}
+
+	.clear-btn:hover {
+		background: #a71d2a;
+	}
+
+	/* Disabled button */
+	.action-btn:disabled {
+		background: #ccc;
 		cursor: not-allowed;
-		opacity: 0.6;
+	}
+
+	/* Upload status text */
+	.status-text {
+		margin-top: 15px;
+		text-align: center;
+		color: #555;
+		font-style: italic;
+	}
+
+	/* Image preview container */
+	.image-preview {
+		margin-top: 20px;
+		text-align: center;
+	}
+
+	.image-preview img {
+		width: 100%;
+		max-width: 300px;
+		border-radius: 10px;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		border: 2px solid #ddd;
+		padding: 5px;
 	}
 </style>

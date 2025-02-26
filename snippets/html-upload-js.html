@@ -17,12 +17,34 @@ async function checkIpLimit(actionType, pageTitle) {
 	return data.allowed;
 }
 
+// ✅ Disable buttons if IP limit reached on page load
+async function enforceIpLimitsOnLoad() {
+	const pageTitle = document.title;
+
+	// Check upload limit
+	const uploadAllowed = await checkIpLimit('upload', pageTitle);
+	if (!uploadAllowed) {
+		document.getElementById("uploadMemeButton").disabled = true;
+		document.getElementById("uploadStatus").innerText = `❌ Upload limit reached for "${pageTitle}". You can only upload one meme every 12 hours on this page.`;
+	}
+
+	// Check email limit
+	const emailAllowed = await checkIpLimit('email', pageTitle);
+	if (!emailAllowed) {
+		document.getElementById("emailMemeButton").disabled = true;
+		document.getElementById("uploadStatus").innerText += `\n❌ Email limit reached for "${pageTitle}". You can only send one email every 12 hours on this page.`;
+	}
+}
+
+// ✅ Run limit checks immediately after page load
+document.addEventListener("DOMContentLoaded", enforceIpLimitsOnLoad);
+
 // ✅ Log successful action after upload or email
 async function logIpAction(actionType, pageTitle) {
 	const encodedTitle = encodeURIComponent(pageTitle);
 	await fetch(`/wp-admin/admin-ajax.php?action=log_ip_action&action_type=${actionType}&page_title=${encodedTitle}`);
 }
-	
+
 // ✅ Clear limits for testing
 async function clearLimits() {
 	const response = await fetch('/wp-admin/admin-ajax.php?action=clear_ip_limits');
@@ -31,6 +53,7 @@ async function clearLimits() {
 	if (data.success) {
 		alert("✅ Limits cleared successfully for testing.");
 		document.getElementById("uploadStatus").innerText = "✅ Limits cleared. You can test again.";
+		enforceIpLimitsOnLoad(); // Re-check limits after clearing
 	} else {
 		alert("❌ Failed to clear limits. Please try again.");
 	}
@@ -220,6 +243,29 @@ function attemptDetection(file, attempt) {
 		});
 }
 
+// ✅ URL Encoding Functions
+function urlEncode(text) {
+	return encodeURIComponent(text);
+}
+
+function legacyURLEncode(text) {
+	return escape(text);
+}
+
+// ✅ Re-enable Upload and Email Buttons on Input Change
+document.getElementById("memeFile").addEventListener("change", function () {
+	document.getElementById("uploadMemeButton").disabled = false;
+	document.getElementById("emailMemeButton").disabled = false;
+	document.getElementById("uploadStatus").innerText = "";
+	previewImage();
+});
+
+document.getElementById("postContent").addEventListener("input", function () {
+	document.getElementById("uploadMemeButton").disabled = false;
+	document.getElementById("emailMemeButton").disabled = false;
+	document.getElementById("uploadStatus").innerText = "";
+});
+
 // ✅ Preview Selected Image
 function previewImage() {
 	const fileInput = document.getElementById("memeFile");
@@ -247,27 +293,4 @@ function previewImage() {
 
 	reader.readAsDataURL(file);
 }
-
-// ✅ URL Encoding Functions
-function urlEncode(text) {
-	return encodeURIComponent(text);
-}
-
-function legacyURLEncode(text) {
-	return escape(text);
-}
-
-// ✅ Re-enable Upload and Email Buttons on Input Change
-document.getElementById("memeFile").addEventListener("change", function () {
-	document.getElementById("uploadMemeButton").disabled = false;
-	document.getElementById("emailMemeButton").disabled = false;
-	document.getElementById("uploadStatus").innerText = "";
-	previewImage();
-});
-
-document.getElementById("postContent").addEventListener("input", function () {
-	document.getElementById("uploadMemeButton").disabled = false;
-	document.getElementById("emailMemeButton").disabled = false;
-	document.getElementById("uploadStatus").innerText = "";
-});
 </script>
