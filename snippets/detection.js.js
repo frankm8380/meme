@@ -1,4 +1,4 @@
-// Paste Code Below 
+
 /**************************************
  * detection.js – Combined Gesture Detection
  **************************************/
@@ -183,4 +183,38 @@ function resetDetectionMessage() {
   const { noGestureText } = getGestureInfo();
   document.getElementById("result").innerText = noGestureText;
   document.getElementById("result").style.color = "red";
+}
+
+// ✅ Gesture Detection Functions
+function detectGestureFromFile(fileURL) {
+	if (document.title.indexOf("NOT") > -1) {
+		return detectMiddleFingerFromFile(fileURL);
+	} else {
+		return detectThumbsUpFromFile(fileURL);
+	}
+}
+
+function attemptDetection(file, attempt) {
+	const fileBlob = new Blob([file], { type: file.type });
+	const fileURL = URL.createObjectURL(fileBlob);
+
+	return detectGestureFromFile(fileURL)
+		.then((isDetected) => {
+			URL.revokeObjectURL(fileURL);
+			if (isDetected) {
+				return true;
+			} else if (attempt < 2) {
+				return attemptDetection(file, attempt + 1);
+			} else {
+				return false;
+			}
+		})
+		.catch((error) => {
+			URL.revokeObjectURL(fileURL);
+			if (attempt < 2) {
+				return attemptDetection(file, attempt + 1);
+			} else {
+				throw error;
+			}
+		});
 }

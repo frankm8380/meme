@@ -1,39 +1,44 @@
 <script>
 // ✅ Get a fresh Nonce when the page loads
 fetch('/wp-admin/admin-ajax.php?action=get_meme_nonce')
-	.then(response => response.json())
-	.then(data => {
-		if (data.success) {
-			document.getElementById("memeUploadNonce").value = data.data.nonce;
-		}
-	})
-	.catch(error => console.error("Nonce Error:", error));
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("memeUploadNonce").value = data.data.nonce;
+        }
+    })
+    .catch(error => console.error("Nonce Error:", error));
 
 // ✅ Check if IP has reached limit for a specific action and page
 async function checkIpLimit(actionType, pageTitle) {
-	const encodedTitle = encodeURIComponent(pageTitle);
-	const response = await fetch(`/wp-admin/admin-ajax.php?action=check_ip_limit&action_type=${actionType}&page_title=${encodedTitle}`);
-	const data = await response.json();
-	return data.allowed;
+    const encodedTitle = encodeURIComponent(pageTitle);
+    const response = await fetch(`/wp-admin/admin-ajax.php?action=check_ip_limit&action_type=${actionType}&page_title=${encodedTitle}`);
+    const data = await response.json();
+    return data.allowed;
 }
 
 // ✅ Disable buttons if IP limit reached on page load
 async function enforceIpLimitsOnLoad() {
-	const pageTitle = document.title;
+    const pageTitle = document.title;
 
-	// Check upload limit
-	const uploadAllowed = await checkIpLimit('upload', pageTitle);
-	if (!uploadAllowed) {
-		document.getElementById("uploadMemeButton").disabled = true;
-		document.getElementById("uploadStatus").innerText = `❌ Upload limit reached for "${pageTitle}". You can only upload one meme every 12 hours on this page.`;
+    // Check upload limit
+    const uploadAllowed = await checkIpLimit('upload', pageTitle);
+    if (!uploadAllowed) {
+        document.getElementById("uploadMemeButton").disabled = true;
+        document.getElementById("uploadStatus").innerText = `❌ Upload limit reached for "${pageTitle}". You can only upload one meme every 12 hours.`;
+    } else {
+        document.getElementById("uploadMemeButton").disabled = false;
 	}
 
-	// Check email limit
-	const emailAllowed = await checkIpLimit('email', pageTitle);
-	if (!emailAllowed) {
-		document.getElementById("emailMemeButton").disabled = true;
-		document.getElementById("uploadStatus").innerText += `\n❌ Email limit reached for "${pageTitle}". You can only send one email every 12 hours on this page.`;
+    // Check email limit
+    const emailAllowed = await checkIpLimit('email', pageTitle);
+    if (!emailAllowed) {
+        document.getElementById("emailMemeButton").disabled = true;
+        document.getElementById("uploadStatus").innerText += `\n❌ Email limit reached for "${pageTitle}". You can only send one email every 12 hours.`;
+    } else {
+        document.getElementById("emailMemeButton").disabled = false;
 	}
+    document.getElementById("twitterMemeButton").disabled = false;
 }
 
 // ✅ Run limit checks immediately after page load
@@ -41,51 +46,60 @@ document.addEventListener("DOMContentLoaded", enforceIpLimitsOnLoad);
 
 // ✅ Log successful action after upload or email
 async function logIpAction(actionType, pageTitle) {
-	const encodedTitle = encodeURIComponent(pageTitle);
-	await fetch(`/wp-admin/admin-ajax.php?action=log_ip_action&action_type=${actionType}&page_title=${encodedTitle}`);
+    const encodedTitle = encodeURIComponent(pageTitle);
+    await fetch(`/wp-admin/admin-ajax.php?action=log_ip_action&action_type=${actionType}&page_title=${encodedTitle}`);
 }
 
 // ✅ Clear limits for testing
 async function clearLimits() {
-	const response = await fetch('/wp-admin/admin-ajax.php?action=clear_ip_limits');
-	const data = await response.json();
+    const response = await fetch('/wp-admin/admin-ajax.php?action=clear_ip_limits');
+    const data = await response.json();
 
-	if (data.success) {
-		alert("✅ Limits cleared successfully for testing.");
-		document.getElementById("uploadStatus").innerText = "✅ Limits cleared. You can test again.";
-		enforceIpLimitsOnLoad(); // Re-check limits after clearing
-	} else {
-		alert("❌ Failed to clear limits. Please try again.");
-	}
+    if (data.success) {
+        alert("✅ Limits cleared successfully.");
+        document.getElementById("uploadStatus").innerText = "✅ Limits cleared. You can test again.";
+        await enforceIpLimitsOnLoad();
+    } else {
+        alert("❌ Failed to clear limits.");
+    }
 }
 
-// ✅ Handle Email Function with IP and Page Title Limiting
+// ✅ Email Function
 async function emailMeme() {
+	disableAllButtons();
+
 	const pageTitle = document.title;
 	const emailAllowed = await checkIpLimit('email', pageTitle);
-	if (!emailAllowed) {
-		document.getElementById("uploadStatus").innerText = `❌ Email limit reached for "${pageTitle}". You can only send one email every 12 hours on this page.`;
-		return;
-	}
-
-	const emailButton = document.getElementById("emailMemeButton");
-	emailButton.disabled = true;
-
 	const fileInput = document.getElementById("memeFile");
 	const file = fileInput.files[0];
 	const postContent = document.getElementById("postContent").value.trim();
 	const previewImage = document.getElementById("imagePreview").src;
-
+	
 	if (!file) {
 		console.error("No file selected.");
 		document.getElementById("uploadStatus").innerText = "❌ Please select a file.";
-		emailButton.disabled = false;
+        await restoreButtons(); // 🔥 Restore all buttons
 		return;
 	}
 	if (!postContent) {
 		console.error("No post content provided.");
 		document.getElementById("uploadStatus").innerText = "❌ Please enter some text for your post.";
-		emailButton.disabled = false;
+        await restoreButtons(); // 🔥 Restore all buttons
+		return;
+	}
+	if (!await validateBeforeAction("email")) {
+        await restoreButtons(); // 🔥 Restore all buttons
+		return;
+	}
+    if (!visionCheckPassed) {
+        document.getElementById("uploadStatus").innerText = "❌ You must select a valid image first.";
+        await restoreButtons(); // 🔥 Restore all buttons
+        return;
+    }
+
+	if (!emailAllowed) {
+		document.getElementById("uploadStatus").innerText = `❌ Email limit reached for "${pageTitle}". You can only send one email every 12 hours on this page.`;
+        await restoreButtons(); // 🔥 Restore all buttons
 		return;
 	}
 
@@ -115,26 +129,72 @@ async function emailMeme() {
 		// Open email client and log action
 		window.location.href = mailtoLink;
 		await logIpAction('email', pageTitle); // ✅ Log successful email action
-
 	} catch (error) {
 		console.error("Email or clipboard error:", error);
 		document.getElementById("uploadStatus").innerText = `❌ Email failed: ${error.message}`;
-		emailButton.disabled = false;
 	}
+	await restoreButtons(); // 🔥 Restore all buttons
 }
 
-// ✅ Handle Upload Function with IP and Page Title Limiting
-async function uploadMeme() {
-	const pageTitle = document.title;
-	const uploadAllowed = await checkIpLimit('upload', pageTitle);
-	if (!uploadAllowed) {
-		document.getElementById("uploadStatus").innerText = `❌ Upload limit reached for "${pageTitle}". You can only upload one meme every 12 hours on this page.`;
+async function twitterMeme() {
+	disableAllButtons();
+
+    const fileInput = document.getElementById("memeFile");
+    const file = fileInput.files[0];
+    const postContent = encodeURIComponent(document.getElementById("postContent").value);
+    
+    if (!file) {
+        document.getElementById("uploadStatus").innerText = "❌ No file selected.";
+		await restoreButtons();
+        return;
+    }
+	if (!postContent) {
+		console.error("No post content provided.");
+		document.getElementById("uploadStatus").innerText = "❌ Please enter some text for your post.";
+        await restoreButtons(); // 🔥 Restore all buttons
 		return;
 	}
+	if (!await validateBeforeAction("twitter")) {
+		await restoreButtons();
+		return;
+	}
+    if (!visionCheckPassed) {
+        document.getElementById("uploadStatus").innerText = "❌ You must select a valid image first.";
+		await restoreButtons();
+        return;
+    }
 
-	const uploadButton = document.getElementById("uploadMemeButton");
-	uploadButton.disabled = true;
+    // Upload Image First
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("action", "upload_twitter_meme");
 
+    try {
+        const response = await fetch("/wp-admin/admin-ajax.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            const imageUrl = encodeURIComponent(data.data.url);
+            const tweetUrl = `https://twitter.com/intent/tweet?text=${postContent}&url=${imageUrl}`;
+            window.open(tweetUrl, '_blank');
+        } else {
+            document.getElementById("uploadStatus").innerText = "❌ Twitter upload failed.";
+        }
+    } catch (error) {
+        document.getElementById("uploadStatus").innerText = "❌ Twitter upload error.";
+    }
+	await restoreButtons();
+}
+
+// ✅ Upload Function
+async function uploadMeme() {
+	disableAllButtons();
+	
+	const pageTitle = document.title;
+	const uploadAllowed = await checkIpLimit('upload', pageTitle);
 	const fileInput = document.getElementById("memeFile");
 	const file = fileInput.files[0];
 	const postContent = document.getElementById("postContent").value.trim();
@@ -143,33 +203,46 @@ async function uploadMeme() {
 	if (!file) {
 		console.error("No file selected.");
 		document.getElementById("uploadStatus").innerText = "❌ Please select a file.";
-		uploadButton.disabled = false;
+        await restoreButtons(); // 🔥 Restore all buttons
 		return;
 	}
 	if (!postContent) {
 		console.error("No post content provided.");
 		document.getElementById("uploadStatus").innerText = "❌ Please enter some text for your post.";
-		uploadButton.disabled = false;
+        await restoreButtons(); // 🔥 Restore all buttons
 		return;
 	}
+	if (!await validateBeforeAction("upload")) {
+        await restoreButtons(); // 🔥 Restore all buttons
+		return;
+	}
+    if (!visionCheckPassed) {
+        document.getElementById("uploadStatus").innerText = "❌ You must select a valid image first.";
+        await restoreButtons(); // 🔥 Restore all buttons
+        return;
+    }
 
-	attemptDetection(file, 1)
-		.then(async (isGestureDetected) => {
-			if (!isGestureDetected) {
-				let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
-				document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
-				uploadButton.disabled = false;
-				return;
-			}
+    if (!uploadAllowed) {
+        document.getElementById("uploadStatus").innerText = 
+            `❌ Upload limit reached for "${pageTitle}". You can only upload one meme every 12 hours on this page.`;
+        await restoreButtons();
+        return;
+    }
 
-			// Perform the upload
-			await performUpload(file, postContent, nonce, 1, pageTitle);
-		})
-		.catch((error) => {
-			console.error("Gesture detection failed:", error);
-			document.getElementById("uploadStatus").innerText = "❌ Gesture detection error.";
-			uploadButton.disabled = false;
-		});
+    // Use await to ensure attemptDetection and performUpload complete before restoring buttons
+    const isGestureDetected = await attemptDetection(file, 1);
+    if (!isGestureDetected) {
+        let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
+        document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
+        await restoreButtons();
+        return;
+    }
+    
+    // Perform the upload and log the IP action
+    await performUpload(file, postContent, nonce, 1, pageTitle);
+    
+    // Now call restoreButtons; enforceIpLimitsOnLoad (called inside restoreButtons) will check the new IP limit state
+    await restoreButtons();
 }
 
 // ✅ Perform Upload with Page Title
@@ -196,7 +269,6 @@ async function performUpload(file, postContent, nonce, attempt, pageTitle) {
 				await performUpload(file, postContent, nonce, attempt + 1, pageTitle);
 			} else {
 				document.getElementById("uploadStatus").innerText = `❌ Upload failed: ${data.data.message || "Unknown error"}`;
-				uploadButton.disabled = false;
 			}
 		}
 	} catch (error) {
@@ -204,44 +276,10 @@ async function performUpload(file, postContent, nonce, attempt, pageTitle) {
 			await performUpload(file, postContent, nonce, attempt + 1, pageTitle);
 		} else {
 			document.getElementById("uploadStatus").innerText = `❌ Upload error: ${error.message}`;
-			uploadButton.disabled = false;
 		}
 	}
 }
 
-// ✅ Gesture Detection Functions
-function detectGestureFromFile(fileURL) {
-	if (document.title.indexOf("NOT") > -1) {
-		return detectMiddleFingerFromFile(fileURL);
-	} else {
-		return detectThumbsUpFromFile(fileURL);
-	}
-}
-
-function attemptDetection(file, attempt) {
-	const fileBlob = new Blob([file], { type: file.type });
-	const fileURL = URL.createObjectURL(fileBlob);
-
-	return detectGestureFromFile(fileURL)
-		.then((isDetected) => {
-			URL.revokeObjectURL(fileURL);
-			if (isDetected) {
-				return true;
-			} else if (attempt < 2) {
-				return attemptDetection(file, attempt + 1);
-			} else {
-				return false;
-			}
-		})
-		.catch((error) => {
-			URL.revokeObjectURL(fileURL);
-			if (attempt < 2) {
-				return attemptDetection(file, attempt + 1);
-			} else {
-				throw error;
-			}
-		});
-}
 
 // ✅ URL Encoding Functions
 function urlEncode(text) {
@@ -254,16 +292,12 @@ function legacyURLEncode(text) {
 
 // ✅ Re-enable Upload and Email Buttons on Input Change
 document.getElementById("memeFile").addEventListener("change", function () {
-	document.getElementById("uploadMemeButton").disabled = false;
-	document.getElementById("emailMemeButton").disabled = false;
-	document.getElementById("uploadStatus").innerText = "";
+    document.getElementById("uploadStatus").innerText = "";
 	previewImage();
 });
 
 document.getElementById("postContent").addEventListener("input", function () {
-	document.getElementById("uploadMemeButton").disabled = false;
-	document.getElementById("emailMemeButton").disabled = false;
-	document.getElementById("uploadStatus").innerText = "";
+    document.getElementById("uploadStatus").innerText = "";
 });
 
 // ✅ Preview Selected Image
@@ -293,4 +327,107 @@ function previewImage() {
 
 	reader.readAsDataURL(file);
 }
+
+// ✅ Google Vision Validation
+let lastValidatedFile = null;
+let lastValidatedText = "";
+let visionCheckPassed = false;
+
+async function validateBeforeAction(actionType) {
+    const fileInput = document.getElementById("memeFile");
+    const file = fileInput.files[0];
+    const currentText = document.getElementById("postContent").value.trim();
+
+    // Check if the file or text actually changed
+    const fileChanged = !lastValidatedFile || file?.name !== lastValidatedFile.name || file?.size !== lastValidatedFile.size;
+    const textChanged = currentText !== lastValidatedText;
+
+    if (fileChanged || textChanged) {
+        // Reset validation and recheck
+        visionCheckPassed = false;
+        document.getElementById("uploadStatus").innerText = "🔍 Revalidating changes...";
+
+        // If a file exists, validate it
+        if (file) {
+            visionCheckPassed = await validateFileWithVision(file);
+        }
+
+        if (!visionCheckPassed) {
+            document.getElementById("uploadStatus").innerText = "❌ Validation failed.";
+            return false; // Stop the action
+        }
+
+        // Update the last validated state
+        lastValidatedFile = file ? { name: file.name, size: file.size } : null;
+        lastValidatedText = currentText;
+    }
+
+    return true; // Proceed with the action
+}
+
+// // ✅ Validate File with Google Vision API
+async function validateFileWithVision(file) {
+    document.getElementById("uploadStatus").innerText = "🔍 Validating image...";
+    visionCheckPassed = false;
+
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+        reader.onload = async function (event) {
+            const base64Image = event.target.result.split(',')[1];
+
+            try {
+                const response = await fetch('/wp-admin/admin-ajax.php?action=analyze_image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image_data: base64Image })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById("uploadStatus").innerText = "✅ Image approved!";
+                    lastValidatedFile = { name: file.name, size: file.size };
+                    visionCheckPassed = true;
+                    resolve(true);
+                } else {
+                    document.getElementById("uploadStatus").innerText = `❌ Image rejected: ${result.message}`;
+                    visionCheckPassed = false;
+                    resolve(false);
+                }
+            } catch (error) {
+                document.getElementById("uploadStatus").innerText = "❌ Error validating image. Try again.";
+                visionCheckPassed = false;
+                resolve(false);
+            }
+        };
+
+        reader.onerror = (err) => {
+            document.getElementById("uploadStatus").innerText = "❌ Error reading file.";
+            visionCheckPassed = false;
+            reject(err);
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+// ✅ Check if the File is the Same as Last Validated One
+function isSameFile(file) {
+    return lastValidatedFile && file.name === lastValidatedFile.name && file.size === lastValidatedFile.size;
+}
+	
+// ✅ Disable all buttons during processing
+function disableAllButtons() {
+    document.getElementById("uploadMemeButton").disabled = true;
+    document.getElementById("emailMemeButton").disabled = true;
+    document.getElementById("twitterMemeButton").disabled = true;
+}
+
+// ✅ Restore button states after processing
+async function restoreButtons(successButton = null) {
+    await enforceIpLimitsOnLoad();
+    if (successButton) {
+        successButton.disabled = true;
+    }
+}
+
 </script>
