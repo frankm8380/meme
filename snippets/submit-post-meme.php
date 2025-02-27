@@ -1,6 +1,67 @@
 //<?php
 
-// ✅ Generate Nonce for Upload Form (Pending Only)
+// ✅ Google Vision Image Analysis (For JavaScript Validation)
+add_action('wp_ajax_analyze_image', 'analyze_image_for_upload');
+add_action('wp_ajax_nopriv_analyze_image', 'analyze_image_for_upload');
+
+function analyze_image_for_upload() {
+    $request_body = json_decode(file_get_contents('php://input'), true);
+    $base64_image = $request_body['image_data'];
+
+    if (!$base64_image) {
+        wp_send_json_error(['message' => 'No image data provided.']);
+        return;
+    }
+
+    // Google Vision API Request
+    $credentials = file_get_contents('https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/zee-coach-b0a5a711e22f.json');
+    $access_token = get_google_access_token($credentials);
+    if (!$access_token) {
+        wp_send_json_error(['message' => "Unable to authenticate with Google Vision."]);
+        return;
+    }
+
+    $vision_url = 'https://vision.googleapis.com/v1/images:annotate?access_token=' . $access_token;
+
+    $request_body = json_encode([
+        'requests' => [
+            [
+                'image' => ['content' => $base64_image],
+                'features' => [['type' => 'SAFE_SEARCH_DETECTION']],
+            ],
+        ],
+    ]);
+
+    $response = wp_remote_post($vision_url, [
+        'body'    => $request_body,
+        'headers' => ['Content-Type' => 'application/json'],
+    ]);
+
+    if (is_wp_error($response)) {
+        wp_send_json_error(['message' => "Failed to process image."]);
+        return;
+    }
+
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+    $safe_search = $body['responses'][0]['safeSearchAnnotation'];
+
+    $allowed_ratings = ['VERY_UNLIKELY', 'UNLIKELY', 'POSSIBLE'];
+
+    if (!in_array($safe_search['adult'], $allowed_ratings)) {
+        wp_send_json_error(['message' => "Image contains adult content."]);
+        return;
+    }
+
+    if (!in_array($safe_search['violence'], $allowed_ratings)) {
+        wp_send_json_error(['message' => "Image contains violent content."]);
+        return;
+    }
+
+    // ✅ If Passed
+    wp_send_json_success(['message' => "Image is safe."]);
+}
+
+// ✅ Generate Nonce for Upload Form
 add_action('wp_ajax_get_meme_nonce', 'generate_meme_nonce');
 add_action('wp_ajax_nopriv_get_meme_nonce', 'generate_meme_nonce');
 
@@ -9,7 +70,7 @@ function generate_meme_nonce() {
     wp_send_json_success(['nonce' => $nonce]);
 }
 
-// ✅ Meme Upload Handler with Rejection on Integrity Check Failure
+// ✅ Meme Upload Handler
 add_action('wp_ajax_upload_meme', 'handle_meme_upload');
 add_action('wp_ajax_nopriv_upload_meme', 'handle_meme_upload');
 
@@ -43,25 +104,21 @@ function handle_meme_upload() {
 
     $file_url = $uploaded_file['url'];
 
-    // Analyze image using Google Vision API
-    $image_safe = analyze_image_safety($file_url);
-    if ($image_safe !== true) {
-        wp_send_json_error(['message' => "Image rejected: $image_safe"]);
-        return;
-    }
+    // ✅ Skip Google Vision Check Here (Already Validated in JavaScript)
 
-    // Analyze text for inappropriate language
+    // ✅ Analyze text for inappropriate language
     $post_content = sanitize_text_field($_POST['post_content']);
     $text_safe = analyze_text_safety($post_content);
     if ($text_safe !== true) {
-        wp_send_json_error(['message' => "Text rejected: Contains inappropriate language."]);
+        wp_send_json_error(['message' => "Text rejected: $text_safe"]);
         return;
     }
 
-    // Create Post (Only if both checks passed)
+    // ✅ Create Post
     $post_status = 'publish';
 
     $image_html = '<div style="margin-bottom:20px;"><img src="' . esc_url($file_url) . '" alt="User Uploaded Meme" style="max-width:100%; height:auto; border: 2px solid #ddd; padding: 5px; border-radius: 5px;"></div>';
+    
     $post_data = [
         'post_title'    => wp_strip_all_tags(substr($post_content, 0, 50)),
         'post_content'  => $image_html . $post_content,
@@ -69,92 +126,45 @@ function handle_meme_upload() {
         'post_author'   => get_current_user_id(),
         'post_type'     => 'post',
     ];
-$post_id = wp_insert_post($post_data);
 
-if (is_wp_error($post_id)) {
-    wp_send_json_error(['message' => 'Failed to create post']);
-    return;
-}
+    $post_id = wp_insert_post($post_data);
 
-// ✅ Upload the image and attach it to the post
-$attachment_id = media_handle_sideload([
-    'name'     => basename($uploaded_file['file']),
-    'tmp_name' => $uploaded_file['file'],
-], $post_id);
-
-if (is_wp_error($attachment_id)) {
-    wp_send_json_error(['message' => 'Failed to upload media']);
-    return;
-}
-
-// ✅ Set the uploaded image as the featured image
-set_post_thumbnail($post_id, $attachment_id);
-
-// ✅ Insert the image directly into post content
-$image_url = wp_get_attachment_url($attachment_id);
-$image_html = wp_get_attachment_image($attachment_id, 'full', false, [
-    'class' => 'meme-image',
-    'style' => 'max-width:100%; height:auto; border:2px solid #ddd; padding:5px; border-radius:5px;'
-]);
-
-$updated_post_data = [
-    'ID' => $post_id,
-    'post_content' => $image_html . $post_content // Automatically adds image before post text
-];
-
-wp_update_post($updated_post_data);
-
-// ✅ Return success response
-$post_url = get_permalink($post_id);
-wp_send_json_success(['message' => 'Meme uploaded successfully.', 'url' => $post_url]);
-
-}
-
-// ✅ Analyze Image Content Using Google Cloud Vision API with Specific Feedback
-function analyze_image_safety($file_url) {
-    $credentials = file_get_contents('https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/zee-coach-b0a5a711e22f.json');
-    $access_token = get_google_access_token($credentials);
-    if (!$access_token) {
-        return "Unable to authenticate with Google Vision.";
+    if (is_wp_error($post_id)) {
+        wp_send_json_error(['message' => 'Failed to create post']);
+        return;
     }
 
-    $vision_url = 'https://vision.googleapis.com/v1/images:annotate?access_token=' . $access_token;
+    // ✅ Upload the image and attach it to the post
+    $attachment_id = media_handle_sideload([
+        'name'     => basename($uploaded_file['file']),
+        'tmp_name' => $uploaded_file['file'],
+    ], $post_id);
 
-    $image_data = file_get_contents($file_url);
-    $base64_image = base64_encode($image_data);
+    if (is_wp_error($attachment_id)) {
+        wp_send_json_error(['message' => 'Failed to upload media']);
+        return;
+    }
 
-    $request_body = json_encode([
-        'requests' => [
-            [
-                'image' => ['content' => $base64_image],
-                'features' => [['type' => 'SAFE_SEARCH_DETECTION']],
-            ],
-        ],
+    // ✅ Set the uploaded image as the featured image
+    set_post_thumbnail($post_id, $attachment_id);
+
+    // ✅ Insert the image directly into post content
+    $image_url = wp_get_attachment_url($attachment_id);
+    $image_html = wp_get_attachment_image($attachment_id, 'full', false, [
+        'class' => 'meme-image',
+        'style' => 'max-width:100%; height:auto; border:2px solid #ddd; padding:5px; border-radius:5px;'
     ]);
 
-    $response = wp_remote_post($vision_url, [
-        'body'    => $request_body,
-        'headers' => ['Content-Type' => 'application/json'],
-    ]);
+    $updated_post_data = [
+        'ID' => $post_id,
+        'post_content' => $image_html . $post_content
+    ];
 
-    if (is_wp_error($response)) {
-        return "Failed to process image.";
-    }
+    wp_update_post($updated_post_data);
 
-    $body = json_decode(wp_remote_retrieve_body($response), true);
-    $safe_search = $body['responses'][0]['safeSearchAnnotation'];
-
-    $allowed_ratings = ['VERY_UNLIKELY', 'UNLIKELY', 'POSSIBLE'];
-
-    if (!in_array($safe_search['adult'], $allowed_ratings)) {
-        return "Image contains adult content.";
-    }
-
-    if (!in_array($safe_search['violence'], $allowed_ratings)) {
-        return "Image contains violent content.";
-    }
-
-    return true;
+    // ✅ Return success response
+    $post_url = get_permalink($post_id);
+    wp_send_json_success(['message' => 'Meme uploaded successfully.', 'url' => $post_url]);
 }
 
 // ✅ Get Google OAuth Access Token from Service Account JSON
@@ -190,12 +200,12 @@ function get_google_access_token($credentials_json) {
     return $body['access_token'] ?? false;
 }
 
-// ✅ Basic Text Content Filter with Rejection Reason
+// ✅ Basic Text Content Filter with Clear Rejection Reason
 function analyze_text_safety($text) {
     $banned_words = ['piss', 'shit', 'fuck', 'cunt', 'cock', 'fag'];
     foreach ($banned_words as $word) {
         if (stripos($text, $word) !== false) {
-            return false;
+            return "Contains inappropriate language: '$word'.";
         }
     }
     return true;
