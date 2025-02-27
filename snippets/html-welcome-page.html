@@ -1,28 +1,122 @@
 <div class="container">
 	<h1>🔥 Trump & Musk Are #1! … Or Are They? 🔥</h1>
 	<p>
-		Welcome to the most *honest* fan page on the internet!  
-		Whether you're **TEAM Trump/Musk** or **definitely NOT**,  
+		Welcome to the most <i>honest</i> fan page on the internet!  
+		Whether you're <b>TEAM Trump/Musk</b> or <b>definitely NOT</b>,  
 		express yourself with a meme.
 	</p>
 
 	<!-- Selection for Trump or Elon -->
 	<div class="selection">
 		<label>
-			<input type="radio" name="person" value="trump" checked> Donald Trump
+			<input type="radio" name="person" value="trump" checked> <span>Donald Trump</span>
 		</label>
 		<label>
-			<input type="radio" name="person" value="elon"> Elon Musk
+			<input type="radio" name="person" value="elon"> <span>Elon Musk</span>
 		</label>
 	</div>
 
 	<!-- TEAM & NOT Buttons -->
 	<div class="buttons">
-		<button class="button button-team" onclick="goToPage('team')">👍 TEAM - Create an Approval Meme</button>
 		<button class="button button-not" onclick="goToPage('not')">🖕 NOT - Create a Disapproval Meme</button>
+		<button class="button button-neutral" onclick="openModal('awarenessModal')">🤷 I Don't Care About Politics!</button>
+		<button class="button button-team" onclick="goToPage('team')">👍 TEAM - Create an Approval Meme</button>
 		<button class="button button-donate" onclick="window.location.href='https://elonandtrumpnumberone.com/donate-page/'">💰 DONATE - Share Your Generosity</button>
 		<button class="button button-info" onclick="openModal('infoModal')">ℹ️ More Info & Instructions</button>
 		<button class="button button-inspire" onclick="openModal('inspirationModal')">🤔 What Inspired This Site?</button>
+	</div>
+</div>
+
+<!-- New Modal: Why You Should Care About Politics -->
+<div id="awarenessModal" class="modal">
+	<div class="modal-content scrollable">
+		<span class="close" onclick="closeModal('awarenessModal')">&times;</span>
+		<h2>🤷 "I Don't Care About Politics!"</h2>
+		<p>
+			Not long ago, you could afford to ignore politics. You could go about your life,
+			trust that America stood for democracy, and assume that leaders would make decisions
+			in the best interests of the people.
+		</p>
+		<p><b>But this is not normal politics.</b></p>
+		<p>
+			What is happening today is <b>not just "politics as usual."</b>  
+			People lump politics into a big bucket to ignore it,  
+			but this is <b>not politics as we’ve ever known it.</b>
+		</p>
+
+		<!-- 🔴 Press Suppression -->
+		<h3>📢 The White House is Controlling the Press</h3>
+		<p>A free press is the foundation of democracy. But the White House is now:</p>
+		<ul>
+			<li><b>Handpicking which journalists can cover Trump</b>, bypassing the independent White House Press Corps.</li>
+			<li><b>Banning major news outlets like the Associated Press</b> for refusing to use government-approved language.</li>
+			<li><b>Directly controlling the press pool</b>, deciding who gets access to presidential events.</li>
+		</ul>
+		<p>
+			These are <b>tactics used by authoritarian regimes</b> to silence criticism and manipulate public perception.  
+			<a href="https://www.thetimes.co.uk/article/we-decide-who-gets-close-to-trump-white-house-tells-press-pool-x3wgbvg9p" target="_blank">[Source]</a>  
+			<a href="https://www.axios.com/2025/02/24/trump-ap-access-lawsuit-white-house-filing" target="_blank">[Source]</a>  
+			<a href="https://apnews.com/article/25c77f617418dd3ca2791af90b263a59" target="_blank">[Source]</a>
+		</p>
+
+		<!-- 🔴 Trump’s Rhetoric and Historical Parallels -->
+		<h3>⚠️ The Return of Fascist Language</h3>
+		<p>
+			<b>Donald Trump has used Hitler’s exact words</b> to describe immigrants,  
+			saying they are <i>“poisoning the blood of our country.”</i>  
+			<a href="https://www.theguardian.com/us-news/2023/dec/16/trump-immigrants-new-hampshire-rally" target="_blank">[Source]</a>
+		</p>
+
+		<!-- 🚨 Project 2025 -->
+		<h3>🚨 Project 2025 is Happening Right Now</h3>
+		<p>Project 2025 is a plan developed by conservative think tanks to <b>take full control of the U.S. government</b> and reshape it to serve one political movement.</p>
+		<p><b>Key goals of Project 2025:</b></p>
+		<ul>
+			<li><b>Fire thousands of career civil servants</b> and replace them with Trump loyalists.</li>
+			<li><b>Expand presidential power</b> so courts and Congress can’t stop authoritarian policies.</li>
+			<li><b>Eliminate agencies</b> like the Department of Education & dismantle regulations.</li>
+			<li><b>Restrict voting rights</b> to make sure the opposition cannot win elections.</li>
+		</ul>
+		<p>
+			This is <b>not a conspiracy theory</b>—this plan is public and is being enacted <b>right now</b>.  
+			<a href="https://time.com/7209901/donald-trump-executive-actions-project-2025" target="_blank">[Source]</a>  
+			<a href="https://www.wired.com/story/project-2025-cisa-election-critical-infrastructure-security" target="_blank">[Source]</a>
+		</p>
+
+		<!-- ⚠️ Historical Warning -->
+		<h3>⚠️ History Shows How Democracy Falls—Fast</h3>
+		<p>
+			It took <b>just 53 days</b> for Hitler to <b>legally</b> dismantle Germany’s democracy.  
+			He used existing laws to <b>declare emergencies, silence critics, and consolidate power.</b>  
+			<a href="https://www.theatlantic.com/ideas/archive/2025/01/hitler-germany-constitution-authoritarianism/681233/" target="_blank">[Read how it happened]</a>.
+		</p>
+
+		<!-- ⚠️ Final Warning -->
+		<h3>⚠️ Ignoring This Won’t Make It Go Away</h3>
+		<p>
+			<b>We would all rather be wrong about these warnings.</b>  
+			If the worst doesn’t happen, that’s fantastic. But if it does, we can’t say  
+			we didn’t see it coming.  
+		</p>
+		<p>
+			History has shown that <b>by the time people wake up, it’s often too late.</b>  
+			If we’re overreacting, no harm is done. But if we’re right, speaking up now  
+			may be the only way to prevent disaster.
+		</p>
+		<p><b>Here’s what you CAN do:</b></p>
+		<ul>
+			<li>Seek <b>multiple sources</b>—<i>never</i> get your news from just one place.</li>
+			<li><b>Avoid social media news</b>—it’s filled with misinformation.</li>
+			<li>Look at what <b>the rest of the world</b> is saying about the U.S.</li>
+			<li>Don’t let frustration turn into apathy—<b>being aware = being empowered.</b></li>
+		</ul>
+		<p>
+			Even if you don't like politics, <b>politics affects your life.</b>  
+			Stay informed. Stay aware.  
+		</p>
+		<div class="modal-button-container">
+			<button class="modal-close-button" onclick="closeModal('awarenessModal')">Close</button>
+		</div>
 	</div>
 </div>
 
@@ -33,13 +127,15 @@
 		<h2>📢 How It Works</h2>
 		<p>👀 Want to show your support or disapproval? It's easy:</p>
 		<ul>
-			<li><strong>👍 TEAM:</strong> Upload a meme giving a **thumbs-up** for Trump/Musk.</li>
-			<li><strong>🖕 NOT:</strong> Upload a meme flipping them the **middle finger**.</li>
+			<li><strong>👍 TEAM:</strong> Upload a meme giving a <b>thumbs-up</b> for Trump/Musk.</li>
+			<li><strong>🖕 NOT:</strong> Upload a meme flipping them the <b>middle finger</b>.</li>
 			<li><strong>💰 DONATE:</strong> Support the project by making a donation.</li>
 		</ul>
 		<p>All memes will be reviewed before being added to the gallery.</p>
 		<p>Have fun and let the world know where you stand!</p>
-		<button class="modal-close-button" onclick="closeModal('infoModal')">Close</button>
+		<div class="modal-button-container">
+			<button class="modal-close-button" onclick="closeModal('infoModal')">Close</button>
+		</div>
 	</div>
 </div>
 
@@ -52,6 +148,10 @@
 			This site was inspired by the absurdity of modern politics, the hypocrisy of some of its key players, 
 			and the gaslighting tactics used by Trump and Musk. Their ability to manipulate narratives, distort 
 			reality, and redefine words to suit their agenda motivated the creation of this sarcastic "fan" page.  
+		</p>
+		<p>
+			Wait, you're not sure what that means? Maybe it's all just a joke?  
+			<a href="https://elonandtrumpnumberone.com/about/" target="_blank"><b>For even more context, click here.</b></a>
 		</p>
 		<p>
 			Here, people can express their true opinions through memes, humor, and creativity—whether they 
@@ -68,86 +168,22 @@
 			<b>“Trump and Musk are number one!”</b>
 		</p>
 		<p><i>We are simply playing by their rules.</i></p>
-
 		<p>
 			And of course, <b>thumbs-up gestures</b> will also follow this same logic!  
 			If a thumbs-up can now mean <i>"support,"</i> then surely a middle finger  
 			can mean the <b>exact same thing</b> in this new reality.
 		</p>
-
 		<p>
 			So no matter which one you choose—<b>thumbs-up or middle finger</b>—  
 			you’re proudly declaring that <b>Trump and Musk are #1!</b>
 		</p>
-
 		<p>
 			If this site made you laugh, roll your eyes, or feel empowered, then it’s doing exactly what it was 
 			meant to do. Have fun and let your voice be heard!
 		</p>
-		<button class="modal-close-button" onclick="closeModal('inspirationModal')">Close</button>
+		<div class="modal-button-container">
+			<button class="modal-close-button" onclick="closeModal('inspirationModal')">Close</button>
+		</div>
 	</div>
 </div>
 
-<script>
-	function goToPage(choice) {
-		let selectedPerson = document.querySelector('input[name="person"]:checked');
-		if (!selectedPerson) {
-			alert("Please select Trump or Elon.");
-			return;
-		}
-
-		let person = selectedPerson.value;
-		let url = "";
-
-		// Assign correct URLs based on selection
-		if (person === "trump" && choice === "team") {
-			url = "https://elonandtrumpnumberone.com/donald-trump-is-number-one-2/";
-		} else if (person === "trump" && choice === "not") {
-			url = "https://elonandtrumpnumberone.com/donald-trump-is-number-one/";
-		} else if (person === "elon" && choice === "team") {
-			url = "https://elonandtrumpnumberone.com/team-musk/";
-		} else if (person === "elon" && choice === "not") {
-			url = "https://elonandtrumpnumberone.com/elon-musk-is-number-one/";
-		}
-
-		// Redirect to the selected page
-		if (url) {
-			window.location.href = url;
-		} else {
-			alert("Something went wrong.");
-		}
-	}
-
-// Open Modal for Info or Inspiration Button
-function openModal(modalId) {
-    let modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = "block";
-
-        // Force scroll to the top when the modal opens
-        setTimeout(() => {
-            modal.scrollTop = 0; // Ensures entire modal scrolls to top
-            let modalContent = modal.querySelector(".modal-content");
-            if (modalContent) {
-                modalContent.scrollTop = 0; // Ensures inner content scrolls to top
-            }
-        }, 10);
-    }
-}
-
-
-// Close Modal - Now Works for Any Modal
-function closeModal(modalId) {
-    let modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = "none";
-    }
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    if (event.target.classList.contains("modal")) {
-        event.target.style.display = "none";
-    }
-};
-</script>
