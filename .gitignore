@@ -55,3 +55,6 @@ wp-content/debug.log
 
 # Ignore temporary Git merge files
 *.orig
+
+# Ignore image files
+images/
