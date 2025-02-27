@@ -30,14 +30,18 @@ jQuery(document).ready(function($) {
         console.log("[WPCode Mapping]: Mapping data saved to localStorage.");
     }
 
-    // Populate the dropdown with the current mapping data
+    // Populate the dropdown with the current mapping data (sorted)
     function populateMappingDropdown() {
         let $dropdown = $('#mapping-dropdown');
         $dropdown.empty();
         $dropdown.append('<option value="">Select a Code Snippet to load</option>');
-        $.each(mappingData, function(filename, snippetId) {
-            $dropdown.append('<option value="'+ snippetId +'">'+ filename +'</option>');
-        });
+
+        // Convert object to array, sort by filename, and populate dropdown
+        Object.entries(mappingData)
+            .sort(([fileA], [fileB]) => fileA.localeCompare(fileB)) // Sort alphabetically by filename
+            .forEach(([filename, snippetId]) => {
+                $dropdown.append('<option value="' + snippetId + '">' + filename + '</option>');
+            });
     }
 
     // Function to import mapping file
@@ -65,20 +69,24 @@ jQuery(document).ready(function($) {
         }
     }
 
-    // Function to display mappings
-    function showMappings() {
-        if (Object.keys(mappingData).length === 0) {
-            wpcodeShowMessage('No mapping data loaded.');
-            return;
-        }
-
-        let mappingInfo = 'Current Snippet Mappings:\n\n';
-        for (let [file, id] of Object.entries(mappingData)) {
-            mappingInfo += `${file} -> Snippet ID: ${id}\n`;
-        }
-
-        alert(mappingInfo);
+// Function to display mappings
+function showMappings() {
+    if (Object.keys(mappingData).length === 0) {
+        wpcodeShowMessage('No mapping data loaded.');
+        return;
     }
+
+    let sortedMappings = Object.entries(mappingData)
+        .sort(([fileA], [fileB]) => fileA.localeCompare(fileB)); // Sort alphabetically by file name
+
+    let mappingInfo = 'Current Snippet Mappings:\n\n';
+    for (let [file, id] of sortedMappings) {
+        mappingInfo += `${file} -> Snippet ID: ${id}\n`;
+    }
+
+    alert(mappingInfo);
+}
+
 
     // Function to select folder using File Picker
     async function selectSearchFolder() {
