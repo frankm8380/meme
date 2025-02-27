@@ -47,6 +47,13 @@ async function emailMeme() {
         await restoreButtons(); // 🔥 Restore all buttons
 		return;
 	}
+   const isGestureDetected = await attemptDetection(file, 1);
+    if (!isGestureDetected) {
+        let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
+        document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
+        await restoreButtons();
+        return;
+    }
 	if (!await validateBeforeAction("email")) {
         await restoreButtons(); // 🔥 Restore all buttons
 		return;
@@ -97,6 +104,7 @@ async function emailMeme() {
 }
 
 async function twitterMeme() {
+	
 	disableAllButtons();
 
     const fileInput = document.getElementById("memeFile");
@@ -172,6 +180,13 @@ async function uploadMeme() {
         await restoreButtons(); // 🔥 Restore all buttons
 		return;
 	}
+   const isGestureDetected = await attemptDetection(file, 1);
+    if (!isGestureDetected) {
+        let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
+        document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
+        await restoreButtons();
+        return;
+    }
 	if (!await validateBeforeAction("upload")) {
         await restoreButtons(); // 🔥 Restore all buttons
 		return;
@@ -189,14 +204,6 @@ async function uploadMeme() {
         return;
     }
 
-    // Use await to ensure attemptDetection and performUpload complete before restoring buttons
-    const isGestureDetected = await attemptDetection(file, 1);
-    if (!isGestureDetected) {
-        let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
-        document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
-        await restoreButtons();
-        return;
-    }
     
     // Perform the upload and log the IP action
     await performUpload(file, postContent, nonce, 1, pageTitle);
