@@ -25,26 +25,42 @@ document.getElementById("postContent").addEventListener("input", function () {
 
 // ✅ Test Function
 async function testMeme() {
-	console.log("testMeme invoked");
-	const pageTitle = document.title;
+    console.log("DEBUG: testMeme invoked");
+    
+    const pageTitle = document.title;
+    console.log("DEBUG: Page title is:", pageTitle);
+    
     const fileInput = document.getElementById("memeFile");
-	const file = fileInput.files[0];
-
-	if (!file) {
-		console.error("No file selected.");
-		document.getElementById("uploadStatus").innerText = "❌ Please select a file.";
-        await restoreButtons(); // 🔥 Restore all buttons
-		return;
-	}
-
-	const isGestureDetected = await attemptDetection(file, 1);
-    if (!isGestureDetected) {
-        let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
-        document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
-        await restoreButtons();
+    if (!fileInput) {
+        console.error("ERROR: File input element with id 'memeFile' not found.");
         return;
     }
-	document.getElementById("uploadStatus").innerHTML = `✅ Meme tested successfully!`;
+    
+    const file = fileInput.files[0];
+    const fileBlob = new Blob([file], { type: file.type });
+    const fileURL = URL.createObjectURL(fileBlob);
+    if (!file) {
+        console.error("ERROR: No file selected.");
+        document.getElementById("uploadStatus").innerText = "❌ Please select a file.";
+        await restoreButtons(); // 🔥 Restore all buttons
+        return;
+    }
+    console.log("DEBUG: File selected:", file.name);
+    
+    console.log("DEBUG: Starting gesture detection for the file...");
+    const isGestureDetected = await detectGestureFromFile(fileURL);
+    console.log("DEBUG: Final detection result object:", isGestureDetected);
+
+    // Check the detected property instead of the whole object
+    if (!isGestureDetected || !isGestureDetected.detected) {
+      let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
+      document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
+      await restoreButtons();
+      return;
+    }
+    
+    console.log("DEBUG: Gesture detected successfully. Meme upload accepted.");
+    document.getElementById("uploadStatus").innerHTML = `✅ Meme tested successfully!`;
 }
 
 // ✅ Email Function
@@ -57,6 +73,8 @@ async function emailMeme() {
 	const file = fileInput.files[0];
 	const postContent = document.getElementById("postContent").value.trim();
 	const previewImage = document.getElementById("imagePreview").src;
+    const fileBlob = new Blob([file], { type: file.type });
+    const fileURL = URL.createObjectURL(fileBlob);
 	
 	if (!file) {
 		console.error("No file selected.");
@@ -70,7 +88,7 @@ async function emailMeme() {
         await restoreButtons(); // 🔥 Restore all buttons
 		return;
 	}
-   const isGestureDetected = await attemptDetection(file, 1);
+   const isGestureDetected = await detectGestureFromFile(fileURL);
     if (!isGestureDetected) {
         let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
         document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
@@ -133,6 +151,8 @@ async function twitterMeme() {
     const fileInput = document.getElementById("memeFile");
     const file = fileInput.files[0];
     const postContent = encodeURIComponent(document.getElementById("postContent").value);
+    const fileBlob = new Blob([file], { type: file.type });
+    const fileURL = URL.createObjectURL(fileBlob);
     
     if (!file) {
         document.getElementById("uploadStatus").innerText = "❌ No file selected.";
@@ -190,6 +210,8 @@ async function uploadMeme() {
 	const file = fileInput.files[0];
 	const postContent = document.getElementById("postContent").value.trim();
 	const nonce = document.getElementById("memeUploadNonce").value;
+    const fileBlob = new Blob([file], { type: file.type });
+    const fileURL = URL.createObjectURL(fileBlob);
 
 	if (!file) {
 		console.error("No file selected.");
@@ -203,7 +225,7 @@ async function uploadMeme() {
         await restoreButtons(); // 🔥 Restore all buttons
 		return;
 	}
-   const isGestureDetected = await attemptDetection(file, 1);
+   const isGestureDetected = await detectGestureFromFile(fileURL);
     if (!isGestureDetected) {
         let gestureType = pageTitle.indexOf("NOT") > -1 ? "middle finger" : "thumbs up";
         document.getElementById("uploadStatus").innerText = `❌ Upload rejected: No ${gestureType} detected.`;
