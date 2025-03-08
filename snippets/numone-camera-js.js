@@ -90,15 +90,53 @@ function stopCamera() {
     videoStream = null;
     console.log("🛑 Camera stopped.");
   }
+
+  // Hide or remove the video element
+  const video = document.getElementById("webcam");
+  if (video) {
+    video.pause();
+    video.srcObject = null;
+    video.style.display = "none"; // Hide it
+  }
+
+  // Clear the canvas if it exists
+  const canvas = document.getElementById("cameraCanvas");
+  if (canvas) {
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Optionally, remove the video element entirely from the DOM
+  if (video && video.parentNode) {
+    video.parentNode.removeChild(video);
+  }
 }
 
 // -------------------------------
 // Restart detection by stopping and restarting the camera.
 // -------------------------------
 function restartDetection() {
-  console.log("🔄 Restarting detection...");
-  detectionStopped = true;
-  stopCamera();
-  resetDetectionState();
-  startCamera();
+    console.log("🔄 Restarting detection...");
+
+    // Reset UI elements from meme editor
+    const resultElement = document.getElementById("result");
+    if (resultElement) {
+        resultElement.innerText = "Awaiting gesture...";
+        resultElement.style.color = "red";
+    }
+
+    const stickyFooter = document.getElementById("sticky-footer");
+    const previewImage = document.getElementById("preview");
+
+    if (stickyFooter) stickyFooter.style.display = "none";
+    if (previewImage) previewImage.style.display = "none";
+
+    // Reset detection flags
+    detectionStopped = false;
+    isMiddleFingerDetected = false;
+    detectionStartTime = null;
+
+    // Restart the camera for new detection
+    resetDetectionState();
+    startCamera();
 }
