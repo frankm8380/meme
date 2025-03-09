@@ -66,3 +66,37 @@ function displayHandDetections(landmarks, ctx) {
   		});
 	}
 }
+
+    function wrapText(ctx, text, maxWidth) {
+      const words = text.split(" ");
+      let lines = [];
+      let currentLine = "";
+      words.forEach(word => {
+        let testLine = currentLine ? currentLine + " " + word : word;
+        if (ctx.measureText(testLine).width > maxWidth && currentLine !== "") {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      });
+      lines.push(currentLine);
+      return lines;
+    }
+
+    function drawWrappedText(ctx, text, yPosition, canvas) {
+      if (ctx.measureText(text).width <= (canvas.width - 40)) {
+        ctx.strokeText(text, canvas.width / 2, yPosition);
+        ctx.fillText(text, canvas.width / 2, yPosition);
+      } else {
+        const middleIndex = Math.floor(text.length / 2);
+        let splitIndex = text.lastIndexOf(' ', middleIndex);
+        if (splitIndex === -1) splitIndex = text.indexOf(' ', middleIndex);
+        const firstLine = text.substring(0, splitIndex);
+        const secondLine = text.substring(splitIndex + 1);
+        ctx.strokeText(firstLine, canvas.width / 2, yPosition);
+        ctx.fillText(firstLine, canvas.width / 2, yPosition);
+        ctx.strokeText(secondLine, canvas.width / 2, yPosition + lineHeight);
+        ctx.fillText(secondLine, canvas.width / 2, yPosition + lineHeight);
+      }
+    }

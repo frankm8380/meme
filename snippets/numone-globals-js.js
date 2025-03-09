@@ -9,6 +9,13 @@ let isGestureDetected = false;
 let detectionStartTime = null;
 
 const borderThickness = 10;
+let savedImageHeight = 0;
+let savedBorderThickness = 10;
+let savedImage = null;
+let savedVideoWidth = 0;
+let pageConfig = null;
+let disclaimerMessage = [];
+let fileNamePrefix = "meme_"; // Default fallback prefix
 
 // offscreen canvas
 const OFFSCREEN_WIDTH = 1280; 
