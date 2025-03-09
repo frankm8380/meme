@@ -4,10 +4,19 @@ let detectionStopped = false;
 let faceDetectorVideo, faceDetectorImage;
 let gestureRecognizerVideo, gestureRecognizerImage;
 let handLandmarkerVideo, handLandmarkerImage;
-let debug = true;
+let debug = false;
 let isGestureDetected = false;
 let detectionStartTime = null;
 
+const borderThickness = 10;
+
+// offscreen canvas
+const OFFSCREEN_WIDTH = 1280; 
+const OFFSCREEN_HEIGHT = 960;
+offscreenCanvas = document.createElement("canvas");
+offscreenCanvas.width = OFFSCREEN_WIDTH;
+offscreenCanvas.height = OFFSCREEN_HEIGHT;
+offscreenCtx = offscreenCanvas.getContext("2d");
 
 // -------------------------------
 // Expose module functions (optional)
