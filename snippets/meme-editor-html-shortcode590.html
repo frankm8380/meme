@@ -49,13 +49,6 @@
 </div>
 
 <script>
-  let savedImageHeight = 0;
-  let savedBorderThickness = 10;
-  let savedImage = null;
-  let savedVideoWidth = 0;
-  let pageConfig = null;
-  let disclaimerMessage = [];
-  let fileNamePrefix = "meme_"; // Default fallback prefix
 
   async function loadPageConfig(configFile) {
     console.log(`Config File Path: ${configFile}`);
@@ -276,23 +269,6 @@
     const fontSize = 50;
     const lineHeight = fontSize * 1.2;
 
-    function wrapText(ctx, text, maxWidth) {
-      const words = text.split(" ");
-      let lines = [];
-      let currentLine = "";
-      words.forEach(word => {
-        let testLine = currentLine ? currentLine + " " + word : word;
-        if (ctx.measureText(testLine).width > maxWidth && currentLine !== "") {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          currentLine = testLine;
-        }
-      });
-      lines.push(currentLine);
-      return lines;
-    }
-
     memeCanvas.width = savedVideoWidth + 2 * savedBorderThickness;
     const effectiveMaxWidth = memeCanvas.width - 40;
 
@@ -331,27 +307,10 @@
     ctx.shadowOffsetX = 3;
     ctx.shadowOffsetY = 3;
 
-    function drawWrappedText(text, yPosition) {
-      if (ctx.measureText(text).width <= (memeCanvas.width - 40)) {
-        ctx.strokeText(text, memeCanvas.width / 2, yPosition);
-        ctx.fillText(text, memeCanvas.width / 2, yPosition);
-      } else {
-        const middleIndex = Math.floor(text.length / 2);
-        let splitIndex = text.lastIndexOf(' ', middleIndex);
-        if (splitIndex === -1) splitIndex = text.indexOf(' ', middleIndex);
-        const firstLine = text.substring(0, splitIndex);
-        const secondLine = text.substring(splitIndex + 1);
-        ctx.strokeText(firstLine, memeCanvas.width / 2, yPosition);
-        ctx.fillText(firstLine, memeCanvas.width / 2, yPosition);
-        ctx.strokeText(secondLine, memeCanvas.width / 2, yPosition + lineHeight);
-        ctx.fillText(secondLine, memeCanvas.width / 2, yPosition + lineHeight);
-      }
-    }
-
-    drawWrappedText(topText, savedBorderThickness + 60);
+    drawWrappedText(ctx, topText, savedBorderThickness + 60, memeCanvas);
     const wrappedBottomText = wrapText(ctx, bottomText, effectiveMaxWidth);
     const bottomY = savedBorderThickness + savedImageHeight - 20 - (wrappedBottomText.length - 1) * lineHeight;
-    drawWrappedText(bottomText, bottomY);
+    drawWrappedText(ctx, bottomText, bottomY, memeCanvas);
 
     ctx.shadowColor = "transparent";
     ctx.shadowBlur = 0;
@@ -368,67 +327,19 @@
     }
   }
 	
-  function drawMemeText(ctx) {
+function drawMemeText(ctx) {
     const memeCanvas = document.getElementById("memeCanvas");
-    const textColor = document.getElementById("textColor").value;
+    if (!memeCanvas) return;
+
+	const textColor = document.getElementById("textColor").value;
     const topText = document.getElementById("topText").value;
     const bottomText = document.getElementById("bottomText").value;
     const includeDisclaimer = document.getElementById("includeDisclaimer").checked;
-
-    if (!memeCanvas) return;
-
     const disclaimerLineHeight = 24;
     const fontSize = 50;
     const lineHeight = fontSize * 1.2;
-
-    function wrapText(ctx, text, maxWidth) {
-        const words = text.split(" ");
-        let lines = [];
-        let currentLine = "";
-        words.forEach(word => {
-            let testLine = currentLine ? currentLine + " " + word : word;
-            if (ctx.measureText(testLine).width > maxWidth && currentLine !== "") {
-                lines.push(currentLine);
-                currentLine = word;
-            } else {
-                currentLine = testLine;
-            }
-        });
-        lines.push(currentLine);
-        return lines;
-    }
-
-    // Adjust canvas size dynamically for live detection
-    memeCanvas.width = savedVideoWidth + 2 * savedBorderThickness;
-    const effectiveMaxWidth = memeCanvas.width - 40;
-
-    let totalDisclaimerLines = 0;
-    if (includeDisclaimer) {
-        disclaimerMessage.forEach(sentence => {
-            totalDisclaimerLines += wrapText(ctx, sentence, effectiveMaxWidth).length;
-        });
-    }
-
-    let disclaimerHeight = includeDisclaimer ? totalDisclaimerLines * disclaimerLineHeight + 20 : 0;
-    if (includeDisclaimer && window.innerWidth <= 768) {
-        disclaimerHeight = Math.max(disclaimerHeight, 186);
-    }
-
-    memeCanvas.height = savedImageHeight + 2 * savedBorderThickness + disclaimerHeight;
-
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
-    ctx.fillStyle = "white";
-    ctx.fillRect(savedBorderThickness, savedBorderThickness, memeCanvas.width - 2 * savedBorderThickness, memeCanvas.height - 2 * savedBorderThickness);
+    const effectiveMaxWidth = memeCanvas.width - 40;	
     
-    ctx.drawImage(
-        savedImage,
-        savedBorderThickness, savedBorderThickness,
-        savedVideoWidth, savedImageHeight,
-        savedBorderThickness, savedBorderThickness,
-        savedVideoWidth, savedImageHeight
-    );
-
     ctx.font = `bold ${fontSize}px Impact`;
     ctx.textAlign = "center";
     ctx.fillStyle = textColor;
@@ -439,42 +350,26 @@
     ctx.shadowOffsetX = 3;
     ctx.shadowOffsetY = 3;
 
-    function drawWrappedText(text, yPosition) {
-        if (!text) return;
-        const wrappedLines = wrapText(ctx, text, effectiveMaxWidth);
-        let y = yPosition;
-        wrappedLines.forEach(line => {
-            ctx.strokeText(line, memeCanvas.width / 2, y);
-            ctx.fillText(line, memeCanvas.width / 2, y);
-            y += lineHeight;
-        });
-    }
-
-    // ✅ Draw top meme text
-    drawWrappedText(topText, savedBorderThickness + 60);
-
-    // ✅ Draw bottom meme text
+    drawWrappedText(ctx, topText, savedBorderThickness + 60, memeCanvas);
     const wrappedBottomText = wrapText(ctx, bottomText, effectiveMaxWidth);
     const bottomY = savedBorderThickness + savedImageHeight - 20 - (wrappedBottomText.length - 1) * lineHeight;
-    drawWrappedText(bottomText, bottomY);
-
-    // ✅ Draw disclaimer text if enabled
+    drawWrappedText(ctx, bottomText, bottomY, memeCanvas);
+	
     ctx.shadowColor = "transparent";
     ctx.shadowBlur = 0;
-
     if (includeDisclaimer) {
-        ctx.fillStyle = "black";
-        ctx.font = "bold 18px Arial";
-        let disclaimerY = savedBorderThickness + savedImageHeight + 35;
-        disclaimerMessage.forEach(sentence => {
-            wrapText(ctx, sentence, effectiveMaxWidth).forEach(line => {
-                ctx.fillText(line, memeCanvas.width / 2, disclaimerY);
-                disclaimerY += disclaimerLineHeight;
-            });
+      ctx.fillStyle = "black";
+      ctx.font = "bold 18px Arial";
+      let disclaimerY = savedBorderThickness + savedImageHeight + 35;
+      disclaimerMessage.forEach(sentence => {
+        wrapText(ctx, sentence, effectiveMaxWidth).forEach(line => {
+          ctx.fillText(line, memeCanvas.width / 2, disclaimerY);
+          disclaimerY += disclaimerLineHeight;
         });
+      });
     }
 }
-
+	
 function saveMeme() {
     const fileName = `${fileNamePrefix}${Date.now()}.png`;
 

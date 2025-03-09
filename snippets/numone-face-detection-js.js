@@ -22,11 +22,30 @@ async function detectFaceAndGesture(video) {
   // Use only the memeCanvas for display.
   const canvas = getMemeCanvas();
   const ctx = canvas.getContext("2d");
+	
+  savedImageHeight = video.videoHeight;
+  savedBorderThickness = borderThickness;
+  savedVideoWidth = video.videoWidth;
   
   // adjust the canvas dimensions here if needed.
   canvas.width = video.videoWidth + 2 * borderThickness;
-  canvas.height = video.videoHeight + 2 * borderThickness;
-  
+ 	
+    const disclaimerLineHeight = 24;
+    const fontSize = 50;
+    const lineHeight = fontSize * 1.2;
+    const effectiveMaxWidth = canvas.width - 40;	
+    let totalDisclaimerLines = 0;
+    if (includeDisclaimer) {
+      disclaimerMessage.forEach(sentence => {
+        totalDisclaimerLines += wrapText(ctx, sentence, effectiveMaxWidth).length;
+      });
+    }
+    let disclaimerHeight = includeDisclaimer ? totalDisclaimerLines * disclaimerLineHeight + 20 : 0;
+    if (includeDisclaimer && window.innerWidth <= 768) {
+      disclaimerHeight = Math.max(disclaimerHeight, 186);
+    }
+    canvas.height = savedImageHeight + 2 * savedBorderThickness + disclaimerHeight;
+
   async function processFrame() {
     if (detectionStopped || video.paused || video.ended) return;
     
