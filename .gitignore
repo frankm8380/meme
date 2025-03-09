@@ -59,6 +59,7 @@ wp-content/debug.log
 # Ignore image files
 images/
 
+fix/
 archive/
 snippetsArchive
 wpcode-snippets-export-*.json
