@@ -21,7 +21,6 @@ function captureImage() {
   const video = document.getElementById("webcam");
   const memeCanvas = document.getElementById("memeCanvas");
   const ctx = memeCanvas.getContext("2d");
-  const borderThickness = 10;
 
   // ✅ Set canvas size based on the device's camera resolution
   memeCanvas.width = video.videoWidth + 2 * borderThickness;
@@ -58,7 +57,6 @@ function captureImage() {
 
   // ✅ Show the meme editor
   document.getElementById("sticky-footer").style.display = "block";
-  document.getElementById("preview").style.display = "block";
   document.getElementById("memeEditorBlurb").style.display = "block";
 }
 

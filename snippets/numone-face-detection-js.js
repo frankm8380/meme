@@ -1,39 +1,58 @@
 // -------------------------------
-// Face & Gesture Detection (Live)
+// Updated Face & Gesture Detection (Live) Module Using Only memeCanvas
 // -------------------------------
+
+// Note: This module assumes that helper functions such as loadMediaPipeModels,
+// getGestureInfo, detectGesture, confirmGestureHold, resetDetectionState, saveImage,
+// embedMetadata, and storeEncodedImage are defined elsewhere in your project.
+
 async function detectFaceAndGesture(video) {
   console.log("detectFaceAndGesture started");
+  
+  // Ensure MediaPipe models are loaded.
   if (!faceDetectorVideo || !gestureRecognizerVideo || !handLandmarkerVideo) {
     await loadMediaPipeModels();
     if (!faceDetectorVideo || !gestureRecognizerVideo || !handLandmarkerVideo) return;
   }
-    
+  
   const { noGestureText } = getGestureInfo();
   document.getElementById("result").innerText = noGestureText;
   document.getElementById("result").style.color = "red";
-
-  const canvas = getCameraCanvas(video);
+  
+  // Use only the memeCanvas for display.
+  const canvas = getMemeCanvas();
   const ctx = canvas.getContext("2d");
-
+  
+  // adjust the canvas dimensions here if needed.
+  canvas.width = video.videoWidth + 2 * borderThickness;
+  canvas.height = video.videoHeight + 2 * borderThickness;
+  
   async function processFrame() {
-    if (detectionStopped) return;
-
-    // Clear and draw the current video frame on the canvas.
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // Run face detection directly on the video element.
+    if (detectionStopped || video.paused || video.ended) return;
+    
+    // Draw the current video frame onto the offscreen canvas for processing.
+    offscreenCtx.drawImage(video, 0, 0, OFFSCREEN_WIDTH, OFFSCREEN_HEIGHT);
+    
+    // Then draw the offscreen canvas onto the memeCanvas (the only visible canvas).
+    ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
+	  
+    // ✅ Render meme text and disclaimer over live feed
+    drawMemeText(ctx);
+	  
+    // Run face detection on the live video.
     const faceResults = await faceDetectorVideo.detectForVideo(video, performance.now());
     if (!faceResults || faceResults.detections.length === 0) {
       resetDetectionState();
       requestAnimationFrame(processFrame);
       return;
     }
-
-    displayFaceDetections(faceResults.detections, ctx);
+    
+    // Overlay face detection results (bounding boxes, confidence text, etc.) on the memeCanvas.
+    if ( debug )
+    	displayFaceDetections(faceResults.detections, ctx);
     let faceBoundingBox = faceResults.detections[0].boundingBox;
-
-    // Placeholder gesture detection.
+    
+    // Run gesture detection (this is a placeholder function—ensure it's defined elsewhere).
     let detectedGesture = detectGesture(video, ctx);
     if (!detectedGesture) {
       const { noGestureText } = getGestureInfo();
@@ -43,6 +62,8 @@ async function detectFaceAndGesture(video) {
       requestAnimationFrame(processFrame);
       return;
     }
+    
+    // If a confirmed gesture hold is detected, capture the memeCanvas (including overlays).
     if (confirmGestureHold()) {
       let dataURL = canvas.toDataURL("image/png");
       let savedImage = saveImage(dataURL);
@@ -51,13 +72,19 @@ async function detectFaceAndGesture(video) {
       detectionStopped = true;
       return;
     }
+    
     requestAnimationFrame(processFrame);
   }
   processFrame();
 }
 
+// Helper: Return the memeCanvas element.
+function getMemeCanvas() {
+  return document.getElementById("memeCanvas");
+}
+
 // -------------------------------
-// Face Detection, Saving, and Metadata Embedding
+// Face Detection, Saving, and Metadata Embedding (Unmodified Functions)
 // -------------------------------
 async function detectFace(frame, isLive = true) {
   console.log("🧑 Running face detection...");
@@ -83,15 +110,13 @@ async function detectFace(frame, isLive = true) {
   }
 }
 
-// -------------------------------
-// Display Face Detections
-// -------------------------------
+// Display Face Detections on the memeCanvas.
 function displayFaceDetections(detections, ctx) {
   const canvasWidth = ctx.canvas.width;
   const canvasHeight = ctx.canvas.height;
   detections.forEach(detection => {
     const { originX: x, originY: y, width, height } = detection.boundingBox;
-    // Scale coordinates if they appear to be normalized.
+    // Scale coordinates if they are normalized.
     let scaledX = x, scaledY = y, scaledWidth = width, scaledHeight = height;
     if (x <= 1 && y <= 1 && width <= 1 && height <= 1) {
       scaledX = x * canvasWidth;
