@@ -1,56 +1,51 @@
 <div id="container">
-  <p id="result">Awaiting gesture...</p>
+	<p id="result">Awaiting gesture...</p>
 
-  <div class="image-controls-wrapper">
-    <button id="startCameraBtn" onclick="handleStartCamera()">🎥 Start Camera</button>
-<div id="videoContainer" style="position: relative; display: inline-block;">
-  <video id="webcam" autoplay playsinline></video>
-</div>
-	  <canvas id="memeCanvas" style="display:none;"></canvas>
+	<div class="image-controls-wrapper">
+		<button id="startCameraBtn" onclick="handleStartCamera()">🎥 Start Camera</button>
+		<canvas id="memeCanvas"></canvas>
+		<div class="preview-container">
+			<div id="memeEditorBlurb"
+				style="display: block; text-align: center; margin: 20px 0; padding: 10px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+				<h2>🎨 Meme Editor Guide</h2>
+				<p>Customize your captured meme with top and bottom text, change colors, and add a disclaimer if you like! When
+					you're done, hit <strong>Save Meme</strong> to download it and prepare for upload.</p>
+			</div>
 
-    <div class="preview-container">
-      <img id="preview" style="display:none;" alt="Captured Meme">
-      <div id="memeEditorBlurb"
-        style="display: none; text-align: center; margin: 20px 0; padding: 10px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
-        <h2>🎨 Meme Editor Guide</h2>
-        <p>Customize your captured meme with top and bottom text, change colors, and add a disclaimer if you like! When
-          you're done, hit <strong>Save Meme</strong> to download it and prepare for upload.</p>
-      </div>
-
-      <div id="sticky-footer" class="sticky-footer" style="display: none;">
-        <hr class="divider">
-        <h2 class="editor-label">Meme Editor</h2>
-        <div id="button-container" class="button-container">
-          <div class="dropdown-wrapper">
-            <div class="controls-container">
-              <label for="topText">📝 Top Text:</label>
-              <select id="topText" onchange="updateMemeText()"></select>
-            </div>
-            <div class="controls-container">
-              <label for="bottomText">📝 Bottom Text:</label>
-              <select id="bottomText" onchange="updateMemeText()"></select>
-            </div>
-          </div>
-          <div class="controls-row-web">
-            <div class="controls-container">
-              <label for="textColor">🎨 Text Color:</label>
-              <div id="colorDisplay" class="color-display" onclick="document.getElementById('textColor').click()"></div>
-              <input type="color" id="textColor" value="#ffffff" style="display: none;"
-                oninput="updateColor(); updateMemeText();">
-            </div>
-            <div class="controls-container">
-              <label for="includeDisclaimer">📜 Include Disclaimer:</label>
-              <input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
-            </div>
-          </div>
-          <div class="button-row">
-            <button class="save-btn" onclick="saveMeme()">✅ Save Meme</button>
-            <button class="retry-btn" onclick="restartDetection()">🔄 Retry</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+			<div id="sticky-footer" class="sticky-footer" style="display: block;">
+				<hr class="divider">
+				<h2 class="editor-label">Meme Editor</h2>
+				<div id="button-container" class="button-container">
+					<div class="dropdown-wrapper">
+						<div class="controls-container">
+							<label for="topText">📝 Top Text:</label>
+							<select id="topText" onchange="updateMemeText()"></select>
+						</div>
+						<div class="controls-container">
+							<label for="bottomText">📝 Bottom Text:</label>
+							<select id="bottomText" onchange="updateMemeText()"></select>
+						</div>
+					</div>
+					<div class="controls-row-web">
+						<div class="controls-container">
+							<label for="textColor">🎨 Text Color:</label>
+							<div id="colorDisplay" class="color-display" onclick="document.getElementById('textColor').click()"></div>
+							<input type="color" id="textColor" value="#ffffff" style="display: none;"
+								oninput="updateColor(); updateMemeText();">
+						</div>
+						<div class="controls-container">
+							<label for="includeDisclaimer">📜 Include Disclaimer:</label>
+							<input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
+						</div>
+					</div>
+					<div class="button-row">
+						<button class="save-btn" onclick="saveMeme()">✅ Save Meme</button>
+						<button class="retry-btn" onclick="restartDetection()">🔄 Retry</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
@@ -251,8 +246,7 @@
 
   function handleStartCamera() {
     document.getElementById("startCameraBtn").style.display = "none"; // Hide the button
-    startCamera(); // Start the camera and detection
-
+	  	  
     // Scroll to meme-create-section
     setTimeout(() => {
       const memeCreateSection = document.getElementById("meme-create-section");
@@ -263,13 +257,14 @@
         console.error("Element #meme-create-section not found.");
       }
     }, 500); // Delay to ensure the camera starts before scrolling
-  }
+	  
+	startCamera(); // Start the camera and detection
 
+  }
 
   function updateMemeText() {
     const memeCanvas = document.getElementById("memeCanvas");
     const ctx = memeCanvas.getContext("2d");
-    const previewImage = document.getElementById("preview");
     const textColor = document.getElementById("textColor").value;
     const topText = document.getElementById("topText").value;
     const bottomText = document.getElementById("bottomText").value;
@@ -371,30 +366,137 @@
         });
       });
     }
-    previewImage.src = memeCanvas.toDataURL("image/png");
   }
+	
+  function drawMemeText(ctx) {
+    const memeCanvas = document.getElementById("memeCanvas");
+    const textColor = document.getElementById("textColor").value;
+    const topText = document.getElementById("topText").value;
+    const bottomText = document.getElementById("bottomText").value;
+    const includeDisclaimer = document.getElementById("includeDisclaimer").checked;
 
-  function saveMeme() {
-    const memeDataUrl = document.getElementById("preview").src;
+    if (!memeCanvas) return;
+
+    const disclaimerLineHeight = 24;
+    const fontSize = 50;
+    const lineHeight = fontSize * 1.2;
+
+    function wrapText(ctx, text, maxWidth) {
+        const words = text.split(" ");
+        let lines = [];
+        let currentLine = "";
+        words.forEach(word => {
+            let testLine = currentLine ? currentLine + " " + word : word;
+            if (ctx.measureText(testLine).width > maxWidth && currentLine !== "") {
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        });
+        lines.push(currentLine);
+        return lines;
+    }
+
+    // Adjust canvas size dynamically for live detection
+    memeCanvas.width = savedVideoWidth + 2 * savedBorderThickness;
+    const effectiveMaxWidth = memeCanvas.width - 40;
+
+    let totalDisclaimerLines = 0;
+    if (includeDisclaimer) {
+        disclaimerMessage.forEach(sentence => {
+            totalDisclaimerLines += wrapText(ctx, sentence, effectiveMaxWidth).length;
+        });
+    }
+
+    let disclaimerHeight = includeDisclaimer ? totalDisclaimerLines * disclaimerLineHeight + 20 : 0;
+    if (includeDisclaimer && window.innerWidth <= 768) {
+        disclaimerHeight = Math.max(disclaimerHeight, 186);
+    }
+
+    memeCanvas.height = savedImageHeight + 2 * savedBorderThickness + disclaimerHeight;
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(savedBorderThickness, savedBorderThickness, memeCanvas.width - 2 * savedBorderThickness, memeCanvas.height - 2 * savedBorderThickness);
+    
+    ctx.drawImage(
+        savedImage,
+        savedBorderThickness, savedBorderThickness,
+        savedVideoWidth, savedImageHeight,
+        savedBorderThickness, savedBorderThickness,
+        savedVideoWidth, savedImageHeight
+    );
+
+    ctx.font = `bold ${fontSize}px Impact`;
+    ctx.textAlign = "center";
+    ctx.fillStyle = textColor;
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 8;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetX = 3;
+    ctx.shadowOffsetY = 3;
+
+    function drawWrappedText(text, yPosition) {
+        if (!text) return;
+        const wrappedLines = wrapText(ctx, text, effectiveMaxWidth);
+        let y = yPosition;
+        wrappedLines.forEach(line => {
+            ctx.strokeText(line, memeCanvas.width / 2, y);
+            ctx.fillText(line, memeCanvas.width / 2, y);
+            y += lineHeight;
+        });
+    }
+
+    // ✅ Draw top meme text
+    drawWrappedText(topText, savedBorderThickness + 60);
+
+    // ✅ Draw bottom meme text
+    const wrappedBottomText = wrapText(ctx, bottomText, effectiveMaxWidth);
+    const bottomY = savedBorderThickness + savedImageHeight - 20 - (wrappedBottomText.length - 1) * lineHeight;
+    drawWrappedText(bottomText, bottomY);
+
+    // ✅ Draw disclaimer text if enabled
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+
+    if (includeDisclaimer) {
+        ctx.fillStyle = "black";
+        ctx.font = "bold 18px Arial";
+        let disclaimerY = savedBorderThickness + savedImageHeight + 35;
+        disclaimerMessage.forEach(sentence => {
+            wrapText(ctx, sentence, effectiveMaxWidth).forEach(line => {
+                ctx.fillText(line, memeCanvas.width / 2, disclaimerY);
+                disclaimerY += disclaimerLineHeight;
+            });
+        });
+    }
+}
+
+function saveMeme() {
     const fileName = `${fileNamePrefix}${Date.now()}.png`;
 
-    // ✅ Convert Data URL to Blob
+    // Save the high-quality image from the offscreen canvas
+    const memeDataUrl = offscreenCanvas.toDataURL("image/png");
+
     fetch(memeDataUrl)
       .then(res => res.blob())
       .then(blob => {
         const file = new File([blob], fileName, { type: "image/png" });
 
-        // ✅ Automatically trigger file selection in upload form
+        // Automatically trigger file selection in upload form
         prepopulateMemeUpload(file);
 
-        // ✅ Trigger download for user (optional)
+        // Allow the user to download it
         const link = document.createElement("a");
         link.href = memeDataUrl;
         link.download = fileName;
         link.click();
-
         // ✅ Smooth scroll to the meme upload section
         scrollToUploadSection();
+
       });
   }
 
