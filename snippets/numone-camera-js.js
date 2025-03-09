@@ -56,6 +56,9 @@ function createCameraContainer() {
 async function startCamera() {
   console.log("🎥 Starting camera...");
   try {
+    // setup the offscreen canvas
+    // (moved to globals so that there is one instance)
+ 
     const container = createCameraContainer();
     // Create (or retrieve) the video element
     let video = container.querySelector("#webcam");
@@ -66,8 +69,7 @@ async function startCamera() {
       video.playsInline = true;
       container.appendChild(video);
     }
-    // Stop any existing stream
-    stopCamera();
+	  
     videoStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
     video.srcObject = videoStream;
     video.onloadedmetadata = () => {
@@ -75,6 +77,7 @@ async function startCamera() {
       // Start detection only after video dimensions are available.
       detectFaceAndGesture(video);
     };
+	  
     console.log("✅ Camera started.");
   } catch (error) {
     console.error("❌ Error starting camera:", error);
@@ -91,15 +94,22 @@ function stopCamera() {
     console.log("🛑 Camera stopped.");
   }
 
-  // Hide or remove the video element
+  detectionStopped = true;  // ✅ Stop the processing loop when camera stops
+
+    // Hide the video container instead of removing elements
+    const container = document.getElementById("videoContainer");
+    if (container) {
+        container.style.display = "none"; // Hide container instead of removing it
+    }
+
+    // Hide the video element
   const video = document.getElementById("webcam");
   if (video) {
     video.pause();
     video.srcObject = null;
-    video.style.display = "none"; // Hide it
   }
 
-  // Clear the canvas if it exists
+    // Clear the canvas
   const canvas = document.getElementById("cameraCanvas");
   if (canvas) {
     const ctx = canvas.getContext("2d");
@@ -126,10 +136,8 @@ function restartDetection() {
     }
 
     const stickyFooter = document.getElementById("sticky-footer");
-    const previewImage = document.getElementById("preview");
 
     if (stickyFooter) stickyFooter.style.display = "none";
-    if (previewImage) previewImage.style.display = "none";
 
     // Reset detection flags
     detectionStopped = false;
@@ -137,6 +145,10 @@ function restartDetection() {
     detectionStartTime = null;
 
     // Restart the camera for new detection
-    resetDetectionState();
-    startCamera();
+    setTimeout(() => {
+        if (!videoStream) { // ✅ Prevents multiple streams running
+    		resetDetectionState();
+    		startCamera();
+        }
+    }, 500);
 }
