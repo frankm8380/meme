@@ -2,6 +2,7 @@
 // Updated Face & Gesture Detection (Live) Module Using Only memeCanvas
 // -------------------------------
 
+
 // Note: This module assumes that helper functions such as loadMediaPipeModels,
 // getGestureInfo, detectGesture, confirmGestureHold, resetDetectionState, saveImage,
 // embedMetadata, and storeEncodedImage are defined elsewhere in your project.
@@ -27,33 +28,21 @@ async function detectFaceAndGesture(video) {
   savedBorderThickness = borderThickness;
   savedVideoWidth = video.videoWidth;
   
-  // adjust the canvas dimensions here if needed.
-  canvas.width = video.videoWidth + 2 * borderThickness;
- 	
-    const disclaimerLineHeight = 24;
-    const fontSize = 50;
-    const lineHeight = fontSize * 1.2;
-    const effectiveMaxWidth = canvas.width - 40;	
-    let totalDisclaimerLines = 0;
-    if (includeDisclaimer) {
-      disclaimerMessage.forEach(sentence => {
-        totalDisclaimerLines += wrapText(ctx, sentence, effectiveMaxWidth).length;
-      });
-    }
-    let disclaimerHeight = includeDisclaimer ? totalDisclaimerLines * disclaimerLineHeight + 20 : 0;
-    if (includeDisclaimer && window.innerWidth <= 768) {
-      disclaimerHeight = Math.max(disclaimerHeight, 186);
-    }
-    canvas.height = savedImageHeight + 2 * savedBorderThickness + disclaimerHeight;
-
   async function processFrame() {
     if (detectionStopped || video.paused || video.ended) return;
-    
+
+	adjustCanvasForDisclaimer(ctx,canvas);
+	
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(savedBorderThickness, savedBorderThickness, canvas.width - 2 * savedBorderThickness, canvas.height - 2 * savedBorderThickness);
+	    
     // Draw the current video frame onto the offscreen canvas for processing.
     offscreenCtx.drawImage(video, 0, 0, OFFSCREEN_WIDTH, OFFSCREEN_HEIGHT);
     
     // Then draw the offscreen canvas onto the memeCanvas (the only visible canvas).
-    ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(offscreenCanvas, savedBorderThickness, savedBorderThickness, savedVideoWidth, savedImageHeight);
 	  
     // ✅ Render meme text and disclaimer over live feed
     drawMemeText(ctx);

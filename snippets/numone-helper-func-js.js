@@ -100,3 +100,29 @@ function displayHandDetections(landmarks, ctx) {
         ctx.fillText(secondLine, canvas.width / 2, yPosition + lineHeight);
       }
     }
+
+async function adjustCanvasForDisclaimer(ctx,theCanvasToAdjust) {
+    // adjust the canvas dimensions here if needed.  canvas.width = video.videoWidth + 2 * borderThickness;
+    const includeDisclaimer = document.getElementById("includeDisclaimer").checked;
+    const disclaimerLineHeight = 24;
+    const fontSize = 50;
+    const lineHeight = fontSize * 1.2;
+    const effectiveMaxWidth = theCanvasToAdjust.width - 40;	
+    let totalDisclaimerLines = 0;
+    if (includeDisclaimer) {
+      disclaimerMessage.forEach(sentence => {
+        totalDisclaimerLines += wrapText(ctx, sentence, effectiveMaxWidth).length;
+      });
+    }
+	// ✅ Re-check the disclaimer state dynamically every frame
+    const disclaimerHeight = includeDisclaimer ? totalDisclaimerLines * disclaimerLineHeight + 20 : 0;
+    if (includeDisclaimer && window.innerWidth <= 768) {
+      disclaimerHeight = Math.max(disclaimerHeight, 186);
+    }
+
+    // ✅ Ensure the live image does NOT cover the disclaimer
+    const disclaimerPadding = includeDisclaimer ? disclaimerHeight : 0;
+    // ✅ Keep memeCanvas full size but keep video fixed inside
+    theCanvasToAdjust.width = savedVideoWidth + 2 * savedBorderThickness;
+    theCanvasToAdjust.height = savedImageHeight + 2 * savedBorderThickness + disclaimerPadding;
+}
