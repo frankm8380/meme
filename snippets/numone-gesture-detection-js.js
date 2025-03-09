@@ -18,15 +18,16 @@ function detectGesture(frame, ctx) {
       for (let index = 0; index < handLandmarks.length; index++) {
         let landmarkSet = handLandmarks[index];
         console.log(landmarkSet);
-        
-        drawConnectors(ctx, landmarkSet, HAND_CONNECTIONS, {
-          color: "#00FF00", // Green skeleton
-          lineWidth: 5
-        });
-        drawLandmarks(ctx, landmarkSet, {
-          color: "#FF0000", // Red dots
-          lineWidth: 2
-        });
+        if ( debug ) {
+        	drawConnectors(ctx, landmarkSet, HAND_CONNECTIONS, {
+          	color: "#00FF00", // Green skeleton
+          	lineWidth: 5
+        	});
+        	drawLandmarks(ctx, landmarkSet, {
+         	 color: "#FF0000", // Red dots
+         	 lineWidth: 2
+        	});
+		}
 
         let found = checkMiddleFinger(landmarkSet);
         if (found === 'Middle_Finger') {

@@ -53,14 +53,16 @@ function getGestureInfo() {
  * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
  */
 function displayHandDetections(landmarks, ctx) {
-  landmarks.forEach((landmarkSet) => {
-    drawConnectors(ctx, landmarkSet, HAND_CONNECTIONS, {
-      color: "#00FF00", // Green skeleton
-      lineWidth: 5
-    });
-    drawLandmarks(ctx, landmarkSet, {
-      color: "#FF0000", // Red dots
-      lineWidth: 2
-    });
-  });
+	if ( debug ) {
+  		landmarks.forEach((landmarkSet) => {
+    		drawConnectors(ctx, landmarkSet, HAND_CONNECTIONS, {
+      		color: "#00FF00", // Green skeleton
+      		lineWidth: 5
+    		});
+    		drawLandmarks(ctx, landmarkSet, {
+      		color: "#FF0000", // Red dots
+      		lineWidth: 2
+    		});
+  		});
+	}
 }
