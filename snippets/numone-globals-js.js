@@ -24,3 +24,6 @@ let offscreenCanvas = document.createElement("canvas");
 offscreenCanvas.width = OFFSCREEN_WIDTH;
 offscreenCanvas.height = OFFSCREEN_HEIGHT;
 let offscreenCtx = offscreenCanvas.getContext("2d");
+
+let defaultCanvasWidth=300;
+let defaultCanvasHeight-150;
