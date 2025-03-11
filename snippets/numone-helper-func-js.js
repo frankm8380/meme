@@ -153,3 +153,269 @@ async function adjustCanvasForDisclaimer(ctx,theCanvasToAdjust) {
     theCanvasToAdjust.height = savedImageHeight + 2 * savedBorderThickness + disclaimerPadding;
 	
 }
+
+
+async function loadPageConfig(configFile) {
+  console.log(`Config File Path: ${configFile}`);
+  try {
+    const response = await fetch(configFile);
+    if (!response.ok) {
+      throw new Error(`Failed to load config: ${response.status} - ${response.statusText}`);
+    }
+    pageConfig = await response.json();
+    console.log("Config loaded successfully:", pageConfig);
+    fileNamePrefix = pageConfig.fileNamePrefix || fileNamePrefix; // Use prefix from JSON
+    populateDropdowns();
+    populateDisclaimerMessages();
+    populateSection("accomplishments-list", "accomplishments");
+    populateSection("title-list", "titleList");
+    populateSection("intro-list", "introList");
+    populateSection("meme-instructions-list", "memeInstructionsList");
+  } catch (error) {
+    console.error("Error loading page config:", error);
+    displayErrorMessage("Failed to load configuration. Please try refreshing the page or contact support.");
+  }
+}
+function populateSection(divId, jsonSection) {
+  try {
+    const sectionData = pageConfig[jsonSection];
+
+    // Find or create the container to display the list
+    const container = document.getElementById(divId);
+    if (!container) {
+      console.error(`No container found with ID '${divId}'.`);
+      return;
+    }
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Loop through section data and add div elements
+    sectionData.forEach(item => {
+      const div = document.createElement("div");
+      div.classList.add(`${jsonSection}-item`);
+
+      // Generic handling for all sections, including accomplishments
+      if (jsonSection === "accomplishments") {
+        // Use HTML formatting directly from JSON and add source link
+        div.innerHTML = `${item.text} <a href="${item.source || '#'}" target="_blank">(source)</a>`;
+      } else {
+        // Render plain or HTML-formatted content for other sections
+        div.innerHTML = item;
+      }
+
+      container.appendChild(div);
+    });
+
+    console.log(`${jsonSection} populated successfully.`);
+  } catch (error) {
+    console.error(`Error populating ${jsonSection}:`, error);
+    displayErrorMessage(`Error loading ${jsonSection}. Please try again.`);
+  }
+}
+
+
+function populateAccomplishments() {
+  try {
+    const accomplishments = pageConfig.accomplishments;
+
+    // Find or create the container to display the list
+    const container = document.getElementById("accomplishments-list");
+    if (!container) {
+      console.error("No container found with ID 'accomplishments-list'.");
+      return;
+    }
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Loop through accomplishments and add div elements
+    accomplishments.forEach(item => {
+      const div = document.createElement("div");
+      div.classList.add("accomplishment-item");
+
+      const text = item.text;
+
+      // Find the end of the first sentence based on '. ' occurrence
+      const sentenceEnd = text.indexOf('.  ') + 1; // Include the period
+
+      let formattedText;
+      if (sentenceEnd > 0) {
+        const firstSentence = text.substring(0, sentenceEnd + 1); // Include space after the period
+        const restOfText = text.substring(sentenceEnd + 1);
+        formattedText = `<strong>${firstSentence}</strong>${restOfText}`;
+      } else {
+        // If no '. ' found, bold the entire text
+        formattedText = `<strong>${text}</strong>`;
+      }
+
+      // Insert the formatted text with the source link
+      div.innerHTML = `${formattedText} <a href="${item.source || '#'}" target="_blank">(source)</a>`;
+      container.appendChild(div);
+    });
+
+    console.log("Accomplishments populated successfully.");
+  } catch (error) {
+    console.error("Error populating accomplishments:", error);
+    displayErrorMessage("Error loading accomplishments. Please try again.");
+  }
+}
+
+function populateDropdowns() {
+  try {
+    const topTextSelect = document.getElementById("topText");
+    const bottomTextSelect = document.getElementById("bottomText");
+    topTextSelect.innerHTML = '';
+    bottomTextSelect.innerHTML = '';
+
+    pageConfig.topTexts.forEach(text => {
+      const option = document.createElement("option");
+      option.text = text;
+      topTextSelect.add(option);
+    });
+
+    pageConfig.bottomTexts.forEach(text => {
+      const option = document.createElement("option");
+      option.text = text;
+      bottomTextSelect.add(option);
+    });
+    console.log("Dropdowns populated successfully.");
+  } catch (error) {
+    console.error("Error populating dropdowns:", error);
+    displayErrorMessage("Error loading meme options. Please try again.");
+  }
+}
+
+function populateDisclaimerMessages() {
+  try {
+    if (pageConfig.disclaimerMessages) {
+      disclaimerMessage = [...pageConfig.disclaimerMessages];
+      console.log("Disclaimer messages loaded successfully.");
+    }
+  } catch (error) {
+    console.error("Error loading disclaimer messages:", error);
+    displayErrorMessage("Error loading disclaimers. Please try again.");
+  }
+}
+
+function updateColor() {
+  const colorPicker = document.getElementById("textColor");
+  const colorDisplay = document.getElementById("colorDisplay");
+  colorDisplay.style.backgroundColor = colorPicker.value;
+}
+
+function updateMemeText() {
+  const memeCanvas = document.getElementById("memeCanvas");
+  const ctx = memeCanvas.getContext("2d");
+
+  if (!savedImage) return;
+
+  // ✅ Adjust the canvas size, including disclaimer space
+  adjustCanvasForDisclaimer(ctx, memeCanvas);
+
+  // ✅ Draw background and saved image
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
+  ctx.fillStyle = "white";
+  ctx.fillRect(savedBorderThickness, savedBorderThickness,
+    memeCanvas.width - 2 * savedBorderThickness,
+    memeCanvas.height - 2 * savedBorderThickness);
+  ctx.drawImage(
+    savedImage,
+    savedBorderThickness, savedBorderThickness,
+    savedVideoWidth, savedImageHeight,
+    savedBorderThickness, savedBorderThickness,
+    savedVideoWidth, savedImageHeight
+  );
+
+  // ✅ Call drawMemeText to handle text overlays
+  drawMemeText(ctx);
+}
+
+function drawMemeText(ctx) {
+  const memeCanvas = document.getElementById("memeCanvas");
+  if (!memeCanvas) return;
+
+  let textColor = document.getElementById("textColor").value;
+  let topText = document.getElementById("topText").value;
+  let bottomText = document.getElementById("bottomText").value;
+  let includeDisclaimer = document.getElementById("includeDisclaimer").checked;
+  let disclaimerLineHeight = 24;
+  let fontSize = 50;
+  let lineHeight = fontSize * 1.2;
+  let effectiveMaxWidth = memeCanvas.width - 40;
+
+  ctx.font = `bold ${fontSize}px Impact`;
+  ctx.textAlign = "center";
+  ctx.fillStyle = textColor;
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 8;
+  ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+
+  drawWrappedText(ctx, topText, savedBorderThickness + 60, memeCanvas);
+  let wrappedBottomText = wrapText(ctx, bottomText, effectiveMaxWidth);
+  let bottomY = savedBorderThickness + savedImageHeight - 20 - (wrappedBottomText.length - 1) * lineHeight;
+  drawWrappedText(ctx, bottomText, bottomY, memeCanvas);
+
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  if (includeDisclaimer) {
+    ctx.fillStyle = "black";
+    ctx.font = "bold 18px Arial";
+    let disclaimerY = savedBorderThickness + savedImageHeight + 35;
+    disclaimerMessage.forEach(sentence => {
+      wrapText(ctx, sentence, effectiveMaxWidth).forEach(line => {
+        ctx.fillText(line, memeCanvas.width / 2, disclaimerY);
+        disclaimerY += disclaimerLineHeight;
+      });
+    });
+  }
+}
+
+function saveMeme() {
+  const memeCanvas = document.getElementById("memeCanvas");
+  if (!memeCanvas) {
+    console.error("❌ Meme canvas not found!");
+    return;
+  }
+
+  const fileName = `${fileNamePrefix}${Date.now()}.png`;
+  const memeDataUrl = memeCanvas.toDataURL("image/png");
+
+  // ✅ Save the high-quality image from the memeCanvas
+  console.log("✅ Saving meme...");
+  fetch(memeDataUrl)
+    .then(res => res.blob())
+    .then(blob => {
+      const file = new File([blob], fileName, { type: "image/png" });
+
+      // ✅ Embed metadata and store encoded image
+      embedMetadata(file, null, null)
+        .then(encodedImage => storeEncodedImage(encodedImage));
+
+      // ✅ Automatically trigger file selection in upload form
+      prepopulateMemeUpload(file);
+
+      // ✅ Allow the user to download it
+      const link = document.createElement("a");
+      link.href = memeDataUrl;
+      link.download = fileName;
+      link.click();
+
+      // ✅ Smooth scroll to the meme upload section
+      scrollToSection("meme-upload-section");
+    });
+}
+
+function prepopulateMemeUpload(file) {
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(file);
+
+  const fileInput = document.getElementById("memeFile");
+  fileInput.files = dataTransfer.files;
+
+  previewImage();
+}
