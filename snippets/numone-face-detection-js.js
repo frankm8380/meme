@@ -2,10 +2,15 @@
 // Updated Face & Gesture Detection (Live) Module Using Only memeCanvas
 // -------------------------------
 
-
-// Note: This module assumes that helper functions such as loadMediaPipeModels,
-// getGestureInfo, detectGesture, confirmGestureHold, resetDetectionState, saveImage,
-// embedMetadata, and storeEncodedImage are defined elsewhere in your project.
+/**
+ * Resets the detection state.
+ */
+function resetDetectionState() {
+  isGestureDetected = false;
+  detectionStartTime = null;
+  detectionStopped = false;
+  isMiddleFingerDetected = false;
+}
 
 async function detectFaceAndGesture(video) {
   console.log("detectFaceAndGesture started");
@@ -17,17 +22,17 @@ async function detectFaceAndGesture(video) {
   }
   
   const { noGestureText } = getGestureInfo();
-  document.getElementById("result").innerText = noGestureText;
-  document.getElementById("result").style.color = "red";
+  displayErrorMessage(noGestureText);
   
   // Use only the memeCanvas for display.
   const canvas = getMemeCanvas();
   const ctx = canvas.getContext("2d");
 	
-  savedImageHeight = video.videoHeight;
+  // ✅ Ensure proper scaling for mobile cameras
+  savedVideoWidth = video.videoWidth || video.offsetWidth || 640;
+  savedImageHeight = video.videoHeight || video.offsetHeight || 480;
   savedBorderThickness = borderThickness;
-  savedVideoWidth = video.videoWidth;
-  
+ 
   async function processFrame() {
     if (detectionStopped || video.paused || video.ended) return;
 
@@ -37,7 +42,7 @@ async function detectFaceAndGesture(video) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "white";
     ctx.fillRect(savedBorderThickness, savedBorderThickness, canvas.width - 2 * savedBorderThickness, canvas.height - 2 * savedBorderThickness);
-	    
+	  
     // Draw the current video frame onto the offscreen canvas for processing.
     offscreenCtx.drawImage(video, 0, 0, OFFSCREEN_WIDTH, OFFSCREEN_HEIGHT);
     
@@ -64,8 +69,7 @@ async function detectFaceAndGesture(video) {
     let detectedGesture = detectGesture(video, ctx);
     if (!detectedGesture) {
       const { noGestureText } = getGestureInfo();
-      document.getElementById("result").innerText = noGestureText;
-      document.getElementById("result").style.color = "red";
+	  displayErrorMessage(noGestureText);
       resetDetectionState();
       requestAnimationFrame(processFrame);
       return;
@@ -73,11 +77,13 @@ async function detectFaceAndGesture(video) {
     
     // If a confirmed gesture hold is detected, capture the memeCanvas (including overlays).
     if (confirmGestureHold()) {
-      let dataURL = canvas.toDataURL("image/png");
-      let savedImage = saveImage(dataURL);
-      let encodedImage = await embedMetadata(savedImage, faceBoundingBox, detectedGesture);
-      storeEncodedImage(encodedImage);
-      detectionStopped = true;
+	  displayStatusMessage("Gesture Captured!  Edit meme below.");
+      detectionStopped = true;
+        // Hide Stop button, show Retry and Save buttons
+        document.getElementById("stopCameraBtn").style.display = "none";
+        document.getElementById("retryBtn").style.display = "inline-block";
+        document.getElementById("saveBtn").style.display = "inline-block";
+	  scrollToSection("sticky-footer",true);
       return;
     }
     

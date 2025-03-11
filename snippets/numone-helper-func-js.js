@@ -1,6 +1,30 @@
 // =========================
 // 🎥 UI Helper Functions
 // =========================
+  function scrollToSection(sectionToScrollTo,bottom=false) {
+    const theSection = document.getElementById(sectionToScrollTo);
+    if (theSection) {
+      theSection.style.display = "block"; // ✅ Make it visible
+	  if ( bottom )
+        theSection.scrollIntoView({ behavior: "smooth", block: "nearest" }); // ✅ Smooth scroll to it
+	  else
+        theSection.scrollIntoView({ behavior: "smooth", block: "start" }); // ✅ Smooth scroll to it
+	  console.log("Scrolled to section "+sectionToScrollTo)
+    } else {	  
+		console.error("Unable to scroll to section "+sectionToScrollTo)
+    }
+  }
+
+  function displayErrorMessage(message) {
+    const resultElement = document.getElementById("result");
+    resultElement.innerText = message;
+    resultElement.style.color = 'red';
+  }
+function displayStatusMessage(message) {
+    const resultElement = document.getElementById("result");
+    resultElement.innerText = message;
+    resultElement.style.color = 'green';
+}
 
 /**
  * Retrieves or creates the camera canvas for video rendering.
@@ -35,14 +59,14 @@ function getGestureInfo() {
     if (document.title.includes("NOT")) {
         return {
             detectionEmoji: "🖕",
-            noGestureText: "No Middle Finger Detected.",
-            successText: "Middle Finger Detected!"
+            noGestureText: "Gesture detection: No Middle Finger Detected.",
+            successText: "Gesture detection: Middle Finger Detected!"
         };
     } else {
         return {
             detectionEmoji: "👍",
-            noGestureText: "No Thumbs Up Detected.",
-            successText: "Thumbs Up Detected!"
+            noGestureText: "Gesture detection: No Thumbs Up Detected.",
+            successText: "Gesture detection: Thumbs Up Detected!"
         };
     }
 }
@@ -85,6 +109,8 @@ function displayHandDetections(landmarks, ctx) {
     }
 
     function drawWrappedText(ctx, text, yPosition, canvas) {
+      let fontSize = 50;
+      let lineHeight = fontSize * 1.2;
       if (ctx.measureText(text).width <= (canvas.width - 40)) {
         ctx.strokeText(text, canvas.width / 2, yPosition);
         ctx.fillText(text, canvas.width / 2, yPosition);
@@ -103,11 +129,11 @@ function displayHandDetections(landmarks, ctx) {
 
 async function adjustCanvasForDisclaimer(ctx,theCanvasToAdjust) {
     // adjust the canvas dimensions here if needed.  canvas.width = video.videoWidth + 2 * borderThickness;
-    const includeDisclaimer = document.getElementById("includeDisclaimer").checked;
-    const disclaimerLineHeight = 24;
-    const fontSize = 50;
-    const lineHeight = fontSize * 1.2;
-    const effectiveMaxWidth = theCanvasToAdjust.width - 40;	
+    let includeDisclaimer = document.getElementById("includeDisclaimer").checked;
+    let disclaimerLineHeight = 24;
+    let fontSize = 50;
+    let lineHeight = fontSize * 1.2;
+    let effectiveMaxWidth = theCanvasToAdjust.width - 40;	
     let totalDisclaimerLines = 0;
     if (includeDisclaimer) {
       disclaimerMessage.forEach(sentence => {
@@ -115,14 +141,15 @@ async function adjustCanvasForDisclaimer(ctx,theCanvasToAdjust) {
       });
     }
 	// ✅ Re-check the disclaimer state dynamically every frame
-    const disclaimerHeight = includeDisclaimer ? totalDisclaimerLines * disclaimerLineHeight + 20 : 0;
+    let disclaimerHeight = includeDisclaimer ? totalDisclaimerLines * disclaimerLineHeight + 20 : 0;
     if (includeDisclaimer && window.innerWidth <= 768) {
       disclaimerHeight = Math.max(disclaimerHeight, 186);
     }
 
     // ✅ Ensure the live image does NOT cover the disclaimer
-    const disclaimerPadding = includeDisclaimer ? disclaimerHeight : 0;
+    let disclaimerPadding = includeDisclaimer ? disclaimerHeight : 0;
     // ✅ Keep memeCanvas full size but keep video fixed inside
     theCanvasToAdjust.width = savedVideoWidth + 2 * savedBorderThickness;
     theCanvasToAdjust.height = savedImageHeight + 2 * savedBorderThickness + disclaimerPadding;
+	
 }

@@ -1,54 +1,282 @@
 <div id="container">
-	<p id="result">Awaiting gesture...</p>
+  <!-- Sticky Result + Button Container -->
+  <div id="resultContainer">
+    <p id="result">Start Camera when ready!</p>
 
-	<div class="image-controls-wrapper">
-		<button id="startCameraBtn" onclick="handleStartCamera()">🎥 Start Camera</button>
-		<canvas id="memeCanvas"></canvas>
-		<div class="preview-container">
-			<div id="memeEditorBlurb"
-				style="display: block; text-align: center; margin: 20px 0; padding: 10px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
-				<h2>🎨 Meme Editor Guide</h2>
-				<p>Customize your captured meme with top and bottom text, change colors, and add a disclaimer if you like! When
-					you're done, hit <strong>Save Meme</strong> to download it and prepare for upload.</p>
-			</div>
+    <!-- Button Row -->
+    <div id="buttonRow" class="button-row">
+        <button id="startCameraBtn" onclick="restartDetection()">🎥 Start Camera</button>
+        <button id="stopCameraBtn" onclick="stopCamera()" style="display: none;">🛑 Stop Camera</button>
+        <button id="retryBtn" onclick="restartDetection()" style="display: none;">🎥 Re-Start Camera</button>
+        <button id="saveBtn" onclick="saveMeme()" style="display: none;">✅ Save</button>
+        <button id="editMemeBtn" onclick="toggleMemeEditor()" style="display: none;">✏️ Edit Meme</button>
+    </div>
+  </div>
 
-			<div id="sticky-footer" class="sticky-footer" style="display: block;">
-				<hr class="divider">
-				<h2 class="editor-label">Meme Editor</h2>
-				<div id="button-container" class="button-container">
-					<div class="dropdown-wrapper">
-						<div class="controls-container">
-							<label for="topText">📝 Top Text:</label>
-							<select id="topText" onchange="updateMemeText()"></select>
-						</div>
-						<div class="controls-container">
-							<label for="bottomText">📝 Bottom Text:</label>
-							<select id="bottomText" onchange="updateMemeText()"></select>
-						</div>
-					</div>
-					<div class="controls-row-web">
-						<div class="controls-container">
-							<label for="textColor">🎨 Text Color:</label>
-							<div id="colorDisplay" class="color-display" onclick="document.getElementById('textColor').click()"></div>
-							<input type="color" id="textColor" value="#ffffff" style="display: none;"
-								oninput="updateColor(); updateMemeText();">
-						</div>
-						<div class="controls-container">
-							<label for="includeDisclaimer">📜 Include Disclaimer:</label>
-							<input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
-						</div>
-					</div>
-					<div class="button-row">
-						<button class="save-btn" onclick="saveMeme()">✅ Save Meme</button>
-						<button class="retry-btn" onclick="restartDetection()">🔄 Retry</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="image-controls-wrapper">
+        <!-- Meme Image -->
+        <div class="image-container">
+            <canvas id="memeCanvas"></canvas>
+        </div>
+
+        <!-- Meme Editor (Initially Hidden) -->
+        <div id="memeEditorOverlay" class="meme-editor hidden">
+            <div class="editor-header">
+                <h2 class="editor-label">Meme Editor</h2>
+                <button id="closeEditorBtn" onclick="toggleMemeEditor()">✖</button>
+            </div>
+
+            <div class="dropdown-wrapper">
+                <div class="controls-container">
+                    <label for="topText">📝 Top:</label>
+                    <select id="topText" onchange="updateMemeText()"></select>
+                </div>
+                <div class="controls-container">
+                    <label for="bottomText">📝 Bottom:</label>
+                    <select id="bottomText" onchange="updateMemeText()"></select>
+                </div>
+            </div>
+
+            <div class="controls-row-web">
+                <div class="controls-container">
+                    <label for="textColor">🎨 Color:</label>
+                    <input type="color" id="textColor" value="#ffffff" oninput="updateColor(); updateMemeText();">
+                </div>
+                <div class="controls-container">
+                    <label for="includeDisclaimer">📜 Disclaimer:</label>
+                    <input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<style>
+/* ============================= */
+/* 📌 Sticky Result + Button Bar */
+/* ============================= */
+#resultContainer {
+    position: relative;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 640px;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: top 0.3s ease-in-out;
+    border-bottom: 2px solid #fff; /* Separator line */
+}
+
+/* Ensure the page content doesn't overlap */
+#container {
+    padding-top: 90px; /* Adjusted for sticky header */
+}
+
+/* ============================= */
+/* 📌 Button Row (Attached Below Result) */
+/* ============================= */
+.button-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap; /* Wrap buttons on smaller screens */
+    padding-top: 8px;
+}
+
+/* Button Styling */
+.button-row button {
+    padding: 10px 16px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.button-row button:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+}
+
+.button-row button:active {
+    transform: scale(0.95);
+}
+
+/* ============================= */
+/* 📌 Video & Canvas Container */
+/* ============================= */
+#videoContainer {
+    position: relative;
+    width: 640px;
+    height: 480px;
+    margin: 20px auto;
+    background: black;
+}
+
+/* Webcam Video */
+#videoContainer video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    object-fit: cover;
+}
+
+/* Overlay Canvas */
+#videoContainer #cameraCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* ============================= */
+/* 📌 Meme Canvas */
+/* ============================= */
+.image-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+#memeCanvas {
+    border: 2px solid #ddd;
+    max-width: 100%;
+    height: auto;
+}
+
+/* ============================= */
+/* 📌 Meme Editor Overlay */
+/* ============================= */
+.meme-editor {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: top 0.3s ease-in-out;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.meme-editor.hidden {
+    display: none;
+}
+
+.meme-editor.open {
+    top: 0;
+}
+
+/* ============================= */
+/* 📌 Meme Editor Controls */
+/* ============================= */
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+#closeEditorBtn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: white;
+}
+
+.dropdown-wrapper, .controls-row-web {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.controls-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ============================= */
+/* 📌 Responsive Adjustments */
+/* ============================= */
+@media (max-width: 768px) {
+    .button-row {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .button-row button {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    #resultContainer {
+        max-width: 100%;
+    }
+
+    #videoContainer {
+        width: 100%;
+        height: auto;
+    }
+}
+</style>
+
 <script>
+    function toggleMemeEditor() {
+        const editor = document.getElementById("memeEditorOverlay");
+
+        if (editor.classList.contains("hidden")) {
+            editor.classList.remove("hidden");
+            setTimeout(() => editor.classList.add("open"), 10);
+        } else {
+            editor.classList.remove("open");
+            setTimeout(() => editor.classList.add("hidden"), 300);
+        }
+    }
+function restartDetection() {
+    console.log("🔄 Restarting detection...");
+
+	// Fully stop the camera and detection
+    stopCamera();
+	
+    const resultElement = document.getElementById("resultContainer");
+    if (resultElement) {
+        resultElement.style.position = "fixed";  // Make sticky
+        resultElement.style.display = "block";  // Make visible
+    }
+	displayStatusMessage("Camera is Starting");
+	scrollToSection("resultContainer");
+
+    // Reset detection state to allow new gestures
+    resetDetectionState();
+
+    // Start the camera up
+    handleStartCamera();
+}
 
   async function loadPageConfig(configFile) {
     console.log(`Config File Path: ${configFile}`);
@@ -98,6 +326,13 @@
       }
     } else {
       console.warn("No matching page detected from title or path.");
+    }
+	  
+	const memeCanvas = document.getElementById("memeCanvas");
+    if (memeCanvas) {
+        defaultCanvasWidth = memeCanvas.width;
+        defaultCanvasHeight = memeCanvas.height;
+        console.log(`📏 Saved default memeCanvas size: ${defaultCanvasWidth}x${defaultCanvasHeight}`);
     }
   };
 
@@ -225,37 +460,13 @@
     }
   }
 
-  function displayErrorMessage(message) {
-    const resultElement = document.getElementById('result');
-    resultElement.textContent = message;
-    resultElement.style.color = 'red';
-  }
-
   function updateColor() {
     const colorPicker = document.getElementById("textColor");
     const colorDisplay = document.getElementById("colorDisplay");
     colorDisplay.style.backgroundColor = colorPicker.value;
   }
 
-  function handleStartCamera() {
-    document.getElementById("startCameraBtn").style.display = "none"; // Hide the button
-	  	  
-    // Scroll to meme-create-section
-    setTimeout(() => {
-      const memeCreateSection = document.getElementById("meme-create-section");
-      if (memeCreateSection) {
-        console.log("Element #meme-create-section was found.");
-        memeCreateSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      } else {
-        console.error("Element #meme-create-section not found.");
-      }
-    }, 500); // Delay to ensure the camera starts before scrolling
-	  
-	startCamera(); // Start the camera and detection
-
-  }
-
-function updateMemeText() {
+  function updateMemeText() {
     const memeCanvas = document.getElementById("memeCanvas");
     const ctx = memeCanvas.getContext("2d");
 
@@ -268,9 +479,9 @@ function updateMemeText() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
     ctx.fillStyle = "white";
-    ctx.fillRect(savedBorderThickness, savedBorderThickness, 
-                 memeCanvas.width - 2 * savedBorderThickness, 
-                 memeCanvas.height - 2 * savedBorderThickness);
+    ctx.fillRect(savedBorderThickness, savedBorderThickness,
+      memeCanvas.width - 2 * savedBorderThickness,
+      memeCanvas.height - 2 * savedBorderThickness);
     ctx.drawImage(
       savedImage,
       savedBorderThickness, savedBorderThickness,
@@ -281,21 +492,21 @@ function updateMemeText() {
 
     // ✅ Call drawMemeText to handle text overlays
     drawMemeText(ctx);
-}
-	
-function drawMemeText(ctx) {
+  }
+
+  function drawMemeText(ctx) {
     const memeCanvas = document.getElementById("memeCanvas");
     if (!memeCanvas) return;
 
-	const textColor = document.getElementById("textColor").value;
-    const topText = document.getElementById("topText").value;
-    const bottomText = document.getElementById("bottomText").value;
-    const includeDisclaimer = document.getElementById("includeDisclaimer").checked;
-    const disclaimerLineHeight = 24;
-    const fontSize = 50;
-    const lineHeight = fontSize * 1.2;
-    const effectiveMaxWidth = memeCanvas.width - 40;	
-    
+    let textColor = document.getElementById("textColor").value;
+    let topText = document.getElementById("topText").value;
+    let bottomText = document.getElementById("bottomText").value;
+    let includeDisclaimer = document.getElementById("includeDisclaimer").checked;
+    let disclaimerLineHeight = 24;
+    let fontSize = 50;
+    let lineHeight = fontSize * 1.2;
+    let effectiveMaxWidth = memeCanvas.width - 40;
+
     ctx.font = `bold ${fontSize}px Impact`;
     ctx.textAlign = "center";
     ctx.fillStyle = textColor;
@@ -307,10 +518,10 @@ function drawMemeText(ctx) {
     ctx.shadowOffsetY = 3;
 
     drawWrappedText(ctx, topText, savedBorderThickness + 60, memeCanvas);
-    const wrappedBottomText = wrapText(ctx, bottomText, effectiveMaxWidth);
-    const bottomY = savedBorderThickness + savedImageHeight - 20 - (wrappedBottomText.length - 1) * lineHeight;
+    let wrappedBottomText = wrapText(ctx, bottomText, effectiveMaxWidth);
+    let bottomY = savedBorderThickness + savedImageHeight - 20 - (wrappedBottomText.length - 1) * lineHeight;
     drawWrappedText(ctx, bottomText, bottomY, memeCanvas);
-	
+
     ctx.shadowColor = "transparent";
     ctx.shadowBlur = 0;
     if (includeDisclaimer) {
@@ -324,30 +535,40 @@ function drawMemeText(ctx) {
         });
       });
     }
-}
-	
-function saveMeme() {
+  }
+
+  function saveMeme() {
+    const memeCanvas = document.getElementById("memeCanvas");
+    if (!memeCanvas) {
+      console.error("❌ Meme canvas not found!");
+      return;
+    }
+
     const fileName = `${fileNamePrefix}${Date.now()}.png`;
+    const memeDataUrl = memeCanvas.toDataURL("image/png");
 
-    // Save the high-quality image from the offscreen canvas
-    const memeDataUrl = offscreenCanvas.toDataURL("image/png");
-
+    // ✅ Save the high-quality image from the memeCanvas
+    console.log("✅ Saving meme...");
     fetch(memeDataUrl)
       .then(res => res.blob())
       .then(blob => {
         const file = new File([blob], fileName, { type: "image/png" });
 
-        // Automatically trigger file selection in upload form
+        // ✅ Embed metadata and store encoded image
+        embedMetadata(file, null, null)
+          .then(encodedImage => storeEncodedImage(encodedImage));
+
+        // ✅ Automatically trigger file selection in upload form
         prepopulateMemeUpload(file);
 
-        // Allow the user to download it
+        // ✅ Allow the user to download it
         const link = document.createElement("a");
         link.href = memeDataUrl;
         link.download = fileName;
         link.click();
-        // ✅ Smooth scroll to the meme upload section
-        scrollToUploadSection();
 
+        // ✅ Smooth scroll to the meme upload section
+        scrollToSection("meme-upload-section");
       });
   }
 
@@ -361,16 +582,4 @@ function saveMeme() {
     previewImage();
   }
 
-  function scrollToUploadSection() {
-    const uploadSection = document.getElementById("meme-upload-section");
-
-    if (uploadSection) {
-      uploadSection.style.display = "block"; // ✅ Make it visible
-      uploadSection.scrollIntoView({ behavior: "smooth", block: "start" }); // ✅ Smooth scroll to it
-    }
-  }
-
-  function restartDetection() {
-    CameraModule.restartDetection();
-  }
 </script>

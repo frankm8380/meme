@@ -51,104 +51,121 @@ function createCameraContainer() {
 }
 
 // -------------------------------
+// Helper to Start the camera process
+// -------------------------------
+function handleStartCamera() {
+    document.getElementById("startCameraBtn").style.display = "none"; // Hide the button
+    // Ensure the camera container is visible again
+    const container = document.getElementById("videoContainer");
+    if (container) {
+        container.style.display = "block"; // Make sure it's visible
+	}
+		    
+	startCamera(); // Start the camera and detection
+
+  }
+// -------------------------------
 // Start the camera and initiate detection.
 // -------------------------------
 async function startCamera() {
-  console.log("🎥 Starting camera...");
-  try {
-    // setup the offscreen canvas
-    // (moved to globals so that there is one instance)
- 
-    const container = createCameraContainer();
-    // Create (or retrieve) the video element
-    let video = container.querySelector("#webcam");
-    if (!video) {
-      video = document.createElement("video");
-      video.id = "webcam";
-      video.autoplay = true;
-      video.playsInline = true;
-      container.appendChild(video);
+    console.log("🎥 Starting camera...");
+    try {
+        const container = createCameraContainer();
+        container.style.display = "block";
+
+        // Remove any existing video element before creating a new one
+        let oldVideo = document.getElementById("webcam");
+        if (oldVideo) {
+            oldVideo.pause();
+            oldVideo.srcObject = null;
+            oldVideo.remove();
+        }
+
+        // Create a new video element
+        let video = document.createElement("video");
+        video.id = "webcam";
+        video.autoplay = true;
+        video.playsInline = true;
+        container.appendChild(video);
+
+        // Get new video stream
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+        video.srcObject = videoStream;
+
+        video.onloadedmetadata = () => {
+            video.play();
+            detectionStopped = false;  // ✅ Reset detection flag
+            detectFaceAndGesture(video);
+        };
+
+        // Show the meme canvas and buttons
+        const memeCanvas = document.getElementById("memeCanvas");
+        if (memeCanvas) {
+            memeCanvas.style.display = "block";
+        }
+
+        document.getElementById("startCameraBtn").style.display = "none";
+        document.getElementById("stopCameraBtn").style.display = "inline-block";
+        document.getElementById("editMemeBtn").style.display = "inline-block";
+		
+        console.log("✅ Camera started.");
+    } catch (error) {
+        console.error("❌ Error starting camera:", error);
     }
-	  
-    videoStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
-    video.srcObject = videoStream;
-    video.onloadedmetadata = () => {
-      video.play();
-      // Start detection only after video dimensions are available.
-      detectFaceAndGesture(video);
-    };
-	  
-    console.log("✅ Camera started.");
-  } catch (error) {
-    console.error("❌ Error starting camera:", error);
-  }
 }
 
 // -------------------------------
 // Stop the camera stream.
 // -------------------------------
 function stopCamera() {
-  if (videoStream) {
-    videoStream.getTracks().forEach(track => track.stop());
-    videoStream = null;
-    console.log("🛑 Camera stopped.");
-  }
+    console.log("🛑 Stopping camera and cleaning up...");
 
-  detectionStopped = true;  // ✅ Stop the processing loop when camera stops
+    // Stop the camera stream if it's active
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+    }
 
-    // Hide the video container instead of removing elements
+    detectionStopped = true; // ✅ Stop processing loop
+
+    // Hide the camera container
     const container = document.getElementById("videoContainer");
     if (container) {
-        container.style.display = "none"; // Hide container instead of removing it
+        container.style.display = "none";
     }
 
-    // Hide the video element
-  const video = document.getElementById("webcam");
-  if (video) {
-    video.pause();
-    video.srcObject = null;
-  }
+    // Remove the video element to ensure fresh start
+    const video = document.getElementById("webcam");
+    if (video) {
+        video.pause();
+        video.srcObject = null;
+        video.remove();
+    }
 
-    // Clear the canvas
-  const canvas = document.getElementById("cameraCanvas");
-  if (canvas) {
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
+    // Clear the memeCanvas and hide it
+    const memeCanvas = document.getElementById("memeCanvas");
+    if (memeCanvas) {
+        const ctx = memeCanvas.getContext("2d");
+        ctx.clearRect(0, 0, memeCanvas.width, memeCanvas.height);
+		
+        memeCanvas.width = defaultCanvasWidth;
+        memeCanvas.height = defaultCanvasHeight;
+        console.log(`🔄 Restored memeCanvas size to ${defaultCanvasWidth}x${defaultCanvasHeight}`);
+    }
 
-  // Optionally, remove the video element entirely from the DOM
-  if (video && video.parentNode) {
-    video.parentNode.removeChild(video);
-  }
-}
-
-// -------------------------------
-// Restart detection by stopping and restarting the camera.
-// -------------------------------
-function restartDetection() {
-    console.log("🔄 Restarting detection...");
-
-    // Reset UI elements from meme editor
-    const resultElement = document.getElementById("result");
+    // Restore the Start Camera button
+    document.getElementById("startCameraBtn").style.display = "inline-block";
+	
+  // Reset result message positioning
+    const resultElement = document.getElementById("resultContainer");
     if (resultElement) {
-        resultElement.innerText = "Awaiting gesture...";
-        resultElement.style.color = "red";
+        resultElement.style.position = "relative";  // Remove sticky when stopping
     }
+	displayStatusMessage("Start Camera when ready!");
 
-    const stickyFooter = document.getElementById("sticky-footer");
-
-    if (stickyFooter) stickyFooter.style.display = "none";
-
-    // Reset detection flags
-    detectionStopped = false;
-    isMiddleFingerDetected = false;
-    detectionStartTime = null;
-
-    // Restart the camera for new detection
-    setTimeout(() => {
-        if (!videoStream) { // ✅ Prevents multiple streams running
-    		resetDetectionState();
-    		startCamera();
-        }
-    }, 500);
+    // Hide Stop, Retry, and Save buttons
+    document.getElementById("stopCameraBtn").style.display = "none";
+    document.getElementById("retryBtn").style.display = "none";
+    document.getElementById("saveBtn").style.display = "none";
+    document.getElementById("editMemeBtn").style.display = "none";
 }

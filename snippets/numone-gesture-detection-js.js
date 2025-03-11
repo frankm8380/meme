@@ -100,36 +100,54 @@ function checkMiddleFinger(handLandmarks) {
     return null;
   }
 
-  // Tolerances for checking:
-  const extTolerance = 0.05;    // For middle finger extension
-  const foldTolerance = 0.025;  // For checking that the index finger is folded
-  const obscuredThreshold = 0.03; // If index finger tip - pip is less than this, consider it obscured
+  // Stricter tolerances to reduce false detections
+  const extTolerance = 0.02;    // 🔹 Lowered tolerance for middle finger extension
+  const foldTolerance = 0.02;   // 🔹 Lowered tolerance for checking index folding
+  const obscuredThreshold = 0.01; // 🔹 Made stricter to avoid weak index detection
 
   // Middle finger landmarks
   const middle_tip = handLandmarks[12];
   const middle_pip = handLandmarks[10];
+  const middle_mcp = handLandmarks[9];
 
   // Index finger landmarks
   const index_tip = handLandmarks[8];
   const index_pip = handLandmarks[6];
+  const index_mcp = handLandmarks[5];
 
-  // Check middle finger extension:
-  const middleExtended = middle_tip.y < (middle_pip.y - extTolerance);
+  // Ring finger landmarks
+  const ring_tip = handLandmarks[16];
+  const ring_pip = handLandmarks[14];
 
-  // Compute the vertical distance for the index finger:
+  // Pinky finger landmarks
+  const pinky_tip = handLandmarks[20];
+  const pinky_pip = handLandmarks[18];
+
+  // ✅ Middle Finger Extension: Check vertical and horizontal positions
+  const middleExtended = (middle_tip.y < (middle_pip.y - extTolerance)) &&  // Clearly extended above PIP
+                         (middle_pip.y < middle_mcp.y - extTolerance);      // PIP also extended above MCP
+
+  // ✅ Index Finger Folding Check
   const indexDistance = index_tip.y - index_pip.y;
   let indexFolded;
   if (indexDistance < obscuredThreshold) {
     console.log("DEBUG: Index finger appears to be obscured; ignoring index folded check.");
     indexFolded = true;
   } else {
-    indexFolded = index_tip.y > (index_pip.y + foldTolerance);
+    indexFolded = (index_tip.y > (index_pip.y + foldTolerance)) &&  // Must be bent downward
+                  (index_pip.y > index_mcp.y);                      // MCP must be lower than PIP
   }
 
-  console.log(`DEBUG: checkMiddleFinger -> middleExtended: ${middleExtended}, indexDistance: ${indexDistance.toFixed(3)}, indexFolded: ${indexFolded}`);
+  // ✅ Check if ring and pinky fingers are also folded
+  const ringFolded = (ring_tip.y > ring_pip.y + foldTolerance);
+  const pinkyFolded = (pinky_tip.y > pinky_pip.y + foldTolerance);
 
-  if (middleExtended && indexFolded)
+  console.log(`DEBUG: checkMiddleFinger -> middleExtended: ${middleExtended}, indexDistance: ${indexDistance.toFixed(3)}, indexFolded: ${indexFolded}, ringFolded: ${ringFolded}, pinkyFolded: ${pinkyFolded}`);
+
+  // ✅ Ensure only the middle finger is extended
+  if (middleExtended && indexFolded && ringFolded && pinkyFolded) {
     return 'Middle_Finger';
+  }
   return null;
 }
 
@@ -141,8 +159,7 @@ function confirmGestureHold() {
   if (isGestureDetected) {
     let elapsedTime = (Date.now() - detectionStartTime) / 1000;
     const { detectionEmoji, successText, noGestureText } = getGestureInfo();
-    document.getElementById("result").innerText = `${detectionEmoji} ${successText} Taking picture in ${2 - Math.floor(elapsedTime)}s...`;
-    document.getElementById("result").style.color = "green";
+	displayStatusMessage(`${detectionEmoji} ${successText} Taking picture in ${2 - Math.floor(elapsedTime)}s...`);
     return elapsedTime >= 2;
   } else {
     isGestureDetected = true;
@@ -151,10 +168,4 @@ function confirmGestureHold() {
   }
 }
 
-/**
- * Resets the detection state.
- */
-function resetDetectionState() {
-  isGestureDetected = false;
-  detectionStartTime = null;
-}
+

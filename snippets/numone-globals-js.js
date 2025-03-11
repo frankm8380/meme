@@ -20,21 +20,7 @@ let fileNamePrefix = "meme_"; // Default fallback prefix
 // offscreen canvas
 const OFFSCREEN_WIDTH = 1280; 
 const OFFSCREEN_HEIGHT = 960;
-offscreenCanvas = document.createElement("canvas");
+let offscreenCanvas = document.createElement("canvas");
 offscreenCanvas.width = OFFSCREEN_WIDTH;
 offscreenCanvas.height = OFFSCREEN_HEIGHT;
-offscreenCtx = offscreenCanvas.getContext("2d");
-
-// -------------------------------
-// Expose module functions (optional)
-// -------------------------------
-window.CameraModule = {
-  startCamera,
-  stopCamera,
-  restartDetection
-};
-
-// -------------------------------
-// For demo/testing: start camera automatically when the module loads.
-// -------------------------------
-//startCamera();
+let offscreenCtx = offscreenCanvas.getContext("2d");

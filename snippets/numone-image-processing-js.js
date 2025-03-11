@@ -51,9 +51,8 @@ function captureImage() {
   savedImage.src = memeCanvas.toDataURL("image/png");
 
   // ✅ Update result message
-  const resultMessage = document.getElementById("result");
-  resultMessage.innerHTML = "📸 <strong>Picture Captured!</strong><br>Meme Ready!<br>Customize & Save Below.";
-  resultMessage.scrollIntoView({ behavior: "smooth", block: "start" });
+  displayStatusMessage("📸 Picture Captured! Meme Ready! Customize & Save Below.");
+  scrollToSection("result");
 
   // ✅ Show the meme editor
   document.getElementById("sticky-footer").style.display = "block";
