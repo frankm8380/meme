@@ -17,6 +17,10 @@ function goToPage(choice) {
 		url = "https://elonandtrumpnumberone.com/team-musk/";
 	} else if (person === "elon" && choice === "not") {
 		url = "https://elonandtrumpnumberone.com/elon-musk-is-number-one/";
+	} else if (person === "webmaster" && choice === "team") {
+		url = "https://elonandtrumpnumberone.com/team-website-creator/";
+	} else if (person === "webmaster" && choice === "not") {
+		url = "https://elonandtrumpnumberone.com/not-team-website-creator/";
 	}
 
 	// Redirect to the selected page

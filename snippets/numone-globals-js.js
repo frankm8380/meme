@@ -26,4 +26,4 @@ offscreenCanvas.height = OFFSCREEN_HEIGHT;
 let offscreenCtx = offscreenCanvas.getContext("2d");
 
 let defaultCanvasWidth=300;
-let defaultCanvasHeight-150;
+let defaultCanvasHeight=150;

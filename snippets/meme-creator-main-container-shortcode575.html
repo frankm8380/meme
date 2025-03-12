@@ -1,0 +1,170 @@
+<div id="container">
+	<!-- Stylish Floating Result Status (Top) -->
+	<div id="resultContainer" class="glassmorphism">
+		<p id="result">What can I do on this page?</p>
+		<div id="buttonRow" class="button-row">
+			<button id="readBtn" class="btn btn-read" onclick="read()">📖 Read</button>
+			<button id="createBtn" class="btn btn-create" onclick="create()">🎨 Create</button>
+			<button id="uploadBtn" class="btn btn-upload" onclick="upload()">📤 Upload</button>
+			<button id="sendBtn" class="btn btn-send" onclick="send()">✉️ Send</button>
+			<button id="donateBtn" class="btn btn-donate" onclick="donate()">💰 Donate</button>
+		</div>
+	</div>
+
+	<!-- Stylish Floating Result Status (Top) -->
+	<div class="image-controls-wrapper">
+		<div class="image-container">
+			<canvas id="memeCanvas" style="display: none;"></canvas>
+		</div>
+	</div>
+
+	<!-- New Bottom Status Container -->
+	<div id="bottomResultContainer" class="glassmorphism">
+		<p id="bottomResult">Ready to proceed?</p>
+		<div id="bottomButtonRow" class="button-row">
+			<button id="startCameraBtn" class="btn btn-start" onclick="startCamera()">🎥 Start Camera</button>
+			<button id="stopCameraBtn" class="btn btn-stop" onclick="stopCamera()" style="display: none;">🛑 Stop Camera</button>
+			<button id="retryBtn" class="btn btn-retry" onclick="startCamera()" style="display: none;">🎥 Re-Start Camera</button>
+			<button id="saveBtn" class="btn btn-save" onclick="saveMeme()" style="display: none;">✅ Save</button>
+			<button id="editMemeBtn" class="btn btn-edit" onclick="toggleMemeEditor()" style="display: none;">✏️ Edit Meme</button>
+		</div>
+	</div>
+
+	<!-- Movable Popup Meme Editor -->
+	<div id="memeEditorPopup" class="meme-popup hidden">
+		<div class="editor-header">
+			<h2 class="editor-label">Meme Editor</h2>
+			<button id="closeEditorBtn" class="btn-icon" onclick="toggleMemeEditor()">✖</button>
+		</div>
+
+		<div class="dropdown-wrapper">
+			<div class="controls-container">
+				<label for="topText">📝 Top:</label>
+				<select id="topText" onchange="updateMemeText()"></select>
+			</div>
+			<div class="controls-container">
+				<label for="bottomText">📝 Bottom:</label>
+				<select id="bottomText" onchange="updateMemeText()"></select>
+			</div>
+		</div>
+
+		<div class="controls-row-web">
+			<div class="controls-container">
+				<label for="textColor">🎨 Color:</label>
+				<input type="color" id="textColor" value="#ffffff" oninput="updateColor(); updateMemeText();">
+			</div>
+			<div class="controls-container">
+				<label for="includeDisclaimer">📜 Disclaimer:</label>
+				<input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- ✅ Fingerpose (for more robust gesture recognition) -->
+<script src="https://cdn.jsdelivr.net/npm/fingerpose@0.1.0/dist/fingerpose.min.js"></script>
+
+<!-- ✅ Old MediaPipe Hands API (Backwards Compatibility) -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+<!-- ✅ New MediaPipe Tasks API (Gesture Recognition & AI-Based Detection) -->
+<script type="module">
+  import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+  window.FilesetResolver = FilesetResolver;
+  window.HandLandmarker = HandLandmarker;
+</script>
+	
+<!-- ✅ Import Drawing Utilities for Hand Skeletons -->
+<script type="module">
+  import { HAND_CONNECTIONS, drawConnectors, drawLandmarks } 
+  from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+  
+  window.HAND_CONNECTIONS = HAND_CONNECTIONS;
+  window.drawConnectors = drawConnectors;
+  window.drawLandmarks = drawLandmarks;
+</script>
+	
+<!-- ✅ Import Gesture Recognition API -->
+<script type="module">
+  import { FilesetResolver, HandLandmarker, GestureRecognizer } 
+  from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+
+  window.FilesetResolver = FilesetResolver;
+  window.HandLandmarker = HandLandmarker;
+  window.GestureRecognizer = GestureRecognizer;
+</script>
+	
+<!-- ✅ Import MediaPipe Face Detector -->
+<script type="module">
+  import { FilesetResolver, FaceDetector } 
+  from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+  
+  window.FilesetResolver = FilesetResolver;
+  window.FaceDetector = FaceDetector;
+</script>
+
+<!-- ✅ WebAssembly Path for MediaPipe Tasks -->
+<script>
+  window.Module = {
+    locateFile: function(file) {
+      return "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm/" + file;
+    }
+  };
+</script>
+
+<!-- ✅ Other MediaPipe Features (Face Detection, Avatars, Face Stylizer) -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_stylizer/face_stylizer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/avatar_render/avatar_render.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+	  
+	// Page Load Configuration
+	const path = window.location.pathname.toLowerCase();
+	const pageTitle = document.title.toLowerCase();
+	loadConfiguration(path, pageTitle);
+
+	const memeEditor = document.getElementById("memeEditorPopup");
+	let isDragging = false;
+	let offsetX, offsetY;
+
+	// Drag and Move Meme Editor
+	if (memeEditor) {
+		memeEditor.addEventListener("mousedown", (e) => {
+			isDragging = true;
+			offsetX = e.clientX - memeEditor.getBoundingClientRect().left;
+			offsetY = e.clientY - memeEditor.getBoundingClientRect().top;
+			memeEditor.classList.add("dragging");
+		});
+
+		document.addEventListener("mousemove", (e) => {
+			if (!isDragging) return;
+			memeEditor.style.left = `${e.clientX - offsetX}px`;
+			memeEditor.style.top = `${e.clientY - offsetY}px`;
+		});
+
+		document.addEventListener("mouseup", () => {
+			isDragging = false;
+			memeEditor.classList.remove("dragging");
+		});
+	}
+
+
+	// Meme Canvas Initialization
+	const memeCanvas = document.getElementById("memeCanvas");
+	if (memeCanvas) {
+		defaultCanvasWidth = memeCanvas.width;
+		defaultCanvasHeight = memeCanvas.height;
+		// Ensure canvas starts hidden until adjusted
+		memeCanvas.style.display = "none";
+		console.log(`📏 Saved default memeCanvas size: ${defaultCanvasWidth}x${defaultCanvasHeight}`);
+	}
+	window.addEventListener("resize", () => {
+      const video = document.getElementById("webcam");
+      if (video) 
+		  adjustMemeCanvasSize(video);
+    });
+  });
+</script>

@@ -1,0 +1,136 @@
+<!-- Read Modal -->
+<div id="readModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('readModal')">&times;</span>
+        <h2>📖 Read</h2>
+        <p>Here you can read about how to use the meme editor.</p>
+        <button class="modal-close-button" onclick="closeModal('readModal')">Close</button>
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('createModal')">&times;</span>
+        <h2>🎨 Create</h2>
+        <p>Use this feature to design your meme.</p>
+        <button class="modal-close-button" onclick="closeModal('createModal')">Close</button>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('uploadModal')">&times;</span>
+        <h2>📤 Upload</h2>
+        <p>Upload your meme to share it with others.</p>
+        <button class="modal-close-button" onclick="closeModal('uploadModal')">Close</button>
+    </div>
+</div>
+
+<!-- Send Modal -->
+<div id="sendModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('sendModal')">&times;</span>
+        <h2>✉️ Send</h2>
+        <p>Send your meme to someone or share it.</p>
+        <button class="modal-close-button" onclick="closeModal('sendModal')">Close</button>
+    </div>
+</div>
+
+<!-- Donate Modal -->
+<div id="donateModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('donateModal')">&times;</span>
+        <h2>💰 Donate</h2>
+        <p>Support the project by donating.</p>
+        <button class="modal-close-button" onclick="closeModal('donateModal')">Close</button>
+    </div>
+</div>
+
+
+<script>
+
+	
+function read() {
+    openModal('readModal');
+}
+function create() {
+    openModal('createModal');
+}
+function upload() {
+    openModal('uploadModal');
+}
+function send() {
+    openModal('sendModal');
+}
+function donate() {
+    openModal('donateModal');
+}
+	
+function toggleMemeEditor() {
+    const editor = document.getElementById("memeEditorPopup");
+
+    if (editor.classList.contains("hidden")) {
+        editor.classList.remove("hidden");
+        setTimeout(() => editor.classList.add("open"), 10);
+      } else {
+        editor.classList.remove("open");
+        setTimeout(() => editor.classList.add("hidden"), 300);
+    }
+}
+	
+	
+function adjustMemeCanvasSize(video) {
+    const memeCanvas = document.getElementById("memeCanvas");
+    const topResultContainer = document.getElementById("resultContainer");
+    const bottomResultContainer = document.getElementById("bottomResultContainer");
+
+    if (!memeCanvas || !topResultContainer) return;
+
+    // Get the bottom of the top result container
+    const canvasTop = topResultContainer.getBoundingClientRect().bottom; // Add some space
+
+    // Check if the bottom container is visible
+    const bottomStart = bottomResultContainer && window.getComputedStyle(bottomResultContainer).display !== "none"
+        ? bottomResultContainer.offsetTop
+        : window.innerHeight;
+
+    // Available height for canvas
+    const availableHeight = bottomStart - canvasTop;
+
+    // Set maximum width (with small margins)
+    const maxWidth = document.body.clientWidth;
+
+    // Maintain video aspect ratio
+    const videoAspectRatio = video.videoWidth / video.videoHeight;
+    let newWidth = maxWidth;
+    let newHeight = newWidth / videoAspectRatio;
+
+    // If height exceeds available space, adjust width accordingly
+    if (newHeight > availableHeight) {
+        newHeight = availableHeight;
+        newWidth = newHeight * videoAspectRatio;
+    }
+
+    // Apply new size
+    memeCanvas.width = Math.round(newWidth);
+    memeCanvas.height = Math.round(newHeight);
+    memeCanvas.style.width = `${memeCanvas.width}px`;
+    memeCanvas.style.height = `${memeCanvas.height}px`;
+
+    // Use `absolute` positioning inside a `relative` parent for smoother placement
+    memeCanvas.style.position = "fixed";
+    memeCanvas.style.top = `${canvasTop}px`;
+    memeCanvas.style.left = "50%";
+    memeCanvas.style.transform = "translateX(-50%)";
+
+    // Ensure the canvas is visible
+    memeCanvas.style.display = "block";
+
+    // Debugging logs
+    console.log(`📏 Positioned memeCanvas at ${canvasTop}px and resized to ${memeCanvas.width}x${memeCanvas.height}.`);
+}
+
+
+</script>

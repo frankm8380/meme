@@ -1,6 +1,24 @@
 // =========================
 // 🎥 UI Helper Functions
 // =========================
+// Display Status Message with Smooth Fade
+function displayStatusMessage(message) {
+    const resultElement = document.getElementById("result");
+    resultElement.innerText = message;
+    resultElement.style.opacity = "1";
+    resultElement.style.color = 'green';
+
+    setTimeout(() => {
+        resultElement.style.opacity = "0.7";
+    }, 2000);
+}
+
+  function displayErrorMessage(message) {
+    const resultElement = document.getElementById("result");
+    resultElement.innerText = message;
+    resultElement.style.color = 'red';
+  }
+
   function scrollToSection(sectionToScrollTo,bottom=false) {
     const theSection = document.getElementById(sectionToScrollTo);
     if (theSection) {
@@ -14,17 +32,6 @@
 		console.error("Unable to scroll to section "+sectionToScrollTo)
     }
   }
-
-  function displayErrorMessage(message) {
-    const resultElement = document.getElementById("result");
-    resultElement.innerText = message;
-    resultElement.style.color = 'red';
-  }
-function displayStatusMessage(message) {
-    const resultElement = document.getElementById("result");
-    resultElement.innerText = message;
-    resultElement.style.color = 'green';
-}
 
 /**
  * Retrieves or creates the camera canvas for video rendering.
@@ -154,6 +161,35 @@ async function adjustCanvasForDisclaimer(ctx,theCanvasToAdjust) {
 	
 }
 
+async function loadConfiguration(path,pageTitle) {
+    console.log(`Current URL Path: ${path}`);
+    console.log(`Current Page Title: ${pageTitle}`);
+
+    if (path.includes("trump")) {
+      console.log("Detected: Trump page from path.");
+      if (pageTitle.includes("not!")) {
+        loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/trumpConfigNot-2.json");
+      } else {
+        loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/trumpConfigTeam-2.json");
+      }
+    } else if (path.includes("musk") || path.includes("elon")) {
+      console.log("Detected: Musk page from path.");
+      if (pageTitle.includes("not!")) {
+        loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/muskConfigNot-2.json");
+      } else {
+        loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/muskConfigTeam-2.json");
+      }
+    } else if (path.includes("webmaster")) {
+      console.log("Detected: Webmaster page from path.");
+      if (pageTitle.includes("not!")) {
+        loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/webmasterConfigNot-2.json");
+      } else {
+        loadPageConfig("https://elonandtrumpnumberone.com/wp-content/uploads/2025/02/webmasterConfigTeam-2.json");
+      }
+    } else {
+      console.warn("No matching page detected from title or path.");
+    }
+}
 
 async function loadPageConfig(configFile) {
   console.log(`Config File Path: ${configFile}`);
@@ -406,7 +442,7 @@ function saveMeme() {
       link.click();
 
       // ✅ Smooth scroll to the meme upload section
-      scrollToSection("meme-upload-section");
+      //scrollToSection("meme-upload-section");
     });
 }
 
