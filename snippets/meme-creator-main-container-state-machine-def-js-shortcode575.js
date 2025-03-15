@@ -1,25 +1,3 @@
-function clickStartCamera() {
-	startCamera();
-}
-function clickStopCamera() {
-	stopCamera();
-}
-function clickEditMeme() {
-	toggleMemeEditor();
-}
-function clickSaveMeme() {
-	saveMeme();
-}
-function clickUploadMeme() {
-	uploadMeme();
-}
-function clickSendMeme() {
-	sendMeme();
-}
-function clickShareMeme() {
-	shareMeme();
-}
-
 // 🔄 meme-state-machine.js
 
 /** 🏷️ Define Constants for Readability */
@@ -226,7 +204,7 @@ const buttonStateMap = {
     [BUTTONS.DONE]: STATE.INITIAL,
     [BUTTONS.BACK]: STATE.INITIAL
 };
-	
+
 // stuff to do once the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
 	// Page Load Configuration
@@ -306,3 +284,26 @@ window.addEventListener("resize", () => {
 	adjustResultContainerPosition();
 	
 });
+
+
+function clickStartCamera() {
+	startCamera();
+}
+function clickStopCamera() {
+	stopCamera();
+}
+function clickEditMeme() {
+	toggleMemeEditor();
+}
+function clickSaveMeme() {
+	saveMeme();
+}
+function clickUploadMeme() {
+	uploadMeme();
+}
+function clickSendMeme() {
+	sendMeme();
+}
+function clickShareMeme() {
+	shareMeme();
+}
