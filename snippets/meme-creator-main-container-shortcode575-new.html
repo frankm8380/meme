@@ -151,31 +151,8 @@
 	</div>
 </div>
 
-
 <script>
-
-function clickStartCamera() {
-	startCamera();
-}
-function clickStopCamera() {
-	stopCamera();
-}
-function clickEditMeme() {
-	toggleMemeEditor();
-}
-function clickSaveMeme() {
-	saveMeme();
-}
-function clickUploadMeme() {
-	uploadMeme();
-}
-function clickSendMeme() {
-	sendMeme();
-}
-function clickShareMeme() {
-	shareMeme();
-}
-
+	
 // 🔄 meme-state-machine.js
 
 /** 🏷️ Define Constants for Readability */
@@ -218,6 +195,10 @@ const STATE = {
     DONATE: 11
 };
 
+
+/**
+ * 🏗️ State Factory Function (Easier to Maintain & Modify)
+ */
 function createState({ 
     name, 
     topButtons = [], 
@@ -232,10 +213,6 @@ function createState({
     return { name, topButtons, bottomButtons, modal, onEnter, topVisible, bottomVisible, nextState, positionTop };
 }
 
-
-/**
- * 🏗️ State Factory Function (Easier to Maintain & Modify)
- */
 /** 📌 Define State Transitions */
 const states = {
     [STATE.INITIAL]: createState({
@@ -270,14 +247,14 @@ const states = {
     [STATE.CAMERA_RUNNING]: createState({
         name: "Camera Running",
         bottomButtons: [BUTTONS.STOP_CAMERA, BUTTONS.EDIT, BUTTONS.BACK],
-        onEnter: clickStartCamera,
+        onEnter: startCamera,
         topVisible: true,
         bottomVisible: true
     }),
     [STATE.CAMERA_STOPPED]: createState({
         name: "Camera Stopped",
         bottomButtons: [BUTTONS.START_CAMERA, BUTTONS.BACK],
-        onEnter: clickStopCamera,
+        onEnter: stopCamera,
         topVisible: true,
         bottomVisible: true
     }),
@@ -296,7 +273,7 @@ const states = {
     }),
     [STATE.EDIT_MODE]: createState({
         name: "Meme Editing Mode",
-        onEnter: clickEditMeme,
+        onEnter: toggleMemeEditor,
         topVisible: true,
         bottomVisible: true
     }),
@@ -310,7 +287,7 @@ const states = {
     [STATE.SAVE_MODE]: createState({
         name: "Meme Saved",
         bottomButtons: [BUTTONS.UPLOAD, BUTTONS.SEND, BUTTONS.SHARE, BUTTONS.DONATE, BUTTONS.BACK],
-        onEnter: clickSaveMeme,
+        onEnter: saveMeme,
         topVisible: true,
         bottomVisible: true
     }),
@@ -324,7 +301,7 @@ const states = {
     [STATE.UPLOAD_MODE]: createState({
         name: "Meme Uploaded",
         bottomButtons: [BUTTONS.SEND, BUTTONS.SHARE, BUTTONS.DONATE, BUTTONS.BACK],
-        onEnter: clickUploadMeme,
+        onEnter: uploadMeme,
         topVisible: true,
         bottomVisible: true
     }),
@@ -338,7 +315,7 @@ const states = {
     [STATE.SEND_MODE]: createState({
         name: "Meme Sent",
         bottomButtons: [BUTTONS.UPLOAD, BUTTONS.SHARE, BUTTONS.DONATE, BUTTONS.BACK],
-        onEnter: clickSendMeme,
+        onEnter: sendMeme,
         topVisible: true,
         bottomVisible: true
     }),
@@ -350,9 +327,9 @@ const states = {
         nextState: STATE.SHARE_MODE // ✅ When closed, transition to SHARE_MODE
     }),
     [STATE.SHARE_MODE]: createState({
-        name: "Meme Shared",
+        name: "Meme Sent",
         bottomButtons: [BUTTONS.UPLOAD, BUTTONS.SEND, BUTTONS.DONATE, BUTTONS.BACK],
-        onEnter: clickShareMeme,
+        onEnter: shareMeme,
         topVisible: true,
         bottomVisible: true
     }),
@@ -381,7 +358,6 @@ const buttonStateMap = {
     [BUTTONS.DONE]: STATE.INITIAL,
     [BUTTONS.BACK]: STATE.INITIAL
 };
-	
 	
 /**
  * 🔄 Updates UI Based on State
@@ -524,7 +500,7 @@ function afterModalClose(modalId) {
       changeState(nextState);
 	}
 }
-	
+	  
 // stuff to do once the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
 	// Page Load Configuration
@@ -593,15 +569,4 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 });
 
-// Run on page load
-window.addEventListener("load", () => {
-    adjustResultContainerPosition();
-    watchForHeaderChanges(); // Start monitoring for ad injections
-});
-	
-// Adjust memeCanvas on resize as well
-window.addEventListener("resize", () => {
-	adjustResultContainerPosition();
-	
-});
 </script>

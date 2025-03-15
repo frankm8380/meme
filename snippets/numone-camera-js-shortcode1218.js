@@ -1,7 +1,5 @@
 // Modify startCamera function to call adjustMemeCanvasSize
 async function startCamera() {
-    document.getElementById("startCameraBtn").style.display = "none";
-
     if (!detectionStopped) {
         stopCamera();
     }
@@ -41,10 +39,6 @@ async function startCamera() {
             // ✅ Resize memeCanvas to fit between resultContainers
             adjustMemeCanvasSize(video);
         };
-
-        document.getElementById("stopCameraBtn").style.display = "inline-block";
-        document.getElementById("editMemeBtn").style.display = "inline-block";
-
         console.log("✅ Camera started.");
     } catch (error) {
         console.error("❌ Error starting camera:", error);
@@ -91,17 +85,7 @@ function stopCamera() {
 
         console.log(`🔄 Restored memeCanvas size to ${defaultCanvasWidth}x${defaultCanvasHeight}`);
     }
-
-    // ✅ Restore Start Camera button
-    document.getElementById("startCameraBtn").style.display = "inline-block";
-
-    displayStatusMessage("Start Camera when ready!");
-
-    // ✅ Hide other buttons
-    document.getElementById("stopCameraBtn").style.display = "none";
-    document.getElementById("retryBtn").style.display = "none";
-    document.getElementById("saveBtn").style.display = "none";
-    document.getElementById("editMemeBtn").style.display = "none";
+    displayStatusMessage("What can I do on this page?");
 }
 
 // -------------------------------

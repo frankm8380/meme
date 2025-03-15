@@ -1,86 +1,106 @@
-<!-- Read Modal -->
-<div id="readModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('readModal')">&times;</span>
-        <h2>📖 Read</h2>
-        <p>Here you can read about how to use the meme editor.</p>
-        <button class="modal-close-button" onclick="closeModal('readModal')">Close</button>
-    </div>
-</div>
-
-<!-- Create Modal -->
-<div id="createModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('createModal')">&times;</span>
-        <h2>🎨 Create</h2>
-        <p>Use this feature to design your meme.</p>
-        <button class="modal-close-button" onclick="closeModal('createModal')">Close</button>
-    </div>
-</div>
-
-<!-- Upload Modal -->
-<div id="uploadModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('uploadModal')">&times;</span>
-        <h2>📤 Upload</h2>
-        <p>Upload your meme to share it with others.</p>
-        <button class="modal-close-button" onclick="closeModal('uploadModal')">Close</button>
-    </div>
-</div>
-
-<!-- Send Modal -->
-<div id="sendModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('sendModal')">&times;</span>
-        <h2>✉️ Send</h2>
-        <p>Send your meme to someone or share it.</p>
-        <button class="modal-close-button" onclick="closeModal('sendModal')">Close</button>
-    </div>
-</div>
-
-<!-- Donate Modal -->
-<div id="donateModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('donateModal')">&times;</span>
-        <h2>💰 Donate</h2>
-        <p>Support the project by donating.</p>
-        <button class="modal-close-button" onclick="closeModal('donateModal')">Close</button>
-    </div>
-</div>
-
-
 <script>
 
-	
-function read() {
-    openModal('readModal');
-}
-function create() {
-    openModal('createModal');
-}
-function upload() {
-    openModal('uploadModal');
-}
-function send() {
-    openModal('sendModal');
-}
-function donate() {
-    openModal('donateModal');
-}
-	
+
 function toggleMemeEditor() {
     const editor = document.getElementById("memeEditorPopup");
 
     if (editor.classList.contains("hidden")) {
         editor.classList.remove("hidden");
         setTimeout(() => editor.classList.add("open"), 10);
-      } else {
+    } else {
         editor.classList.remove("open");
         setTimeout(() => editor.classList.add("hidden"), 300);
     }
 }
+
+/**
+ * Detect any fixed top toolbars and adjust the resultContainer position dynamically.
+ */
+function getTopToolbarHeight() {
+    let wpAdminBarHeight = 0;
+    let highestFixedElement = 0;
+
+    // Check if the WordPress admin bar exists and is visible
+    const wpAdminBar = document.getElementById("wpadminbar");
+    if (wpAdminBar && window.getComputedStyle(wpAdminBar).display !== "none") {
+        wpAdminBarHeight = wpAdminBar.offsetHeight;
+    }
+	if ( !positionTopContainerBelowHeader ) {
+		return wpAdminBarHeight;
+	}
+
+    // Find the tallest fixed-position element at the very top (excluding resultContainer)
+    document.querySelectorAll("*").forEach(el => {
+        const style = window.getComputedStyle(el);
+        if (
+            style.position === "fixed" &&
+            parseInt(style.top) === 0 &&
+            el.offsetHeight > 0 &&
+            style.display !== "none" &&
+            el.id !== "wpadminbar" && // Don't double-count wpadminbar
+            el.id !== "resultContainer" // 🚀 Fix: Don't count resultContainer itself
+        ) {
+            highestFixedElement = Math.max(highestFixedElement, el.offsetHeight);
+        }
+    });
+
+    let finalHeight = Math.max(wpAdminBarHeight, highestFixedElement);
+    return finalHeight;
+}
+
+function getPageHeaderHeight() {
+	if ( !positionTopContainerBelowHeader ) {
+        return getTopToolbarHeight(); // Default to toolbar height if no header found
+	}
 	
+    let header = document.querySelector("header"); // Default header tag
+    if (!header) {
+        // If no <header> tag, try common WordPress and site header IDs/classes
+        header = document.querySelector("#site-header, .site-header, .page-header");
+    }
+    if (header && window.getComputedStyle(header).display !== "none") {
+        return header.getBoundingClientRect().bottom + window.scrollY;
+    }
 	
+    return getTopToolbarHeight(); // Default to toolbar height if no header found
+}
+	
+function adjustResultContainerPosition(positionBelowHeader=true) {
+    const resultContainer = document.getElementById("resultContainer");
+    const memeCanvas = document.getElementById("memeCanvas");
+    if (!resultContainer || !memeCanvas) return;
+	
+	positionTopContainerBelowHeader = positionBelowHeader;
+    let headerBottom = getPageHeaderHeight();
+	
+    // Prevent unnecessary re-adjustments
+    if (headerBottom === lastHeaderBottom) {
+        return;
+    }
+    // Update the stored bottom
+    lastHeaderBottom = headerBottom;
+    
+	console.log("🔄 Detected DOM changes affecting the header. Re-adjusting...");
+	
+    resultContainer.style.top = `${headerBottom}px`;
+    
+    // Get new bottom position of resultContainer
+    let resultBottom = resultContainer.getBoundingClientRect().bottom + window.scrollY;
+    
+    // Adjust memeCanvas to start directly below resultContainer
+    memeCanvas.style.top = `${resultBottom}px`;
+
+    console.log(`📏 Adjusted resultContainer below header at: ${headerBottom}px`);
+    console.log(`🎨 Adjusted memeCanvas to start at: ${resultBottom}px`);
+	
+	const video = document.getElementById("webcam");
+    if (video) adjustMemeCanvasSize(video);
+
+}
+
+/**
+ * Dynamically adjust meme canvas size while keeping it within the available space.
+ */
 function adjustMemeCanvasSize(video) {
     const memeCanvas = document.getElementById("memeCanvas");
     const topResultContainer = document.getElementById("resultContainer");
@@ -88,8 +108,12 @@ function adjustMemeCanvasSize(video) {
 
     if (!memeCanvas || !topResultContainer) return;
 
+    // Get the height of any top toolbar
+    let toolbarHeight = getTopToolbarHeight();
+
     // Get the bottom of the top result container
-    const canvasTop = topResultContainer.getBoundingClientRect().bottom; // Add some space
+    const resultBottom = topResultContainer.getBoundingClientRect().bottom + window.scrollY;
+    const canvasTop = resultBottom;
 
     // Check if the bottom container is visible
     const bottomStart = bottomResultContainer && window.getComputedStyle(bottomResultContainer).display !== "none"
@@ -119,7 +143,7 @@ function adjustMemeCanvasSize(video) {
     memeCanvas.style.width = `${memeCanvas.width}px`;
     memeCanvas.style.height = `${memeCanvas.height}px`;
 
-    // Use `absolute` positioning inside a `relative` parent for smoother placement
+    // Use `fixed` positioning to keep it correctly aligned
     memeCanvas.style.position = "fixed";
     memeCanvas.style.top = `${canvasTop}px`;
     memeCanvas.style.left = "50%";
@@ -127,10 +151,26 @@ function adjustMemeCanvasSize(video) {
 
     // Ensure the canvas is visible
     memeCanvas.style.display = "block";
-
-    // Debugging logs
-    console.log(`📏 Positioned memeCanvas at ${canvasTop}px and resized to ${memeCanvas.width}x${memeCanvas.height}.`);
 }
+
+/**
+ * 🔄 Monitor DOM for unexpected changes like ads injecting above the header
+ */
+function watchForHeaderChanges() {
+    let header = document.querySelector("header, #site-header, .site-header, .page-header");
+    if (!header) return;
+
+    // Use MutationObserver to detect changes in header position
+    const observer = new MutationObserver(() => {
+        setTimeout(adjustResultContainerPosition, 100); // Throttle to prevent spam calls
+    });
+
+    observer.observe(document.body, {
+        childList: true, // Watch for new elements being added
+        subtree: true,   // Watch all descendant elements
+    });
+}
+
 
 
 </script>
