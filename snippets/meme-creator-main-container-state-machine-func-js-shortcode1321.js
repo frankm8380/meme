@@ -140,10 +140,3 @@ function afterModalClose(modalId) {
       changeState(nextState);
 	}
 }
-	
-function uploadMeme() {
-}
-function sendMeme() {
-}
-function shareMeme() {
-}
