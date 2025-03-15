@@ -77,14 +77,10 @@ async function detectFaceAndGesture(video) {
     
     // If a confirmed gesture hold is detected, capture the memeCanvas (including overlays).
     if (confirmGestureHold()) {
-	  displayStatusMessage("Gesture Captured!  Edit meme below.");
-      detectionStopped = true;
-        // Hide Stop button, show Retry and Save buttons
-        document.getElementById("stopCameraBtn").style.display = "none";
-        document.getElementById("retryBtn").style.display = "inline-block";
-        document.getElementById("saveBtn").style.display = "inline-block";
-	  scrollToSection("sticky-footer",true);
-      return;
+		displayStatusMessage("Gesture Captured!  Edit meme below.");
+		detectionStopped = true;
+		changeState(5);
+		return;
     }
     
     requestAnimationFrame(processFrame);
