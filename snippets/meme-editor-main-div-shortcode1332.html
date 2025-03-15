@@ -1,0 +1,43 @@
+	<!-- Movable Popup Meme Editor -->
+	<div id="memeEditorPopup" class="meme-popup hidden">
+		<div class="editor-header">
+			<h2 class="editor-label">Meme Editor</h2>
+			<button id="closeEditorBtn" class="btn-icon" onclick="toggleMemeEditor()">✖</button>
+		</div>
+
+		<div class="dropdown-wrapper">
+			<div class="controls-container">
+				<label for="topText">📝 Top:</label>
+				<select id="topText" onchange="updateMemeText()"></select>
+			</div>
+			<div class="controls-container">
+				<label for="bottomText">📝 Bottom:</label>
+				<select id="bottomText" onchange="updateMemeText()"></select>
+			</div>
+		</div>
+
+		<div class="controls-row-web">
+			<div class="controls-container">
+				<label for="textColor">🎨 Color:</label>
+				<input type="color" id="textColor" value="#ffffff" oninput="updateColor(); updateMemeText();">
+			</div>
+			<div class="controls-container">
+				<label for="includeDisclaimer">📜 Disclaimer:</label>
+				<input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
+			</div>
+		</div>
+	</div>
+
+<script>
+function toggleMemeEditor() {
+    const editor = document.getElementById("memeEditorPopup");
+
+    if (editor.classList.contains("hidden")) {
+        editor.classList.remove("hidden");
+        setTimeout(() => editor.classList.add("open"), 10);
+    } else {
+        editor.classList.remove("open");
+        setTimeout(() => editor.classList.add("hidden"), 300);
+    }
+}
+</script>

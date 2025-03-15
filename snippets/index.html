@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Catalog with Function Extraction</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        pre { background: #eee; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+    <h2>File Catalog with Function Extraction</h2>
+    <p>Select a folder to scan and extract function names from JavaScript & PHP files.</p>
+    
+    <input type="file" id="folderInput" webkitdirectory directory multiple>
+    <table id="fileTable">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Function Names</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        document.getElementById('folderInput').addEventListener('change', async function(event) {
+            const files = event.target.files;
+            const tableBody = document.querySelector("#fileTable tbody");
+            tableBody.innerHTML = ""; // Clear previous results
+
+            for (const file of files) {
+                if (file.name.endsWith(".js") || file.name.endsWith(".php")) {
+                    const text = await file.text();
+                    const functionNames = extractFunctions(text);
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${file.name}</td><td><pre>${functionNames.join("\n") || "None"}</pre></td>`;
+                    tableBody.appendChild(row);
+                }
+            }
+        });
+
+        function extractFunctions(code) {
+            const functions = [];
+            // Match JavaScript & PHP functions
+            const regex = /function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+            let match;
+            while ((match = regex.exec(code)) !== null) {
+                functions.push(match[1]);
+            }
+            return functions;
+        }
+    </script>
+
+</body>
+</html>
