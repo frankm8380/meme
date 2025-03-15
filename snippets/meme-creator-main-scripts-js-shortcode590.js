@@ -1,6 +1,3 @@
-<script>
-
-
 function toggleMemeEditor() {
     const editor = document.getElementById("memeEditorPopup");
 
@@ -170,7 +167,3 @@ function watchForHeaderChanges() {
         subtree: true,   // Watch all descendant elements
     });
 }
-
-
-
-</script>
