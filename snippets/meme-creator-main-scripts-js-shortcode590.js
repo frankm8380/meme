@@ -1,15 +1,3 @@
-function toggleMemeEditor() {
-    const editor = document.getElementById("memeEditorPopup");
-
-    if (editor.classList.contains("hidden")) {
-        editor.classList.remove("hidden");
-        setTimeout(() => editor.classList.add("open"), 10);
-    } else {
-        editor.classList.remove("open");
-        setTimeout(() => editor.classList.add("hidden"), 300);
-    }
-}
-
 /**
  * Detect any fixed top toolbars and adjust the resultContainer position dynamically.
  */
