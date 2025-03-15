@@ -1,7 +1,54 @@
 // =========================
 // 🎥 UI Helper Functions
 // =========================
-// Display Status Message with Smooth Fade
+
+// Open Modal & Scroll to Top
+function openModal(modalId) {
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error(`❌ Modal not found in DOM: ${modalId}. Checking available modals...`);
+        console.log("🔍 Existing modals in DOM:", document.querySelectorAll(".modal"));
+        return;
+    }
+
+    console.log(`📌 Opening modal: ${modalId}`);
+    modal.style.display = "block";  
+    modal.style.opacity = "1";      
+    modal.style.visibility = "visible"; 
+    modal.style.zIndex = "9999";   
+    setTimeout(() => modal.scrollTop = 0, 10);
+}
+
+/**
+ * ❌ Closes a Modal & Transitions to Next State (or Previous State)
+ */
+function closeModal(modalId) {
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error(`❌ Modal not found in DOM: ${modalId}`);
+        return;
+    }
+
+    console.log(`📌 Closing modal: ${modalId}`);
+    modal.style.display = "none";  // ✅ Ensure modal actually hides
+}
+
+function saveModalPreference(modalId) {
+    let checkbox = document.getElementById("skip" + modalId.charAt(0).toUpperCase() + modalId.slice(1));
+    if (checkbox) {
+        localStorage.setItem("skip_" + modalId, checkbox.checked ? "true" : "false");
+        console.log("💾 Saved modal preference: skip_" + modalId + " = " + checkbox.checked);
+    }
+}
+	
+// Close modal when clicking outside
+window.onclick = function(event) {
+	if (event.target.classList.contains("modal")) {
+		event.target.style.display = "none";
+	}
+};
+
+// // Display Status Message with Smooth Fade
 function displayStatusMessage(message) {
     const resultElement = document.getElementById("result");
     resultElement.innerText = message;
