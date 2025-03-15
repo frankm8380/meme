@@ -27,3 +27,9 @@ let offscreenCtx = offscreenCanvas.getContext("2d");
 
 let defaultCanvasWidth=300;
 let defaultCanvasHeight=150;
+
+let currentState = 1;
+let previousState = 1; // Track the last non-modal state
+let lastHeaderBottom = 0; // Track last known header height to prevent infinite adjustments
+let positionTopContainerBelowHeader = true;
+
