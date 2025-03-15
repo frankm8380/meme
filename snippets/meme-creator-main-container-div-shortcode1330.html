@@ -1,0 +1,152 @@
+<div id="container">
+	<!-- Define all buttons in one place (Hidden) -->
+	<div id="allButtons" style="display: none;">
+		<button id="readBtn" class="btn btn-read">📖 Read</button>
+		<button id="createBtn" class="btn btn-create">🎨 Create</button>
+		<button id="uploadBtn" class="btn btn-upload">📤 Upload</button>
+		<button id="sendBtn" class="btn btn-send">✉️ Send</button>
+		<button id="donateBtn" class="btn btn-donate">💰 Donate</button>
+		<button id="startCameraBtn" class="btn btn-start">🎥 Start Camera</button>
+		<button id="stopCameraBtn" class="btn btn-stop">🛑 Stop Camera</button>
+		<button id="retryBtn" class="btn btn-retry">🔄 Restart</button>
+		<button id="saveBtn" class="btn btn-save">✅ Save</button>
+		<button id="editBtn" class="btn btn-edit">✏️ Edit</button>
+		<button id="newBtn" class="btn btn-new-meme">🆕 New</button>
+		<button id="shareBtn" class="btn btn-share">📤 Share</button>
+		<button id="doneBtn" class="btn btn-done">✅ Done</button>
+		<button id="backBtn" class="btn btn-back">⬅️ Back</button>
+	</div>
+
+	<!-- Top Floating Result Container -->
+	<div id="resultContainer" class="glassmorphism">
+		<p id="result">What can I do on this page?</p>
+		<div id="topButtonsContainer" class="button-row"></div>
+	</div>
+
+	<!-- Meme Image Container -->
+	<div class="image-controls-wrapper">
+		<div class="image-container">
+			<canvas id="memeCanvas" style="display: none;"></canvas>
+		</div>
+	</div>
+
+	<!-- Bottom Floating Result Container -->
+	<div id="bottomResultContainer" class="glassmorphism">
+		<p id="bottomResult">Ready to proceed?</p>
+		<div id="bottomButtonsContainer" class="button-row"></div>
+	</div>
+
+	<!-- Movable Popup Meme Editor -->
+	<div id="memeEditorPopup" class="meme-popup hidden">
+		<div class="editor-header">
+			<h2 class="editor-label">Meme Editor</h2>
+			<button id="closeEditorBtn" class="btn-icon" onclick="toggleMemeEditor()">✖</button>
+		</div>
+
+		<div class="dropdown-wrapper">
+			<div class="controls-container">
+				<label for="topText">📝 Top:</label>
+				<select id="topText" onchange="updateMemeText()"></select>
+			</div>
+			<div class="controls-container">
+				<label for="bottomText">📝 Bottom:</label>
+				<select id="bottomText" onchange="updateMemeText()"></select>
+			</div>
+		</div>
+
+		<div class="controls-row-web">
+			<div class="controls-container">
+				<label for="textColor">🎨 Color:</label>
+				<input type="color" id="textColor" value="#ffffff" oninput="updateColor(); updateMemeText();">
+			</div>
+			<div class="controls-container">
+				<label for="includeDisclaimer">📜 Disclaimer:</label>
+				<input type="checkbox" id="includeDisclaimer" checked onchange="updateMemeText()">
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Read Modal -->
+<div id="readModal" class="modal">
+	<div class="modal-content">
+		<span class="close" onclick="closeModal('readModal')">&times;</span>
+		<h2>📖 Read</h2>
+		<p>Here you can read about how to use the meme editor.</p>
+		<button class="modal-close-button" onclick="closeModal('readModal')">Close</button>
+	</div>
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" class="modal">
+	<div class="modal-content">
+		<span class="close" onclick="closeModal('createModal')">&times;</span>
+		<h2>🎨 Create</h2>
+		<p>Use this feature to design your meme.</p>
+		<label>
+			<input type="checkbox" id="skipCreateModal" onchange="saveModalPreference('createModal')">
+			Do not show again
+		</label>
+		<button class="modal-close-button" onclick="closeModal('createModal')">Close</button>
+	</div>
+</div>
+
+<!-- Save Modal -->
+<div id="saveModal" class="modal">
+	<div class="modal-content">
+		<span class="close" onclick="closeModal('saveModal')">&times;</span>
+		<h2>📤 Save</h2>
+		<p>Save your meme.</p>
+		<button class="modal-close-button" onclick="closeModal('saveModal')">Close</button>
+	</div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+	<div class="modal-content">
+		<span class="close" onclick="closeModal('editModal')">&times;</span>
+		<h2>📤 Edit</h2>
+		<p>Edit your meme.</p>
+		<button class="modal-close-button" onclick="closeModal('editModal')">Close</button>
+	</div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" class="modal">
+	<div class="modal-content">
+		<span class="close" onclick="closeModal('uploadModal')">&times;</span>
+		<h2>📤 Upload</h2>
+		<p>Upload your meme to the gallery.</p>
+		<button class="modal-close-button" onclick="closeModal('uploadModal')">Close</button>
+	</div>
+</div>
+
+<!-- Send Modal -->
+<div id="sendModal" class="modal">
+	<div class="modal-content">
+		<span class="close" onclick="closeModal('sendModal')">&times;</span>
+		<h2>✉️ Send</h2>
+		<p>Send your meme.</p>
+		<button class="modal-close-button" onclick="closeModal('sendModal')">Close</button>
+	</div>
+</div>
+
+<!-- Share Modal -->
+<div id="shareModal" class="modal">
+	<div class="modal-content">
+		<span class="close" onclick="closeModal('shareModal')">&times;</span>
+		<h2>✉️ Send</h2>
+		<p>Share your meme.</p>
+		<button class="modal-close-button" onclick="closeModal('shareModal')">Close</button>
+	</div>
+</div>
+
+<!-- Donate Modal -->
+<div id="donateModal" class="modal">
+	<div class="modal-content">
+		<span class="close" onclick="closeModal('donateModal')">&times;</span>
+		<h2>💰 Donate</h2>
+		<p>Support the project by donating.</p>
+		<button class="modal-close-button" onclick="closeModal('donateModal')">Close</button>
+	</div>
+</div>
