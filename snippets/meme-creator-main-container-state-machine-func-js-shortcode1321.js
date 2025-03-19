@@ -20,12 +20,12 @@ function updateUI(state) {
     console.log(`📌 Showing/Hiding containers... Top: ${topShouldBeVisible}, Bottom: ${bottomShouldBeVisible}`);
     topContainer.style.display = topShouldBeVisible ? "block" : "none";
     bottomContainer.style.display = bottomShouldBeVisible ? "block" : "none";
-
+	
    // ✅ Adjust top container position when transitioning states
     if (state.positionTop) {
 		positionTopContainerBelowHeader = state.positionTop !== "top"; // If "top", set false (move to top)
         console.log(`This state has a positionTop: ${state.positionTop}`);
-        adjustResultContainerPosition();
+        adjustResultContainerPosition(true);
     }
 
     // 🔽 Function to update buttons dynamically 🔽
@@ -56,6 +56,15 @@ function updateUI(state) {
                 console.warn(`⚠️ Button not found in #allButtons: ${buttonId}. Check for missing buttons.`);
             }
         });
+    }
+
+	// Display top message if provided
+    if (state.topMessage && state.topMessage.trim() !== "") {
+        displayTopMessage(state.topMessage);
+    }
+    // Display bottom message if provided
+    if (state.bottomMessage && state.bottomMessage.trim() !== "") {
+        displayBottomMessage(state.bottomMessage);
     }
 
     updateButtons("top", state.topButtons || []);
