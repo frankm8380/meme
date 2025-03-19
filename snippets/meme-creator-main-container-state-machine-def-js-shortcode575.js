@@ -46,12 +46,14 @@ function createState({
     bottomButtons = [], 
     modal = null, 
     onEnter = null, 
+	topMessage = "",
+	bottomMessage = "",
     topVisible = true,  
     bottomVisible = true,
     nextState = null, // ✅ Define the next state after closing a modal
     positionTop = null // ✅ Define top container positioning ("top" or "default")
 }) {
-    return { name, topButtons, bottomButtons, modal, onEnter, topVisible, bottomVisible, nextState, positionTop };
+    return { name, topButtons, bottomButtons, topMessage, bottomMessage, modal, onEnter, topVisible, bottomVisible, nextState, positionTop };
 }
 
 
@@ -64,30 +66,35 @@ const states = {
         name: "Initial",
         topButtons: [BUTTONS.READ, BUTTONS.CREATE, BUTTONS.DONATE],
         bottomButtons: [BUTTONS.BACK],
-        topVisible: true,  // ✅ Explicitly show top container
+        topVisible: true,
         bottomVisible: true,
-        positionTop: "default"  // ✅ Follows after any header (default)
+        positionTop: "default",
+        topMessage: "Welcome! Please choose an option.",
+        bottomMessage: "Select Read, Create, or Donate."
     }),
     [STATE.READ]: createState({
         name: "Read Modal",
         modal: "readModal",
-        topVisible: false, // ✅ Hide top container for modals
+        topVisible: false,
         bottomVisible: false
+        // (modal states can leave messages empty)
     }),
     [STATE.CREATE]: createState({
         name: "Create Modal",
         modal: "createModal",
         topVisible: false,
         bottomVisible: false,
-        nextState: STATE.CAMERA_RUNNING, // ✅ When closed, transition to CREATE_MODE
-        positionTop: "top"  // ✅ Moves top container to very top (adjust for WP admin bar)
+        nextState: STATE.CAMERA_RUNNING,
+        positionTop: "top"
     }),
     [STATE.CREATE_MODE]: createState({
         name: "Create Mode",
         bottomButtons: [BUTTONS.START_CAMERA, BUTTONS.BACK],
-        topVisible: true,  // ✅ Ensure top container is visible
+        topVisible: true,
         bottomVisible: true,
-        positionTop: "top"  // ✅ Moves top container to very top (adjust for WP admin bar)
+        positionTop: "top",
+        topMessage: "Create your meme.",
+        bottomMessage: "Press 'Start Camera' to capture your image or 'Back' to return."
     }),
     [STATE.CAMERA_RUNNING]: createState({
         name: "Camera Running",
@@ -95,95 +102,113 @@ const states = {
         onEnter: clickStartCamera,
         topVisible: true,
         bottomVisible: true,
-        positionTop: "top"  // ✅ Moves top container to very top (adjust for WP admin bar)
+        positionTop: "top",
+        topMessage: "Camera Running: Time to show your #1 gesture!",
+        bottomMessage: "Align your face and perform the #1 gesture for capture."
     }),
     [STATE.CAMERA_STOPPED]: createState({
         name: "Camera Stopped",
         bottomButtons: [BUTTONS.START_CAMERA, BUTTONS.BACK],
         onEnter: clickStopCamera,
         topVisible: true,
-        bottomVisible: true
+        bottomVisible: true,
+        topMessage: "Camera Stopped.",
+        bottomMessage: "Press 'Start Camera' to restart."
     }),
     [STATE.GESTURE_DETECTED]: createState({
         name: "Gesture Detected",
         bottomButtons: [BUTTONS.EDIT, BUTTONS.RETRY, BUTTONS.SAVE, BUTTONS.BACK],
         topVisible: true,
-        bottomVisible: true
+        bottomVisible: true,
+        topMessage: "Gesture Detected!",
+        bottomMessage: "You can edit or redo your meme here.  When you like it, click Save!"
     }),
     [STATE.EDIT]: createState({
         name: "Edit Modal",
         modal: "editModal",
         topVisible: false,
         bottomVisible: false,
-        nextState: STATE.EDIT_MODE // ✅ When closed, transition to EDIT_MODE
+        nextState: STATE.EDIT_MODE
     }),
     [STATE.EDIT_MODE]: createState({
         name: "Meme Editing Mode",
         onEnter: clickEditMeme,
         topVisible: true,
-        bottomVisible: true
+        bottomVisible: true,
+        topMessage: "Meme Editing Mode",
+        bottomMessage: "Use the tools here to adjust your meme."
     }),
     [STATE.SAVE]: createState({
         name: "Save Modal",
         modal: "saveModal",
         topVisible: false,
         bottomVisible: false,
-        nextState: STATE.SAVE_MODE // ✅ When closed, transition to SAVE_MODE
+        nextState: STATE.SAVE_MODE
     }),
     [STATE.SAVE_MODE]: createState({
         name: "Meme Saved",
         bottomButtons: [BUTTONS.UPLOAD, BUTTONS.SEND, BUTTONS.SHARE, BUTTONS.DONATE, BUTTONS.BACK],
         onEnter: clickSaveMeme,
         topVisible: true,
-        bottomVisible: true
+        bottomVisible: true,
+        topMessage: "Meme Saved!",
+        bottomMessage: "You can now Upload, Send, or Share your meme."
     }),
     [STATE.UPLOAD]: createState({
         name: "Upload Modal",
         modal: "uploadModal",
         topVisible: false,
         bottomVisible: false,
-        nextState: STATE.UPLOAD_MODE // ✅ When closed, transition to UPLOAD_MODE
+        nextState: STATE.UPLOAD_MODE
     }),
     [STATE.UPLOAD_MODE]: createState({
         name: "Meme Uploaded",
         bottomButtons: [BUTTONS.SEND, BUTTONS.SHARE, BUTTONS.DONATE, BUTTONS.BACK],
         onEnter: clickUploadMeme,
         topVisible: true,
-        bottomVisible: true
+        bottomVisible: true,
+        topMessage: "Meme Uploaded!",
+        bottomMessage: "Your meme is now uploaded and ready."
     }),
     [STATE.SEND]: createState({
         name: "Send Modal",
         modal: "sendModal",
         topVisible: false,
         bottomVisible: false,
-        nextState: STATE.SEND_MODE // ✅ When closed, transition to SEND_MODE
+        nextState: STATE.SEND_MODE
     }),
     [STATE.SEND_MODE]: createState({
         name: "Meme Sent",
         bottomButtons: [BUTTONS.UPLOAD, BUTTONS.SHARE, BUTTONS.DONATE, BUTTONS.BACK],
         onEnter: clickSendMeme,
         topVisible: true,
-        bottomVisible: true
+        bottomVisible: true,
+        topMessage: "Meme Sent!",
+        bottomMessage: "Your meme has been sent successfully."
     }),
     [STATE.SHARE]: createState({
         name: "Share Modal",
         modal: "shareModal",
         topVisible: false,
         bottomVisible: false,
-        nextState: STATE.SHARE_MODE // ✅ When closed, transition to SHARE_MODE
+        nextState: STATE.SHARE_MODE
     }),
     [STATE.SHARE_MODE]: createState({
         name: "Meme Shared",
         bottomButtons: [BUTTONS.UPLOAD, BUTTONS.SEND, BUTTONS.DONATE, BUTTONS.BACK],
         onEnter: clickShareMeme,
         topVisible: true,
-        bottomVisible: true
+        bottomVisible: true,
+        topMessage: "Meme Shared!",
+        bottomMessage: "Your meme is now shared with others."
     }),
     [STATE.DONATE]: createState({
         name: "Donate Modal",
         modal: "donateModal",
         topVisible: false,
-        bottomVisible: false
+        bottomVisible: false,
+        topMessage: "Support Us!",
+        bottomMessage: "Thank you for considering a donation."
     })
 };
 
@@ -212,30 +237,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	const pageTitle = document.title.toLowerCase();
 	loadConfiguration(path, pageTitle);
 
-	const memeEditor = document.getElementById("memeEditorPopup");
-	let isDragging = false;
-	let offsetX, offsetY;
-
-	// Drag and Move Meme Editor
-	if (memeEditor) {
-		memeEditor.addEventListener("mousedown", (e) => {
-			isDragging = true;
-			offsetX = e.clientX - memeEditor.getBoundingClientRect().left;
-			offsetY = e.clientY - memeEditor.getBoundingClientRect().top;
-			memeEditor.classList.add("dragging");
-		});
-
-		document.addEventListener("mousemove", (e) => {
-			if (!isDragging) return;
-			memeEditor.style.left = (e.clientX - offsetX) + "px";
-			memeEditor.style.top = (e.clientY - offsetY) + "px";
-		});
-
-		document.addEventListener("mouseup", () => {
-			isDragging = false;
-			memeEditor.classList.remove("dragging");
-		});
-	}
 	// Meme Canvas Initialization
 	const memeCanvas = document.getElementById("memeCanvas");
 	if (memeCanvas) {
