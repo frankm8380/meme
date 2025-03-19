@@ -37,86 +37,156 @@
 	</div>
 </div>
 
+<!-- Modal Dialogs Module -->
+
 <!-- Read Modal -->
 <div id="readModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('readModal')">&times;</span>
-		<h2>📖 Read</h2>
-		<p>Here you can read about how to use the meme editor.</p>
-		<button class="modal-close-button" onclick="closeModal('readModal')">Close</button>
-	</div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('readModal')">&times;</span>
+    <h2>📖 Read</h2>
+    <p>
+      Discover how our meme creator redefines political gestures. Learn the rules and see how both a thumbs-up and a middle finger can boldly declare that <strong>Trump and Musk are #1!</strong>
+    </p>
+    <button class="modal-close-button" onclick="closeModal('readModal')">Close</button>
+  </div>
 </div>
 
 <!-- Create Modal -->
 <div id="createModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('createModal')">&times;</span>
-		<h2>🎨 Create</h2>
-		<p>Use this feature to design your meme.</p>
-		<label>
-			<input type="checkbox" id="skipCreateModal" onchange="saveModalPreference('createModal')">
-			Do not show again
-		</label>
-		<button class="modal-close-button" onclick="closeModal('createModal')">Close</button>
-	</div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('createModal')">&times;</span>
+    <h2>🎨 Create</h2>
+    <p>
+      It’s time to design your meme. Whether you’re showing approval with a thumbs-up or expressing dissent with a middle finger, create your message and make it heard.
+    </p>
+    <label>
+      <input type="checkbox" id="skipCreateModal" onchange="saveModalPreference('createModal')">
+      Do not show again
+    </label>
+    <button class="modal-close-button" onclick="closeModal('createModal')">Close</button>
+  </div>
 </div>
 
 <!-- Save Modal -->
 <div id="saveModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('saveModal')">&times;</span>
-		<h2>📤 Save</h2>
-		<p>Save your meme.</p>
-		<button class="modal-close-button" onclick="closeModal('saveModal')">Close</button>
-	</div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('saveModal')">&times;</span>
+    <h2>📤 Save</h2>
+    <p>
+      Lock in your message! Save your meme—whether it’s a thumbs-up or a middle finger, ensure your statement is preserved for all to see.
+    </p>
+    <button class="modal-close-button" onclick="closeModal('saveModal')">Close</button>
+  </div>
 </div>
 
 <!-- Edit Modal -->
 <div id="editModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('editModal')">&times;</span>
-		<h2>📤 Edit</h2>
-		<p>Edit your meme.</p>
-		<button class="modal-close-button" onclick="closeModal('editModal')">Close</button>
-	</div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('editModal')">&times;</span>
+    <h2>✏️ Edit</h2>
+    <p>
+      Fine-tune your meme’s design and message. Adjust text, colors, and layout until your statement—be it in support or dissent—is exactly as you intend.
+    </p>
+    <button class="modal-close-button" onclick="closeModal('editModal')">Close</button>
+  </div>
 </div>
 
 <!-- Upload Modal -->
 <div id="uploadModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('uploadModal')">&times;</span>
-		<h2>📤 Upload</h2>
-		<p>Upload your meme to the gallery.</p>
-		<button class="modal-close-button" onclick="closeModal('uploadModal')">Close</button>
-	</div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('uploadModal')">&times;</span>
+    <h2>📤 Upload</h2>
+    <p>
+      Share your creation with the world by uploading your meme to our gallery. Let everyone see your unique take on the message: <strong>Trump and Musk are #1!</strong>
+    </p>
+    <button class="modal-close-button" onclick="closeModal('uploadModal')">Close</button>
+  </div>
 </div>
 
 <!-- Send Modal -->
 <div id="sendModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('sendModal')">&times;</span>
-		<h2>✉️ Send</h2>
-		<p>Send your meme.</p>
-		<button class="modal-close-button" onclick="closeModal('sendModal')">Close</button>
-	</div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('sendModal')">&times;</span>
+    <h2>✉️ Send</h2>
+    <p>
+      Directly send your meme to friends and supporters. Whether your gesture is a thumbs-up or a middle finger, spread your message far and wide.
+    </p>
+    <button class="modal-close-button" onclick="closeModal('sendModal')">Close</button>
+  </div>
 </div>
 
 <!-- Share Modal -->
 <div id="shareModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('shareModal')">&times;</span>
-		<h2>✉️ Send</h2>
-		<p>Share your meme.</p>
-		<button class="modal-close-button" onclick="closeModal('shareModal')">Close</button>
-	</div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('shareModal')">&times;</span>
+    <h2>🔗 Share</h2>
+    <p>
+      Broadcast your meme on social media. Use your chosen gesture—thumbs-up or middle finger—to let the world know your stance: <strong>Trump and Musk are #1!</strong>
+    </p>
+    <button class="modal-close-button" onclick="closeModal('shareModal')">Close</button>
+  </div>
 </div>
 
 <!-- Donate Modal -->
 <div id="donateModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('donateModal')">&times;</span>
-		<h2>💰 Donate</h2>
-		<p>Support the project by donating.</p>
-		<button class="modal-close-button" onclick="closeModal('donateModal')">Close</button>
-	</div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('donateModal')">&times;</span>
+    <h2>💰 Donate</h2>
+    <p>
+      Your support keeps our satire alive. Donate to help us continue delivering this unapologetic take on modern politics.
+    </p>
+    <button class="modal-close-button" onclick="closeModal('donateModal')">Close</button>
+  </div>
+</div>
+
+<!-- Info Modal -->
+<div id="infoModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('infoModal')">&times;</span>
+    <h2>ℹ️ More Info & Instructions</h2>
+    <p>
+      Learn how it works: 
+    </p>
+    <ul>
+      <li><strong>👍 TEAM:</strong> Create a meme showing approval.</li>
+      <li><strong>🖕 NOT:</strong> Create a meme expressing disapproval.</li>
+    </ul>
+    <p>
+      Every gesture makes a statement—choose yours wisely!
+    </p>
+    <button class="modal-close-button" onclick="closeModal('infoModal')">Close</button>
+  </div>
+</div>
+
+<!-- Awareness Modal -->
+<div id="awarenessModal" class="modal">
+  <div class="modal-content scrollable">
+    <span class="close" onclick="closeModal('awarenessModal')">&times;</span>
+    <h2>🤷 I Don't Care About Politics!</h2>
+    <p>
+      There was a time when you could ignore politics, but today, the stakes have never been higher.
+    </p>
+    <p>
+      With media manipulation and authoritarian tactics on display, staying informed is more crucial than ever—even if you claim indifference.
+    </p>
+    <button class="modal-close-button" onclick="closeModal('awarenessModal')">Close</button>
+  </div>
+</div>
+
+<!-- Inspiration Modal -->
+<div id="inspirationModal" class="modal">
+  <div class="modal-content scrollable">
+    <span class="close" onclick="closeModal('inspirationModal')">&times;</span>
+    <h2>🤔 What Inspired This Site?</h2>
+    <p>
+      On January 20, 2025, during Trump’s inauguration, Elon Musk made a very specific hand gesture.
+      While some claimed it was a heartfelt signal ("my heart goes out to you"), a closer look revealed that his gesture closely resembled not one but two Nazi heil salutes.
+    </p>
+    <p>
+      In an astonishing act of political gaslighting, Republicans spun this event to portray it as compassionate.
+      This absurd contradiction inspired us to build a platform where both a thumbs-up and a middle finger can be redefined—
+      ultimately declaring that <strong>Trump and Musk are #1!</strong>
+    </p>
+    <button class="modal-close-button" onclick="closeModal('inspirationModal')">Go Back</button>
+  </div>
 </div>
