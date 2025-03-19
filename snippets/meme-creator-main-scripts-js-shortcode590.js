@@ -10,6 +10,7 @@ function getTopToolbarHeight() {
     if (wpAdminBar && window.getComputedStyle(wpAdminBar).display !== "none") {
         wpAdminBarHeight = wpAdminBar.offsetHeight;
     }
+
 	if ( !positionTopContainerBelowHeader ) {
 		return wpAdminBarHeight;
 	}
@@ -32,55 +33,28 @@ function getTopToolbarHeight() {
     let finalHeight = Math.max(wpAdminBarHeight, highestFixedElement);
     return finalHeight;
 }
-
-function getPageHeaderHeight() {
-	if ( !positionTopContainerBelowHeader ) {
-        return getTopToolbarHeight(); // Default to toolbar height if no header found
-	}
 	
-    let header = document.querySelector("header"); // Default header tag
-    if (!header) {
-        // If no <header> tag, try common WordPress and site header IDs/classes
-        header = document.querySelector("#site-header, .site-header, .page-header");
-    }
-    if (header && window.getComputedStyle(header).display !== "none") {
-        return header.getBoundingClientRect().bottom + window.scrollY;
-    }
-	
-    return getTopToolbarHeight(); // Default to toolbar height if no header found
-}
-	
-function adjustResultContainerPosition(positionBelowHeader=true) {
+function adjustResultContainerPosition(positionBelowHeader = true) {
     const resultContainer = document.getElementById("resultContainer");
     const memeCanvas = document.getElementById("memeCanvas");
-    if (!resultContainer || !memeCanvas) return;
+
+    if (!resultContainer || !memeCanvas) {
+        console.error("❌ Missing resultContainer or memeCanvas in DOM.");
+        return;
+    }
 	
-	positionTopContainerBelowHeader = positionBelowHeader;
-    let headerBottom = getPageHeaderHeight();
-	
-    // Prevent unnecessary re-adjustments
+    // ✅ Regular positioning logic
+    positionTopContainerBelowHeader = positionBelowHeader;
+    let headerBottom = getTopToolbarHeight();
+
     if (headerBottom === lastHeaderBottom) {
         return;
     }
-    // Update the stored bottom
+
     lastHeaderBottom = headerBottom;
-    
-	console.log("🔄 Detected DOM changes affecting the header. Re-adjusting...");
-	
+
+    resultContainer.style.position = "fixed";
     resultContainer.style.top = `${headerBottom}px`;
-    
-    // Get new bottom position of resultContainer
-    let resultBottom = resultContainer.getBoundingClientRect().bottom + window.scrollY;
-    
-    // Adjust memeCanvas to start directly below resultContainer
-    memeCanvas.style.top = `${resultBottom}px`;
-
-    console.log(`📏 Adjusted resultContainer below header at: ${headerBottom}px`);
-    console.log(`🎨 Adjusted memeCanvas to start at: ${resultBottom}px`);
-	
-	const video = document.getElementById("webcam");
-    if (video) adjustMemeCanvasSize(video);
-
 }
 
 /**
