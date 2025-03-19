@@ -48,6 +48,41 @@ window.onclick = function(event) {
 	}
 };
 
+function displayTopMessage(message) {
+    let topMsgElem = document.getElementById("topMessage");
+    if (!topMsgElem) {
+        topMsgElem = document.createElement("div");
+        topMsgElem.id = "topMessage";
+        topMsgElem.className = "state-message";
+        // Optionally insert it into a specific container:
+        document.getElementById("resultContainer").prepend(topMsgElem);
+    }
+    topMsgElem.innerText = message;
+    topMsgElem.style.opacity = "1";
+    topMsgElem.style.color = "blue"; // style as needed
+    // Optionally add a fade effect similar to displayStatusMessage...
+    setTimeout(() => {
+        topMsgElem.style.opacity = "0.7";
+    }, 2000);
+}
+
+function displayBottomMessage(message) {
+    let bottomMsgElem = document.getElementById("bottomResult");
+    if (!bottomMsgElem) {
+        bottomMsgElem = document.createElement("div");
+        bottomMsgElem.id = "bottomMessage";
+        bottomMsgElem.className = "state-message";
+        document.getElementById("bottomResultContainer").prepend(bottomMsgElem);
+    }
+    bottomMsgElem.innerText = message;
+    bottomMsgElem.style.opacity = "1";
+    bottomMsgElem.style.color = "blue"; // style as needed
+    setTimeout(() => {
+        bottomMsgElem.style.opacity = "0.7";
+    }, 2000);
+}
+
+
 // // Display Status Message with Smooth Fade
 function displayStatusMessage(message) {
     const resultElement = document.getElementById("result");
