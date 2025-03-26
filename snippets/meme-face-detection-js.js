@@ -76,12 +76,33 @@ async function detectFaceAndGesture(video) {
     }
     
     // If a confirmed gesture hold is detected, capture the memeCanvas (including overlays).
-    if (confirmGestureHold()) {
-		displayStatusMessage("Gesture Captured!  Edit meme below.");
-		detectionStopped = true;
-		changeState(5);
-		return;
-    }
+if (confirmGestureHold()) {
+    displayStatusMessage("Gesture Captured! Edit meme below.");
+    detectionStopped = true;
+
+    const memeCanvas = document.getElementById("memeCanvas");
+    const ctx = memeCanvas.getContext("2d");
+
+    // ✅ Redraw ONLY the raw image (without overlays)
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(savedBorderThickness, savedBorderThickness,
+                 memeCanvas.width - 2 * savedBorderThickness,
+                 memeCanvas.height - 2 * savedBorderThickness);
+    ctx.drawImage(video, savedBorderThickness, savedBorderThickness,
+                  savedVideoWidth, savedImageHeight);
+
+    // ✅ Save only this raw image as the base layer
+    savedImage = new Image();
+    savedImage.onload = function () {
+        updateMemeText(); // Apply live text/disclaimer overlays
+        changeState(5);   // STATE.GESTURE_DETECTED
+    };
+    savedImage.src = memeCanvas.toDataURL("image/png");
+
+    return;
+}
     
     requestAnimationFrame(processFrame);
   }

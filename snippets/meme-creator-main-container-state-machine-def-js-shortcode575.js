@@ -11,11 +11,19 @@ const BUTTONS = {
     STOP_CAMERA: "stopCameraBtn",
     RETRY: "retryBtn",
     SAVE: "saveBtn",
-    EDIT: "editBtn",
     SHARE: "shareBtn",
     NEW: "newBtn",
     DONE: "doneBtn",
     BACK: "backBtn"
+};
+
+/** 🎛️ Define Meme Editing Controls */
+const CONTROLS = {
+    TOP_TEXT: "topText",
+    TEXT_COLOR: "textColor",
+    BOTTOM_TEXT: "bottomText",
+    DISCLAIMER: "includeDisclaimer",
+    BLUR_FACE: "blurFace"  // ✅ New Blur Face Control
 };
 
 /** 🎭 Define State Identifiers */
@@ -27,8 +35,6 @@ const STATE = {
     CAMERA_RUNNING: 4,
     CAMERA_STOPPED: 4.1,
     GESTURE_DETECTED: 5,
-    EDIT: 6,
-    EDIT_MODE: 6.1,
     SAVE: 7,
     SAVE_MODE: 7.1,
     UPLOAD: 8,
@@ -46,8 +52,8 @@ function createState({
     bottomButtons = [], 
     modal = null, 
     onEnter = null, 
-	topMessage = "",
-	bottomMessage = "",
+    topMessage = "",
+    bottomMessage = "",
     topVisible = true,  
     bottomVisible = true,
     nextState = null, // ✅ Define the next state after closing a modal
@@ -98,7 +104,8 @@ const states = {
     }),
     [STATE.CAMERA_RUNNING]: createState({
         name: "Camera Running",
-        bottomButtons: [BUTTONS.STOP_CAMERA, BUTTONS.EDIT, BUTTONS.BACK],
+        topButtons: [CONTROLS.TOP_TEXT, CONTROLS.BLUR_FACE, CONTROLS.TEXT_COLOR],  
+        bottomButtons: [CONTROLS.BOTTOM_TEXT, CONTROLS.DISCLAIMER, BUTTONS.STOP_CAMERA],  
         onEnter: clickStartCamera,
         topVisible: true,
         bottomVisible: true,
@@ -108,7 +115,8 @@ const states = {
     }),
     [STATE.CAMERA_STOPPED]: createState({
         name: "Camera Stopped",
-        bottomButtons: [BUTTONS.START_CAMERA, BUTTONS.BACK],
+        topButtons: [CONTROLS.TOP_TEXT, CONTROLS.BLUR_FACE, CONTROLS.TEXT_COLOR, BUTTONS.START_CAMERA],  
+        bottomButtons: [CONTROLS.BOTTOM_TEXT, CONTROLS.DISCLAIMER, BUTTONS.BACK],  
         onEnter: clickStopCamera,
         topVisible: true,
         bottomVisible: true,
@@ -117,26 +125,12 @@ const states = {
     }),
     [STATE.GESTURE_DETECTED]: createState({
         name: "Gesture Detected",
-        bottomButtons: [BUTTONS.EDIT, BUTTONS.RETRY, BUTTONS.SAVE, BUTTONS.BACK],
+        topButtons: [CONTROLS.TOP_TEXT, CONTROLS.BLUR_FACE, CONTROLS.TEXT_COLOR, BUTTONS.RETRY],  
+        bottomButtons: [CONTROLS.BOTTOM_TEXT, CONTROLS.DISCLAIMER, BUTTONS.SAVE, BUTTONS.BACK],  
         topVisible: true,
         bottomVisible: true,
         topMessage: "Gesture Detected!",
         bottomMessage: "You can edit or redo your meme here.  When you like it, click Save!"
-    }),
-    [STATE.EDIT]: createState({
-        name: "Edit Modal",
-        modal: "editModal",
-        topVisible: false,
-        bottomVisible: false,
-        nextState: STATE.EDIT_MODE
-    }),
-    [STATE.EDIT_MODE]: createState({
-        name: "Meme Editing Mode",
-        onEnter: clickEditMeme,
-        topVisible: true,
-        bottomVisible: true,
-        topMessage: "Meme Editing Mode",
-        bottomMessage: "Use the tools here to adjust your meme."
     }),
     [STATE.SAVE]: createState({
         name: "Save Modal",
@@ -223,7 +217,6 @@ const buttonStateMap = {
     [BUTTONS.STOP_CAMERA]: STATE.CAMERA_STOPPED,
     [BUTTONS.RETRY]: STATE.CREATE,
     [BUTTONS.SAVE]: STATE.SAVE,
-    [BUTTONS.EDIT]: STATE.EDIT,
     [BUTTONS.SHARE]: STATE.SHARE,
     [BUTTONS.NEW]: STATE.CREATE,
     [BUTTONS.DONE]: STATE.INITIAL,
@@ -292,9 +285,6 @@ function clickStartCamera() {
 }
 function clickStopCamera() {
 	stopCamera();
-}
-function clickEditMeme() {
-	toggleMemeEditor();
 }
 function clickSaveMeme() {
 	saveMeme();

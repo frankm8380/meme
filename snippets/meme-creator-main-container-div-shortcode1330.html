@@ -10,17 +10,34 @@
 		<button id="stopCameraBtn" class="btn btn-stop">🛑 Stop Camera</button>
 		<button id="retryBtn" class="btn btn-retry">🔄 Restart</button>
 		<button id="saveBtn" class="btn btn-save">✅ Save</button>
-		<button id="editBtn" class="btn btn-edit">✏️ Edit</button>
 		<button id="newBtn" class="btn btn-new-meme">🆕 New</button>
 		<button id="shareBtn" class="btn btn-share">📤 Share</button>
 		<button id="doneBtn" class="btn btn-done">✅ Done</button>
 		<button id="backBtn" class="btn btn-back">⬅️ Back</button>
+<div class="control-row">
+
+  <!-- Dropdowns -->
+  <div class="control-group">
+    <label for="topText">Top</label>
+    <select id="topText" onchange="updateMemeText()"></select>
+    <input id="blurFace" type="checkbox" checked onchange="toggleBlurFace(this.checked)">
+    <label for="blurFace">Blur</label>
+	<label for="textColor">Color</label>
+	<input id="textColor" type="color" value="#ffffff" class="color-swatch-picker">
+    <label for="bottomText">Bottom</label>
+    <select id="bottomText" onchange="updateMemeText()"></select>
+    <input id="includeDisclaimer" type="checkbox" checked onchange="updateMemeText()">
+    <label for="includeDisclaimer">Disclaimer</label>
+  </div>
+
+
+</div>
 	</div>
 
-	<!-- Top Floating Result Container -->
+	<!-- Top Floating Result Container (Holds both message and controls/buttons) -->
 	<div id="resultContainer" class="glassmorphism">
-		<p id="result">What can I do on this page?</p>
-		<div id="topButtonsContainer" class="button-row"></div>
+		<div id="topMessage" class="state-message"></div>
+		<div id="topButtonsContainer" class="button-row"></div>  <!-- Holds action buttons -->
 	</div>
 
 	<!-- Meme Image Container -->
@@ -30,11 +47,20 @@
 		</div>
 	</div>
 
-	<!-- Bottom Floating Result Container -->
+	<!-- Bottom Floating Result Container (Holds both message and controls/buttons) -->
 	<div id="bottomResultContainer" class="glassmorphism">
-		<p id="bottomResult">Ready to proceed?</p>
+		<div id="bottomMessage" class="state-message"></div>
+		<div id="bottomButtonsContainer" class="button-row"></div>  <!-- Holds action buttons -->
+	</div>
+	
+	<div class="button-row-wrapper">
+		<div id="topButtonsContainer" class="button-row"></div>
+	</div>
+
+	<div class="button-row-wrapper">
 		<div id="bottomButtonsContainer" class="button-row"></div>
 	</div>
+	
 </div>
 
 <!-- Modal Dialogs Module -->

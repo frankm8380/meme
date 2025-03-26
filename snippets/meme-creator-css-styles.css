@@ -1,3 +1,5 @@
+//<?php
+//
 /* ============================= */
 /* 🎨 Theme Variables */
 /* ============================= */
@@ -9,165 +11,170 @@
     --popup-bg: rgba(0, 0, 0, 0.85);
     --border-color: #ddd;
 }
-	
-/* ============================= */
-/* 📌 Status Container & Message */
-/* ============================= */
-#resultContainer {
-    position: fixed;
-    top: 0;
-	
-    left: 50%;
-    z-index: 9999;
-    transform: translateX(-50%);
-    transition: top 0.3s ease-in-out, bottom 0.3s ease-in-out;
 
-	width: calc(100% - 0px); /* Keep the width as you prefer */
-    margin: 0 auto; /* Center it */
-    padding: 4px 8px; /* Minimal padding */
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    color: var(--text-color);
-    text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.2); /* Thin border */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    
-    background-color: #ffffff !important; /* Set to solid white */
-    opacity: 1 !important; /* Remove any transparency */
-
-	display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-#result {
-    font-size: 16px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-    margin: 0; /* Remove unnecessary space */
-    padding: 2px 5px; /* Add tiny padding for readability */
-}
-	
 /* ============================= */
-/* 📌 Bottom Result Container */
+/* 📌 Status Containers */
 /* ============================= */
+#resultContainer,
 #bottomResultContainer {
     position: fixed;
-    bottom: 0;
-	
     left: 50%;
-    z-index: 9999;
     transform: translateX(-50%);
-    transition: top 0.3s ease-in-out, bottom 0.3s ease-in-out;
-    
-	width: calc(100% - 0px); /* Keep the width as you prefer */
-    margin: 0 auto; /* Center it */
-    padding: 4px 8px; /* Minimal padding */
-    background: var(--glass-bg);
+    width: 100%;
+    max-width: 100%;
+    padding: 2px 6px;
+    background-color: #ffffff !important;
     backdrop-filter: blur(10px);
     color: var(--text-color);
     text-align: center;
     font-size: 16px;
     font-weight: bold;
     border-radius: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.2); /* Thin border */
+    border: 1px solid rgba(0, 0, 0, 0.2);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    
-    background-color: #ffffff !important; /* Set to solid white */
-    opacity: 1 !important; /* Remove any transparency */
-
-	display: flex;
+    z-index: 9999;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
-#bottomResult {
-    font-size: 16px;
+#resultContainer {
+    top: 0;
+}
+
+#bottomResultContainer {
+    bottom: 0;
+}
+
+#topMessage,
+#bottomMessage {
+    font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    margin: 0; /* Remove unnecessary space */
-    padding: 2px 5px; /* Add tiny padding for readability */
-}
-
-/* 📌 Buttons at Bottom */
-#bottomButtonRow {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    flex-wrap: wrap;
-    padding-top: 4px;
+    margin: 0;
+    padding: 2px 4px;
 }
 
 /* ============================= */
 /* 📌 Buttons & Controls */
 /* ============================= */
-.button-row {
+.button-row-wrapper {
+    width: 100%;
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 0 6px;
+    box-sizing: border-box;
+}
+
+.button-row,
+#topButtonsContainer,
+#bottomButtonsContainer {
     display: flex;
-    justify-content: center;
-    gap: 5px;
     flex-wrap: wrap;
-    padding-top: 4px;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.btn {
-    padding: 8px 14px; /* Increase padding for a button shape */
+.control-group {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    flex: 0 1 auto;
     font-size: 14px;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(200, 200, 200, 0.3)); /* Light gradient */
-    color: white;
-    border: 1px solid rgba(0, 0, 0, 0.3); /* Add a thin border */
-    border-radius: 6px; /* More rounded */
-    cursor: pointer;
-    font-weight: bold; /* Make text bolder */
-    text-transform: uppercase; /* Optional: Makes text more button-like */
-    transition: background 0.3s ease-in-out, transform 0.1s ease-in-out, border-color 0.3s ease-in-out;
+    white-space: nowrap;
+    margin: 2px 4px;
 }
 
-/* 🎨 Assign Unique Colors */
-.btn-read { background-color: #3498db; }    /* Blue  */
-.btn-create { background-color: #e74c3c; } /* Red  */
-.btn-upload { background-color: #f4a261; }   /* Orange */
-.btn-donate { background-color: #2ecc71; }   /* Green */
-.btn-send { background-color: #8e44ad; } /* Purple */
-.btn-start { background-color: #3498db; }    /* Blue */
-.btn-stop { background-color: #e74c3c; } /* Red */
-.btn-retry { background-color: #f4a261; }   /* Orange */
-.btn-save { background-color: #2ecc71; }   /* Green */
-.btn-edit { background-color: #8e44ad; } /* Purple */
+.control-group label {
+    font-size: 13px;
+    margin: 0;
+    font-weight: normal;
+}
 
-/* 🖱️ Add Hover Effect */
+/* Input controls */
+select,
+input[type="color"] {
+    max-width: 120px;
+    width: auto;
+    padding: 4px 6px;
+    margin: 2px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+input.color-swatch-picker[type="color"] {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: none;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin: 0 0 0 4px;
+    cursor: pointer;
+}
+
+/* Buttons */
+.btn {
+    flex: 0 1 auto;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: white;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #333;
+    transition: background 0.3s ease, transform 0.1s ease;
+    white-space: nowrap;
+    min-width: 90px;
+}
+
 .btn:hover {
-    opacity: 0.8;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), rgba(180, 180, 180, 0.5)); /* More contrast */
+    opacity: 0.9;
     transform: scale(1.05);
-    border-color: rgba(0, 0, 0, 0.5); /* Slightly darker border */
 }
 
 .btn:active {
     transform: scale(0.95);
-    background: linear-gradient(to bottom, rgba(180, 180, 180, 0.5), rgba(150, 150, 150, 0.3));
 }
 
-.btn-icon {
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: white;
-}
+/* Unique colors */
+.btn-read     { background-color: #3498db; }
+.btn-create   { background-color: #e74c3c; }
+.btn-upload   { background-color: #f4a261; }
+.btn-donate   { background-color: #2ecc71; }
+.btn-send     { background-color: #8e44ad; }
+.btn-start    { background-color: #3498db; }
+.btn-stop     { background-color: #e74c3c; }
+.btn-retry    { background-color: #f4a261; }
+.btn-save     { background-color: #2ecc71; }
+.btn-new-meme { background-color: #00bcd4; }
+.btn-share    { background-color: #e91e63; }
+.btn-done     { background-color: #8bc34a; }
+.btn-back     { background-color: #9e9e9e; }
 
 /* ============================= */
-/* 📌 Video & Canvas Container */
+/* 📌 Video & Canvas */
 /* ============================= */
-
 #videoContainer {
     position: relative;
     width: 640px;
@@ -176,34 +183,31 @@
     background: black;
 }
 
-/* Webcam Video */
 #videoContainer video {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
     object-fit: cover;
+    z-index: 1;
 }
 
-/* Overlay Canvas */
 #videoContainer #cameraCanvas {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 2;
     pointer-events: none;
+    z-index: 2;
 }
 
-/* 📌 Meme Canvas & Image Display */
 .image-container {
     position: relative;
     display: flex;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 4px;
 }
 
 #memeCanvas {
@@ -213,121 +217,10 @@
 }
 
 /* ============================= */
-/* 📌 Meme Editor Overlay */
+/* 🔒 Hidden Button Storage */
 /* ============================= */
-.meme-editor {
+#allButtons {
     position: absolute;
-    top: -100%;
-    left: 0;
-    width: 100%;
-    background: var(--popup-bg);
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: top 0.3s ease-in-out;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: white;
-    border-radius: 8px 8px 0 0;
+    left: -9999px;
+    visibility: hidden;
 }
-
-.meme-editor.hidden {
-    display: none;
-}
-
-.meme-editor.open {
-    top: 0;
-}
-
-/* ============================= */
-/* 📌 Meme Editor Controls & UI Elements */
-/* ============================= */
-.editor-header {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-}
-
-.dropdown-wrapper, .controls-row-web {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    width: 100%;
-    margin-top: 10px;
-}
-
-.controls-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-/* ============================= */
-/* 📌 Floating Meme Editor */
-/* ============================= */
-.meme-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 350px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--text-color);
-    cursor: grab;
-}
-
-.meme-popup.hidden {
-    display: none;
-}
-
-.meme-popup.open {
-    display: flex;
-}
-
-.meme-popup.dragging {
-    cursor: grabbing;
-    opacity: 0.8;
-}
-
-/* ============================= */
-/* 📌 Responsive Adjustments */
-/* ============================= */
-/* Ensure buttons stay in a single row with horizontal scrolling on small screens */
-@media (max-width: 500px) {
-    .button-row {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between; /* Evenly distribute buttons */
-        gap: 2px; /* Minimal spacing */
-    }
-
-    .btn {
-        flex: 1 1 calc(20% - 2px); /* Ensure five buttons per row */
-        max-width: calc(20% - 2px); /* Force precise width for five buttons */
-        text-align: center; /* Keep text centered */
-        font-size: 12px; /* Ensure text fits */
-        padding: 6px 2px; /* Adjust padding to maintain button shape */
-        white-space: nowrap; /* Prevent multi-line text */
-        overflow: hidden; /* Prevent text overflow */
-    }
-	
-    #resultContainer {
-        font-size: 14px;
-    }
-
-    #videoContainer {
-        width: 100%;
-        height: auto;
-    }
-}
-

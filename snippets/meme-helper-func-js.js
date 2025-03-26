@@ -1,8 +1,87 @@
 // =========================
 // 🎥 UI Helper Functions
 // =========================
+//
+/**
+ * 🎨 Creates a meme control UI element dynamically
+ * @param {string} controlId - The control identifier from CONTROLS.
+ * @returns {HTMLElement} - The generated control element.
+ */
+    function createMemeControl(controlId) {
+        let control;
 
-// Open Modal & Scroll to Top
+      switch (controlId) {
+        case "topText":
+        case "bottomText":
+            control = document.createElement("select");
+            control.id = controlId;
+            control.onchange = updateMemeText;
+
+//             // Populate dropdown with text options (assuming global `memeTextOptions`)
+//             memeTextOptions.forEach(text => {
+//                 let option = document.createElement("option");
+//                 option.text = text;
+//                 control.add(option);
+//             });
+             break;
+
+        case "textColor":
+            control = document.createElement("input");
+            control.type = "color";
+            control.id = "textColor";
+            control.value = "#ffffff";
+            control.oninput = function () {
+                updateColor();
+                updateMemeText();
+            };
+            break;
+
+        case "includeDisclaimer":
+            control = document.createElement("input");
+            control.type = "checkbox";
+            control.id = "includeDisclaimer";
+            control.checked = true;
+            control.onchange = updateMemeText;
+            break;
+
+        case "blurFace":
+            control = document.createElement("input");
+            control.type = "checkbox";
+            control.id = "blurFace";
+            control.onchange = function () {
+                toggleBlurFace(this.checked);
+            };
+
+            let label = document.createElement("label");
+            label.htmlFor = "blurFace";
+            label.textContent = "Blur Face";
+            let container = document.createElement("div");
+            container.appendChild(control);
+            container.appendChild(label);
+            return container; // Special case: Return label+checkbox in a div
+      }
+
+      return control;
+    }
+
+document.getElementById("blurFace").addEventListener("change", function() {
+    toggleBlurFace(this.checked);
+});
+
+function toggleBlurFace(enabled) {
+    const memeCanvas = document.getElementById("memeCanvas");
+    if (!memeCanvas) return;
+
+    const ctx = memeCanvas.getContext("2d");
+    if (enabled) {
+        ctx.filter = "blur(10px)";
+    } else {
+        ctx.filter = "none";
+    }
+    ctx.drawImage(savedImage, 0, 0, memeCanvas.width, memeCanvas.height);
+}
+
+// // Open Modal & Scroll to Top
 function openModal(modalId) {
     let modal = document.getElementById(modalId);
     if (!modal) {
@@ -67,7 +146,7 @@ function displayTopMessage(message) {
 }
 
 function displayBottomMessage(message) {
-    let bottomMsgElem = document.getElementById("bottomResult");
+    let bottomMsgElem = document.getElementById("bottomMessage");
     if (!bottomMsgElem) {
         bottomMsgElem = document.createElement("div");
         bottomMsgElem.id = "bottomMessage";
@@ -85,23 +164,22 @@ function displayBottomMessage(message) {
 
 // // Display Status Message with Smooth Fade
 function displayStatusMessage(message) {
-    const resultElement = document.getElementById("result");
-    resultElement.innerText = message;
-    resultElement.style.opacity = "1";
-    resultElement.style.color = 'green';
-
-    setTimeout(() => {
-        resultElement.style.opacity = "0.7";
-    }, 2000);
+    const topMessage = document.getElementById("topMessage");
+    if (topMessage) {
+        topMessage.textContent = message;
+        topMessage.style.display = "block";
+    }
+}
+function displayErrorMessage(message) {
+    const topMessage = document.getElementById("topMessage");
+    if (topMessage) {
+        topMessage.textContent = message;
+        topMessage.style.display = "block";
+        topMessage.style.color = "red"; // Optional visual cue
+    }
 }
 
-  function displayErrorMessage(message) {
-    const resultElement = document.getElementById("result");
-    resultElement.innerText = message;
-    resultElement.style.color = 'red';
-  }
-
-  function scrollToSection(sectionToScrollTo,bottom=false) {
+function scrollToSection(sectionToScrollTo,bottom=false) {
     const theSection = document.getElementById(sectionToScrollTo);
     if (theSection) {
       theSection.style.display = "block"; // ✅ Make it visible
@@ -113,7 +191,7 @@ function displayStatusMessage(message) {
     } else {	  
 		console.error("Unable to scroll to section "+sectionToScrollTo)
     }
-  }
+}
 
 /**
  * Retrieves or creates the camera canvas for video rendering.
@@ -222,7 +300,8 @@ async function adjustCanvasForDisclaimer(ctx,theCanvasToAdjust) {
     let disclaimerLineHeight = 24;
     let fontSize = 50;
     let lineHeight = fontSize * 1.2;
-    let effectiveMaxWidth = theCanvasToAdjust.width - 40;	
+    theCanvasToAdjust.width = savedVideoWidth + 2 * savedBorderThickness; // set this FIRST
+    let effectiveMaxWidth = theCanvasToAdjust.width - 40;
     let totalDisclaimerLines = 0;
     if (includeDisclaimer) {
       disclaimerMessage.forEach(sentence => {
@@ -419,7 +498,14 @@ function populateDisclaimerMessages() {
 function updateColor() {
   const colorPicker = document.getElementById("textColor");
   const colorDisplay = document.getElementById("colorDisplay");
-  colorDisplay.style.backgroundColor = colorPicker.value;
+
+  if (colorPicker && colorDisplay) {
+    // Force style + value to sync
+    const color = colorPicker.value;
+    colorDisplay.style.backgroundColor = color;
+    colorPicker.setAttribute("value", color);  // 🔧 Force DOM attribute sync
+    lastSelectedTextColor = color;
+  }
 }
 
 function updateMemeText() {
@@ -454,7 +540,10 @@ function drawMemeText(ctx) {
   const memeCanvas = document.getElementById("memeCanvas");
   if (!memeCanvas) return;
 
-  let textColor = document.getElementById("textColor").value;
+let colorInput = document.querySelector("#bottomButtonsContainer input#textColor") ||
+                 document.querySelector("#topButtonsContainer input#textColor") ||
+                 document.querySelector("input#textColor");
+  let textColor = colorInput ? colorInput.value : "#ffffff";
   let topText = document.getElementById("topText").value;
   let bottomText = document.getElementById("bottomText").value;
   let includeDisclaimer = document.getElementById("includeDisclaimer").checked;

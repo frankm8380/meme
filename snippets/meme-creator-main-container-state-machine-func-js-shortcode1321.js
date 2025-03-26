@@ -2,75 +2,123 @@
 /**
  * 🔄 Updates UI Based on State
  */
-function updateUI(state) {
-    console.log(`🔄 Updating UI for state: ${state.name}`);
+// 🔁 Cache all original controls + labels once, so we can reuse them later
+const CONTROL_CACHE = {};
 
-    const topContainer = document.getElementById("resultContainer");
-    const bottomContainer = document.getElementById("bottomResultContainer");
+function cacheControlsOnce() {
+	Object.values(CONTROLS).forEach(id => {
+		const el = document.getElementById(id);
+		const label = document.querySelector("label[for='" + id + "']");
 
-    if (!topContainer || !bottomContainer) {
-        console.error("❌ UI containers not found in DOM.");
-        return;
-    }
+		if (el && label) {
+			CONTROL_CACHE[id] = { el, label };
 
-    // Default visibility unless explicitly hidden
-    const topShouldBeVisible = state.topVisible !== false;
-    const bottomShouldBeVisible = state.bottomVisible !== false;
+			switch (id) {
+				case "topText":
+				case "bottomText":
+					el.addEventListener("change", updateMemeText);
+					break;
 
-    console.log(`📌 Showing/Hiding containers... Top: ${topShouldBeVisible}, Bottom: ${bottomShouldBeVisible}`);
-    topContainer.style.display = topShouldBeVisible ? "block" : "none";
-    bottomContainer.style.display = bottomShouldBeVisible ? "block" : "none";
-	
-   // ✅ Adjust top container position when transitioning states
-    if (state.positionTop) {
-		positionTopContainerBelowHeader = state.positionTop !== "top"; // If "top", set false (move to top)
-        console.log(`This state has a positionTop: ${state.positionTop}`);
-        adjustResultContainerPosition(true);
-    }
+				case "textColor":
+					el.addEventListener("input", () => {
+						updateColor();
+						updateMemeText();
+						lastSelectedTextColor = el.value;
+					});
+					break;
 
-    // 🔽 Function to update buttons dynamically 🔽
-    function updateButtons(location, buttons) {
-        const container = document.getElementById(location === "top" ? "topButtonsContainer" : "bottomButtonsContainer");
-        const allButtonsContainer = document.getElementById("allButtons");
+				case "includeDisclaimer":
+					el.addEventListener("change", updateMemeText);
+					break;
 
-        if (!container || !allButtonsContainer) {
-            console.error(`❌ Missing container(s) for buttons: ${location}`);
-            return;
-        }
-
-        // Clear existing buttons
-        container.innerHTML = "";
-
-        buttons.forEach(buttonId => {
-            let button = allButtonsContainer.querySelector(`#${buttonId}`);
-
-            if (button) {
-                let clonedButton = button.cloneNode(true);
-                clonedButton.addEventListener("click", () => {
-                    console.log(`🖱 Click detected on: ${buttonId}, transitioning state.`);
-                    changeState(buttonStateMap[buttonId] || 1);
-                });
-
-                container.appendChild(clonedButton);
-            } else {
-                console.warn(`⚠️ Button not found in #allButtons: ${buttonId}. Check for missing buttons.`);
-            }
-        });
-    }
-
-	// Display top message if provided
-    if (state.topMessage && state.topMessage.trim() !== "") {
-        displayTopMessage(state.topMessage);
-    }
-    // Display bottom message if provided
-    if (state.bottomMessage && state.bottomMessage.trim() !== "") {
-        displayBottomMessage(state.bottomMessage);
-    }
-
-    updateButtons("top", state.topButtons || []);
-    updateButtons("bottom", state.bottomButtons || []);
+				case "blurFace":
+					el.addEventListener("change", function () {
+						toggleBlurFace(this.checked);
+					});
+					break;
+			}
+		}
+	});
 }
 
+// 📌 Cache controls when DOM is ready
+window.addEventListener("DOMContentLoaded", () => {
+    cacheControlsOnce();
+});
+
+// 🎯 Master UI Update Function
+function updateUI(state) {
+	console.log("🔄 Updating UI for state: " + state.name);
+
+	const topContainer = document.getElementById("resultContainer");
+	const bottomContainer = document.getElementById("bottomResultContainer");
+	const topMessageEl = document.getElementById("topMessage");
+	const bottomMessageEl = document.getElementById("bottomMessage");
+
+	if (!topContainer || !bottomContainer || !topMessageEl || !bottomMessageEl) {
+		console.error("❌ One or more UI containers not found.");
+		return;
+	}
+
+	// Handle visibility of containers
+	const topVisible = state.topVisible !== false;
+	const bottomVisible = state.bottomVisible !== false;
+	topContainer.style.display = topVisible ? "block" : "none";
+	bottomContainer.style.display = bottomVisible ? "block" : "none";
+
+	// Adjust result container vertical position
+	if (state.positionTop) {
+		positionTopContainerBelowHeader = state.positionTop !== "top";
+		adjustResultContainerPosition(true);
+	}
+
+	// Set messages
+	topMessageEl.textContent = state.topMessage || "";
+	topMessageEl.style.display = state.topMessage ? "block" : "none";
+
+	bottomMessageEl.textContent = state.bottomMessage || "";
+	bottomMessageEl.style.display = state.bottomMessage ? "block" : "none";
+
+	// 🧩 Update buttons and controls
+	updateButtons("top", state.topButtons || []);
+	updateButtons("bottom", state.bottomButtons || []);
+}
+
+// 🔘 Insert Buttons + Controls into Button Rows (top or bottom)
+function updateButtons(location, items) {
+	const container = document.getElementById(location === "top" ? "topButtonsContainer" : "bottomButtonsContainer");
+	if (!container) {
+		console.error("❌ Missing container for " + location + "ButtonsContainer");
+		return;
+	}
+
+	container.innerHTML = "";
+
+	items.forEach(itemId => {
+		if (Object.values(CONTROLS).includes(itemId)) {
+			const cached = CONTROL_CACHE[itemId];
+			if (cached && cached.el && cached.label) {
+				const group = document.createElement("div");
+				group.className = "control-group";
+				group.appendChild(cached.label);
+				group.appendChild(cached.el);
+				container.appendChild(group);
+			} else {
+				console.warn("⚠️ Missing control or label for: " + itemId);
+			}
+		} else if (Object.values(BUTTONS).includes(itemId)) {
+			const original = document.querySelector("#allButtons #" + itemId);
+			if (original) {
+				const cloned = original.cloneNode(true);
+				cloned.addEventListener("click", () => {
+					console.log("🖱 Click: " + itemId + ", transitioning state.");
+					changeState(buttonStateMap[itemId] || 1);
+				});
+				container.appendChild(cloned);
+			}
+		}
+	});
+}
 
 /**
  * 🔀 Changes State in the State Machine
