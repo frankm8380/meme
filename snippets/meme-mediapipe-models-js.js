@@ -52,17 +52,22 @@ async function createHandLandmarker(mode = "VIDEO") {
 // ✅ Function to Create Gesture Recognizer with Mode
 async function createGestureRecognizer(mode = "VIDEO") {
   console.log("DEBUG: Initializing MediaPipe Gesture Recognizer in", mode, "mode...");
-  
+
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
   );
 
+  // 🔁 Switch model URL based on page title
+  const isNotMode = document.title.includes("NOT");
+  const modelURL = "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task";
+
   const options = {
     baseOptions: {
-      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task",
+      modelAssetPath: modelURL,
       delegate: "GPU"
     },
-    runningMode: mode
+    runningMode: mode,
+    numHands: 2
   };
 
   if (mode === "IMAGE") {
@@ -71,9 +76,37 @@ async function createGestureRecognizer(mode = "VIDEO") {
     gestureRecognizerVideo = await GestureRecognizer.createFromOptions(vision, options);
   }
 
-  console.log("DEBUG: MediaPipe Gesture Recognizer is ready for", mode, "mode.");
+  console.log(`DEBUG: Gesture Recognizer loaded from ${modelURL} for ${mode} mode`);
 }
 
+async function createCustomGestureRecognizer(mode = "VIDEO") {
+  console.log("DEBUG: Initializing MediaPipe Custom Gesture Recognizer in", mode, "mode...");
+
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+  );
+
+  // 🔁 Switch model URL based on page title
+  const isNotMode = document.title.includes("NOT");
+  const modelURL = "https://elonandtrumpnumberone.com/wp-content/uploads/2025/04/meme_gesture_recognizer.task";
+
+  const options = {
+    baseOptions: {
+      modelAssetPath: modelURL,
+      delegate: "GPU"
+    },
+    runningMode: mode,
+    numHands: 2
+  };
+
+  if (mode === "IMAGE") {
+    gestureRecognizerCustomImage = await GestureRecognizer.createFromOptions(vision, options);
+  } else {
+    gestureRecognizerCustomVideo = await GestureRecognizer.createFromOptions(vision, options);
+  }
+
+  console.log(`DEBUG: Gesture Recognizer Custom loaded from ${modelURL} for ${mode} mode`);
+}
 // ✅ Function to Load All MediaPipe Models
 async function loadMediaPipeModels() {
   console.log("⏳ Loading MediaPipe models...");
@@ -81,17 +114,15 @@ async function loadMediaPipeModels() {
     // These functions should initialize your models and set the global variables.
     await createFaceDetector("VIDEO");  // Should set faceDetectorVideo
     await createFaceDetector("IMAGE");  // Should set faceDetectorImage
-    await createGestureRecognizer("VIDEO");  // Should set gestureRecognizerVideo
-    await createGestureRecognizer("IMAGE");  // Should set gestureRecognizerImage
+    //await createGestureRecognizer("VIDEO");  // Should set gestureRecognizerVideo
+    //await createGestureRecognizer("IMAGE");  // Should set gestureRecognizerImage
+    await createCustomGestureRecognizer("VIDEO");  // Should set gestureRecognizerCustomVideo
+    await createCustomGestureRecognizer("IMAGE");  // Should set gestureRecognizerCustomImage
     await createHandLandmarker("VIDEO");  // Should set handLandmarkerVideo
     await createHandLandmarker("IMAGE");  // Should set handLandmarkerImage
 
-    if (!faceDetectorVideo || !gestureRecognizerVideo || !handLandmarkerVideo) {
+    if (!faceDetectorVideo || !gestureRecognizerCustomVideo || !handLandmarkerVideo) {
       console.log("⚠️ Some video models failed to load.");
-      return;
-    }
-    if (!faceDetectorImage || !gestureRecognizerImage || !handLandmarkerImage) {
-      console.log("⚠️ Some image models failed to load.");
       return;
     }
     console.log("✅ All MediaPipe models loaded successfully.");

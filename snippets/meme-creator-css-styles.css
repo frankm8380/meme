@@ -1,15 +1,16 @@
 //<?php
 //
+
 /* ============================= */
 /* 🎨 Theme Variables */
 /* ============================= */
 :root {
-    --glass-bg: rgba(255, 255, 255, 0.2);
-    --text-color: black;
-    --button-bg: rgba(255, 255, 255, 0.3);
-    --button-hover: rgba(255, 255, 255, 0.5);
-    --popup-bg: rgba(0, 0, 0, 0.85);
-    --border-color: #ddd;
+	--glass-bg: rgba(255, 255, 255, 0.2);
+	--text-color: black;
+	--button-bg: rgba(255, 255, 255, 0.3);
+	--button-hover: rgba(255, 255, 255, 0.5);
+	--popup-bg: rgba(0, 0, 0, 0.85);
+	--border-color: #ddd;
 }
 
 /* ============================= */
@@ -17,147 +18,137 @@
 /* ============================= */
 #resultContainer,
 #bottomResultContainer {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 100%;
-    padding: 2px 6px;
-    background-color: #ffffff !important;
-    backdrop-filter: blur(10px);
-    color: var(--text-color);
-    text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+	position: fixed;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 100%;
+	max-width: 100%;
+	padding: 2px 6px;
+	background-color: #ffffff !important;
+	backdrop-filter: blur(10px);
+	color: var(--text-color);
+	text-align: center;
+	font-size: 16px;
+	font-weight: bold;
+	border-radius: 12px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	z-index: 9999;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 
-#resultContainer {
-    top: 0;
-}
-
-#bottomResultContainer {
-    bottom: 0;
-}
+#resultContainer { top: 0; }
+#bottomResultContainer { bottom: 0; }
 
 #topMessage,
 #bottomMessage {
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-    margin: 0;
-    padding: 2px 4px;
+	font-size: 14px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
+	margin: 0;
+	padding: 2px 4px;
 }
 
 /* ============================= */
 /* 📌 Buttons & Controls */
 /* ============================= */
 .button-row-wrapper {
-    width: 100%;
-    max-width: 660px;
-    margin: 0 auto;
-    padding: 0 6px;
-    box-sizing: border-box;
+	width: 100%;
+	max-width: 660px;
+	margin: 0 auto;
+	padding: 0 6px;
+	box-sizing: border-box;
 }
 
 .button-row,
 #topButtonsContainer,
 #bottomButtonsContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    padding: 4px;
-    width: 100%;
-    box-sizing: border-box;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	padding: 4px;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .control-group {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 4px;
-    flex: 0 1 auto;
-    font-size: 14px;
-    white-space: nowrap;
-    margin: 2px 4px;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 14px;
+	margin: 2px 4px;
+	white-space: nowrap;
 }
 
 .control-group label {
-    font-size: 13px;
-    margin: 0;
-    font-weight: normal;
+	font-size: 13px;
+	margin: 0;
+	font-weight: normal;
 }
 
-/* Input controls */
 select,
 input[type="color"] {
-    max-width: 120px;
-    width: auto;
-    padding: 4px 6px;
-    margin: 2px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: white;
-    font-size: 13px;
-    font-family: inherit;
+	max-width: 120px;
+	padding: 4px 6px;
+	margin: 2px;
+	border-radius: 6px;
+	border: 1px solid #ccc;
+	background-color: white;
+	font-size: 13px;
+	font-family: inherit;
 }
 
 input.color-swatch-picker[type="color"] {
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: none;
-    cursor: pointer;
-    vertical-align: middle;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	cursor: pointer;
+	background: none;
+	vertical-align: middle;
 }
 
 input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    vertical-align: middle;
-    margin: 0 0 0 4px;
-    cursor: pointer;
+	width: 14px;
+	height: 14px;
+	margin-left: 4px;
+	cursor: pointer;
+	vertical-align: middle;
 }
 
 /* Buttons */
 .btn {
-    flex: 0 1 auto;
-    padding: 6px 10px;
-    font-size: 13px;
-    color: white;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    background-color: #333;
-    transition: background 0.3s ease, transform 0.1s ease;
-    white-space: nowrap;
-    min-width: 90px;
+	padding: 6px 10px;
+	font-size: 13px;
+	color: white;
+	border: 1px solid rgba(0, 0, 0, 0.3);
+	border-radius: 6px;
+	cursor: pointer;
+	font-weight: bold;
+	background-color: #333;
+	transition: background 0.3s ease, transform 0.1s ease;
+	white-space: nowrap;
+	min-width: 90px;
 }
 
 .btn:hover {
-    opacity: 0.9;
-    transform: scale(1.05);
+	opacity: 0.9;
+	transform: scale(1.05);
 }
 
 .btn:active {
-    transform: scale(0.95);
+	transform: scale(0.95);
 }
 
-/* Unique colors */
+/* Unique Button Colors */
 .btn-read     { background-color: #3498db; }
 .btn-create   { background-color: #e74c3c; }
 .btn-upload   { background-color: #f4a261; }
@@ -173,54 +164,103 @@ input[type="checkbox"] {
 .btn-back     { background-color: #9e9e9e; }
 
 /* ============================= */
-/* 📌 Video & Canvas */
+/* 🎥 Video & Canvas Layout */
 /* ============================= */
 #videoContainer {
-    position: relative;
-    width: 640px;
-    height: 480px;
-    margin: 20px auto;
-    background: black;
+	position: relative;
+	width: 640px;
+	height: 480px;
+	margin: 20px auto;
+	background: black;
 }
 
-#videoContainer video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1;
-}
-
+#videoContainer video,
 #videoContainer #cameraCanvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 2;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	pointer-events: none;
 }
 
-.image-container {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    margin-top: 4px;
+.image-container,
+#infoPanel.dynamic-info-panel {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: auto;
+	max-width: 100vw;
+	padding: 0;
 }
 
 #memeCanvas {
-    border: 2px solid #ddd;
-    max-width: 100%;
-    height: auto;
+	border: 2px solid #ddd;
+	max-width: 100%;
+	height: auto;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+	background: white;
 }
 
 /* ============================= */
 /* 🔒 Hidden Button Storage */
 /* ============================= */
 #allButtons {
-    position: absolute;
-    left: -9999px;
-    visibility: hidden;
+	position: absolute;
+	left: -9999px;
+	visibility: hidden;
+}
+
+
+
+/* ============================= */
+/* 📄 Meme Instructions Modal List */
+/* ============================= */
+#meme-instructions-list {
+	margin-top: 16px;
+}
+
+#meme-instructions-list p {
+	margin-bottom: 12px;
+	line-height: 1.5;
+}
+
+#meme-instructions-list a {
+	display: block;
+	font-size: 0.9em;
+	margin-top: 6px;
+	color: #1a73e8;
+	text-decoration: underline;
+}
+
+/* ============================= */
+/* 📄 Accomplishments Modal List */
+/* ============================= */
+#accomplishments-list {
+	margin-top: 16px;
+}
+
+#accomplishments-list p {
+	margin-bottom: 12px;
+	line-height: 1.5;
+}
+
+#accomplishments-list a {
+	display: block;
+	font-size: 0.9em;
+	margin-top: 6px;
+	color: #1a73e8;
+	text-decoration: underline;
+}
+/* ============================= */
+/* 🧼 Cleanup */
+/* ============================= */
+.wp-block-post-title,
+#title-list {
+	display: none !important;
 }

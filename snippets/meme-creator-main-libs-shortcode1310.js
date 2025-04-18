@@ -54,3 +54,5 @@
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_stylizer/face_stylizer.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/avatar_render/avatar_render.js">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite">

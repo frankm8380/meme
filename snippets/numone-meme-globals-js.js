@@ -1,9 +1,9 @@
 // Global variables for models and detection state.
 let videoStream = null;
 let detectionStopped = false;
-let faceDetectorVideo, faceDetectorImage;
-let gestureRecognizerVideo, gestureRecognizerImage;
-let handLandmarkerVideo, handLandmarkerImage;
+let faceDetectorVideo = null, faceDetectorImage = null;
+let gestureRecognizerCustomVideo = null, gestureRecognizerCustomImage = null;
+let handLandmarkerVideo = null, handLandmarkerImage = null;
 let debug = false;
 let isGestureDetected = false;
 let detectionStartTime = null;
@@ -32,4 +32,4 @@ let currentState = 1;
 let previousState = 1; // Track the last non-modal state
 let lastHeaderBottom = 0; // Track last known header height to prevent infinite adjustments
 let positionTopContainerBelowHeader = true;
-
+let tfliteModel = null;

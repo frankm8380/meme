@@ -4,6 +4,7 @@
 function allow_custom_upload_mimes($mimes) {
     $mimes['json'] = 'application/json'; // Allow JSON uploads
     $mimes['js'] = 'application/javascript'; // Allow JS uploads
+    $mimes['task'] = 'application/octet-stream';
     return $mimes;
 }
 add_filter('upload_mimes', 'allow_custom_upload_mimes');

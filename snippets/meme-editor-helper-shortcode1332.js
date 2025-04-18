@@ -11,6 +11,7 @@ function updateColor() {
   }
 }
 
+
 function updateMemeText() {
   const memeCanvas = document.getElementById("memeCanvas");
   const ctx = memeCanvas.getContext("2d");
@@ -55,15 +56,17 @@ let colorInput = document.querySelector("#bottomButtonsContainer input#textColor
   let lineHeight = fontSize * 1.2;
   let effectiveMaxWidth = memeCanvas.width - 40;
 
-  ctx.font = `bold ${fontSize}px Impact`;
-  ctx.textAlign = "center";
-  ctx.fillStyle = textColor;
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = 8;
-  ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetX = 3;
-  ctx.shadowOffsetY = 3;
+ctx.font = `bold ${fontSize}px Impact`;
+ctx.textAlign = "center";
+ctx.textBaseline = "bottom";  // Helps vertical alignment
+ctx.fillStyle = textColor;
+ctx.strokeStyle = "black";
+ctx.lineWidth = 4;  // Reduced from 8
+ctx.lineJoin = "round";  // Smooths joins
+ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+ctx.shadowBlur = 4;
+ctx.shadowOffsetX = 2;
+ctx.shadowOffsetY = 2;
 
   drawWrappedText(ctx, topText, savedBorderThickness + 60, memeCanvas);
   let wrappedBottomText = wrapText(ctx, bottomText, effectiveMaxWidth);
@@ -150,14 +153,7 @@ function displayErrorMessage(message) {
             control = document.createElement("select");
             control.id = controlId;
             control.onchange = updateMemeText;
-
-//             // Populate dropdown with text options (assuming global `memeTextOptions`)
-//             memeTextOptions.forEach(text => {
-//                 let option = document.createElement("option");
-//                 option.text = text;
-//                 control.add(option);
-//             });
-             break;
+            break;
 
         case "textColor":
             control = document.createElement("input");
@@ -182,35 +178,10 @@ function displayErrorMessage(message) {
             control = document.createElement("input");
             control.type = "checkbox";
             control.id = "blurFace";
-            control.onchange = function () {
-                toggleBlurFace(this.checked);
-            };
-
-            let label = document.createElement("label");
-            label.htmlFor = "blurFace";
-            label.textContent = "Blur Face";
-            let container = document.createElement("div");
-            container.appendChild(control);
-            container.appendChild(label);
-            return container; // Special case: Return label+checkbox in a div
+            control.checked = true;
+            control.onchange = updateBlurFace;
+            break;
       }
 
       return control;
     }
-
-document.getElementById("blurFace").addEventListener("change", function() {
-    toggleBlurFace(this.checked);
-});
-
-function toggleBlurFace(enabled) {
-    const memeCanvas = document.getElementById("memeCanvas");
-    if (!memeCanvas) return;
-
-    const ctx = memeCanvas.getContext("2d");
-    if (enabled) {
-        ctx.filter = "blur(10px)";
-    } else {
-        ctx.filter = "none";
-    }
-    ctx.drawImage(savedImage, 0, 0, memeCanvas.width, memeCanvas.height);
-}

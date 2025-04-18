@@ -32,7 +32,9 @@ function cacheControlsOnce() {
 					break;
 
 				case "blurFace":
-					el.addEventListener("change", updateBlurFace);
+					el.addEventListener("change", function () {
+						toggleBlurFace(this.checked);
+					});
 					break;
 			}
 		}

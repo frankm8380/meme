@@ -1,5 +1,5 @@
 <div id="container">
-	<!-- Define all buttons in one place (Hidden) -->
+	<!-- All Buttons (Hidden) -->
 	<div id="allButtons" style="display: none;">
 		<button id="readBtn" class="btn btn-read">📖 Read</button>
 		<button id="createBtn" class="btn btn-create">🎨 Create</button>
@@ -14,13 +14,13 @@
 		<button id="shareBtn" class="btn btn-share">📤 Share</button>
 		<button id="doneBtn" class="btn btn-done">✅ Done</button>
 		<button id="backBtn" class="btn btn-back">⬅️ Back</button>
-
+		
 		<div class="control-row">
 			<!-- Dropdowns -->
 			<div class="control-group">
 				<label for="topText">Top</label>
 				<select id="topText" onchange="updateMemeText()"></select>
-				<input id="blurFace" type="checkbox" checked onchange="toggleBlurFace(this.checked)">
+				<input id="blurFace" type="checkbox" checked onchange="updateBlurFace()">
 				<label for="blurFace">Blur</label>
 				<label for="textColor">Color</label>
 				<input id="textColor" type="color" value="#ffffff" class="color-swatch-picker">
@@ -37,8 +37,8 @@
 		<div id="topMessage" class="state-message"></div>
 		<div id="topButtonsContainer" class="button-row"></div>
 	</div>
-
-	<!-- Meme Image Container -->
+	
+	<!-- Meme Image & Video Container -->
 	<div class="image-controls-wrapper">
 		<div class="image-container">
 			<canvas id="memeCanvas" style="display: none;"></canvas>
@@ -47,30 +47,32 @@
 
 	<!-- Bottom Floating Result Container -->
 	<div id="bottomResultContainer" class="glassmorphism">
-		<div id="bottomMessage" class="state-message"></div>
 		<div id="bottomButtonsContainer" class="button-row"></div>
+		<div id="bottomMessage" class="state-message"></div>
 	</div>
 </div>
 
 <!-- Modal Dialogs -->
+
+<!-- 🔹 Read Modal -->
 <div id="readModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('readModal')">&times;</span>
-		<h2>📖 Read</h2>
+	<div class="modal-content scrollable">
+		<span class="close" onclick="closeModal('readModal')">×</span>
+		<h2>ℹ️ More Info</h2>
 		<p>
-			Discover how our meme creator redefines political gestures. Learn the rules and see how both a thumbs-up and a middle finger can boldly declare that <strong>Trump and Musk are #1!</strong>
+			Explore the accomplishments and background that make your submission meaningful or satirical.
 		</p>
+		<div id="accomplishments-list" class="dynamic-accomplishments-list"></div>
 		<button class="modal-close-button" onclick="closeModal('readModal')">Close</button>
 	</div>
 </div>
 
+<!-- 🔹 Create Modal -->
 <div id="createModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('createModal')">&times;</span>
+	<div class="modal-content scrollable">
+		<span class="close" onclick="closeModal('createModal')">×</span>
 		<h2>🎨 Create</h2>
-		<p>
-			It’s time to design your meme. Whether you’re showing approval with a thumbs-up or expressing dissent with a middle finger, create your message and make it heard.
-		</p>
+		<div id="meme-instructions-list" class="dynamic-meme-instructions-list"></div>
 		<label>
 			<input type="checkbox" id="skipCreateModal" onchange="saveModalPreference('createModal')">
 			Do not show again
@@ -79,9 +81,10 @@
 	</div>
 </div>
 
+<!-- 🔹 Save Modal -->
 <div id="saveModal" class="modal">
 	<div class="modal-content">
-		<span class="close" onclick="closeModal('saveModal')">&times;</span>
+		<span class="close" onclick="closeModal('saveModal')">×</span>
 		<h2>📤 Save</h2>
 		<p>
 			Lock in your message! Save your meme—whether it’s a thumbs-up or a middle finger, ensure your statement is preserved for all to see.
@@ -141,21 +144,10 @@
 		<p>
 			Your support keeps our satire alive. Donate to help us continue delivering this unapologetic take on modern politics.
 		</p>
+		<div id="modalDonationContent">
+			<!-- The donation block will be dynamically inserted here -->
+		</div>
 		<button class="modal-close-button" onclick="closeModal('donateModal')">Close</button>
-	</div>
-</div>
-
-<div id="infoModal" class="modal">
-	<div class="modal-content">
-		<span class="close" onclick="closeModal('infoModal')">&times;</span>
-		<h2>ℹ️ More Info & Instructions</h2>
-		<p>Learn how it works:</p>
-		<ul>
-			<li><strong>👍 TEAM:</strong> Create a meme showing approval.</li>
-			<li><strong>🖕 NOT:</strong> Create a meme expressing disapproval.</li>
-		</ul>
-		<p>Every gesture makes a statement—choose yours wisely!</p>
-		<button class="modal-close-button" onclick="closeModal('infoModal')">Close</button>
 	</div>
 </div>
 

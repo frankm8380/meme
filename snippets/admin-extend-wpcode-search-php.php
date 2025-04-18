@@ -1,247 +1,252 @@
 //<?php
 //
 function my_wpcode_search_extension_enqueue($hook) {
-    // Only load on WPCode snippet editor pages
-    if (strpos($hook, 'wpcode') === false) {
-        return;
-    }
+	if (strpos($hook, 'wpcode') === false) return;
+	wp_enqueue_script('jquery');
 
-    wp_enqueue_script('jquery');
-
-    $custom_js = <<<'JS'
+	$custom_js = <<<'JS'
 jQuery(document).ready(function($) {
-    let folderHandle = null; // Store the folder handle for the session
-    let mappingData = {};
+	let folderHandle = null;
+	let mappingData = {};
 
-    // Load saved mapping from localStorage
-    function loadMappingFromStorage() {
-        const savedMapping = localStorage.getItem('wpcodeMappingData');
-        if (savedMapping) {
-            mappingData = JSON.parse(savedMapping);
-            console.log("[WPCode Search]: Mapping data loaded from localStorage.");
-            populateMappingDropdown();
-        }
-    }
+	function loadMappingFromStorage() {
+		const savedMapping = localStorage.getItem('wpcodeMappingData');
+		if (savedMapping) {
+			mappingData = JSON.parse(savedMapping);
+			console.log("[WPCode Search]: Mapping data loaded from localStorage.");
+			populateMappingDropdown();
+		}
+	}
 
+	function saveMappingToStorage() {
+		localStorage.setItem('wpcodeMappingData', JSON.stringify(mappingData));
+		console.log("[WPCode Mapping]: Mapping data saved to localStorage.");
+	}
 
-    // Save mapping to localStorage
-    function saveMappingToStorage() {
-        localStorage.setItem('wpcodeMappingData', JSON.stringify(mappingData));
-        console.log("[WPCode Mapping]: Mapping data saved to localStorage.");
-    }
+	function populateMappingDropdown() {
+		let $dropdown = $('#mapping-dropdown');
+		$dropdown.empty();
+		$dropdown.append('<option value="">Select a Code Snippet to load</option>');
+		Object.entries(mappingData)
+			.sort(([a], [b]) => a.localeCompare(b))
+			.forEach(([filename, id]) => {
+				$dropdown.append('<option value="' + id + '">' + filename + '</option>');
+			});
+	}
 
-    // Populate the dropdown with the current mapping data (sorted)
-    function populateMappingDropdown() {
-        let $dropdown = $('#mapping-dropdown');
-        $dropdown.empty();
-        $dropdown.append('<option value="">Select a Code Snippet to load</option>');
+	async function importMappingFile() {
+		try {
+			mappingData = {};
+			const [fileHandle] = await window.showOpenFilePicker();
+			const file = await fileHandle.getFile();
+			const content = await file.text();
+			const jsonData = JSON.parse(content);
+			jsonData.forEach(snippet => {
+				if (snippet.title && snippet.id && snippet.code_type) {
+					let ext = snippet.code_type.toLowerCase();
+					mappingData[`${snippet.title}.${ext}`] = snippet.id;
+				}
+			});
+			saveMappingToStorage();
+			populateMappingDropdown();
+			wpcodeShowMessage('Mapping data imported successfully.');
+		} catch (error) {
+			console.error('[WPCode Mapping]: Error importing file:', error);
+			wpcodeShowMessage('Failed to import mapping.');
+		}
+	}
 
-        // Convert object to array, sort by filename, and populate dropdown
-        Object.entries(mappingData)
-            .sort(([fileA], [fileB]) => fileA.localeCompare(fileB)) // Sort alphabetically by filename
-            .forEach(([filename, snippetId]) => {
-                $dropdown.append('<option value="' + snippetId + '">' + filename + '</option>');
-            });
-    }
+	function showMappings() {
+		if (Object.keys(mappingData).length === 0) {
+			wpcodeShowMessage('No mapping data loaded.');
+			return;
+		}
+		let sorted = Object.entries(mappingData).sort(([a], [b]) => a.localeCompare(b));
+		let info = 'Current Snippet Mappings:\n\n';
+		for (let [file, id] of sorted) {
+			info += `${file} -> Snippet ID: ${id}\n`;
+		}
+		alert(info);
+	}
 
-    // Function to import mapping file
-    async function importMappingFile() {
-        try {
-            mappingData = {};
-            const [fileHandle] = await window.showOpenFilePicker();
-            const file = await fileHandle.getFile();
-            const content = await file.text();
-            const jsonData = JSON.parse(content);
+	async function selectSearchFolder() {
+		try {
+			folderHandle = await window.showDirectoryPicker();
+			wpcodeShowMessage('Output folder selected.');
+		} catch (error) {
+			console.error('[WPCode Search]: Error selecting folder:', error);
+			wpcodeShowMessage('Failed to set folder.');
+		}
+	}
 
-            jsonData.forEach(snippet => {
-                if (snippet.title && snippet.id && snippet.code_type) {
-                    let fileExtension = snippet.code_type.toLowerCase();
-                    mappingData[`${snippet.title}.${fileExtension}`] = snippet.id;
-                }
-            });
+	function clearSearchResults() {
+		$('#wpcode-search-results').empty().hide();
+		$('#clear-results').hide();
+	}
 
-            saveMappingToStorage();
-            populateMappingDropdown();
-            wpcodeShowMessage('Mapping data imported successfully.');
-        } catch (error) {
-            console.error('[WPCode Mapping]: Error importing file:', error);
-            wpcodeShowMessage('Failed to import mapping.');
-        }
-    }
+	async function saveAllSnippets() {
+		if (!folderHandle) {
+			try {
+				folderHandle = await window.showDirectoryPicker();
+				wpcodeShowMessage('Output folder selected.');
+			} catch (error) {
+				wpcodeShowMessage('Save canceled. No folder selected.');
+				return;
+			}
+		}
 
-// Function to display mappings
-function showMappings() {
-    if (Object.keys(mappingData).length === 0) {
-        wpcodeShowMessage('No mapping data loaded.');
-        return;
-    }
+		const total = Object.keys(mappingData).length;
+		if (total === 0) {
+			wpcodeShowMessage('No mappings available to export.');
+			return;
+		}
 
-    let sortedMappings = Object.entries(mappingData)
-        .sort(([fileA], [fileB]) => fileA.localeCompare(fileB)); // Sort alphabetically by file name
+		wpcodeShowMessage(`Exporting ${total} snippets...`);
+		let failed = [];
 
-    let mappingInfo = 'Current Snippet Mappings:\n\n';
-    for (let [file, id] of sortedMappings) {
-        mappingInfo += `${file} -> Snippet ID: ${id}\n`;
-    }
+		for (let [filename, snippetId] of Object.entries(mappingData)) {
+			try {
+				const formData = new FormData();
+				formData.append('action', 'wpcode_get_snippet');
+				formData.append('id', snippetId);
 
-    alert(mappingInfo);
-}
+				const response = await fetch(ajaxurl, {
+					method: 'POST',
+					body: formData,
+					credentials: 'same-origin'
+				});
 
+				if (!response.ok) throw new Error(`Snippet ID ${snippetId} failed`);
 
-    // Function to select folder using File Picker
-    async function selectSearchFolder() {
-        try {
-            folderHandle = await window.showDirectoryPicker();
-            wpcodeShowMessage('Search folder set successfully.');
-        } catch (error) {
-            console.error('[WPCode Search]: Error selecting folder:', error);
-            wpcodeShowMessage('Failed to set search folder.');
-        }
-    }
+				const data = await response.json();
+				if (!data || !data.code) throw new Error(`Snippet ${snippetId} returned no code`);
 
-    // Function to clear search results and hide the container and button
-    function clearSearchResults() {
-        $('#wpcode-search-results').empty().hide();
-        $('#clear-results').hide();
-    }
+				const fileHandle = await folderHandle.getFileHandle(filename, { create: true });
+				const writable = await fileHandle.createWritable();
+				await writable.write(data.code);
+				await writable.close();
 
-    // Function to search snippets in selected folder
-    async function searchSnippetsInFolder() {
-        if (!folderHandle) {
-            try {
-                folderHandle = await window.showDirectoryPicker();
-                wpcodeShowMessage('Search folder selected successfully.');
-            } catch (error) {
-                wpcodeShowMessage('Search canceled. No folder selected.');
-                return;
-            }
-        }
+				console.log(`[Save All]: Saved ${filename}`);
+			} catch (err) {
+				console.error(`[Save All]: Error saving ${filename}:`, err);
+				failed.push(`${filename} (ID ${snippetId})`);
+			}
+		}
 
-        let searchAllFiles = $('#all-files-checkbox').is(':checked');
-        let matchCase = $('#match-case-checkbox').is(':checked');
+		if (failed.length > 0) {
+			alert('Some snippets failed to save:\n\n' + failed.join('\n'));
+		} else {
+			wpcodeShowMessage('All snippets saved.');
+		}
+	}
 
-        let searchTerm = prompt('Enter search term:');
-        if (!searchTerm || searchTerm.trim() === '') {
-            wpcodeShowMessage('No search term entered.');
-            return;
-        }
+	async function searchSnippetsInFolder() {
+		if (!folderHandle) {
+			try {
+				folderHandle = await window.showDirectoryPicker();
+				wpcodeShowMessage('Search folder selected successfully.');
+			} catch (error) {
+				wpcodeShowMessage('Search canceled. No folder selected.');
+				return;
+			}
+		}
 
-        let results = [];
+		let searchAll = $('#all-files-checkbox').is(':checked');
+		let matchCase = $('#match-case-checkbox').is(':checked');
+		let searchTerm = prompt('Enter search term:');
+		if (!searchTerm || searchTerm.trim() === '') {
+			wpcodeShowMessage('No search term entered.');
+			return;
+		}
 
-        for await (const entry of folderHandle.values()) {
-            if (entry.kind === 'file') {
-                if (!searchAllFiles && !(entry.name in mappingData)) {
-                    continue;
-                }
+		let results = [];
+		for await (const entry of folderHandle.values()) {
+			if (entry.kind === 'file') {
+				if (!searchAll && !(entry.name in mappingData)) continue;
 
-                const file = await entry.getFile();
-                const content = await file.text();
-                const lines = content.split('\n');
+				const file = await entry.getFile();
+				const content = await file.text();
+				const lines = content.split('\n');
 
-                lines.forEach((line, lineIndex) => {
-                    const effectiveLine = matchCase ? line : line.toLowerCase();
-                    const effectiveSearchTerm = matchCase ? searchTerm : searchTerm.toLowerCase();
-                    let columnIndex = effectiveLine.indexOf(effectiveSearchTerm);
-                    while (columnIndex !== -1) {
-                        let contextSnippet = line.substring(Math.max(0, columnIndex - 30), Math.min(line.length, columnIndex + searchTerm.length + 30));
-                        results.push({
-                            name: entry.name,
-                            handle: entry,
-                            file,
-                            context: contextSnippet.replace(/\n/g, ' '),
-                            line: lineIndex + 1,
-                            column: columnIndex + 1
-                        });
-                        columnIndex = effectiveLine.indexOf(effectiveSearchTerm, columnIndex + effectiveSearchTerm.length);
-                    }
-                });
-            }
-        }
+				lines.forEach((line, i) => {
+					const targetLine = matchCase ? line : line.toLowerCase();
+					const term = matchCase ? searchTerm : searchTerm.toLowerCase();
+					let col = targetLine.indexOf(term);
+					while (col !== -1) {
+						results.push({
+							name: entry.name,
+							line: i + 1,
+							column: col + 1,
+							context: line.substring(Math.max(0, col - 30), Math.min(line.length, col + term.length + 30))
+						});
+						col = targetLine.indexOf(term, col + term.length);
+					}
+				});
+			}
+		}
 
-        const resultsContainer = $('#wpcode-search-results');
-        resultsContainer.empty();
+		const container = $('#wpcode-search-results').empty().show();
+		if (results.length === 0) {
+			wpcodeShowMessage('No matching snippets found.');
+			return;
+		}
 
-        if (results.length > 0) {
-            let resultsHTML = '<h3>Search Results</h3><ul>';
-            for (let result of results) {
-                let snippetId = mappingData[result.name];
-                if (snippetId) {
-                    let snippetUrl = `${window.location.origin}/wp-admin/admin.php?page=wpcode-snippet-manager&snippet_id=${snippetId}`;
-                    resultsHTML += `<li><a href="${snippetUrl}" target="_blank">${result.name} (Line ${result.line}, Column ${result.column})</a><br><small>...${result.context}...</small></li>`;
-                }
-            }
-            resultsHTML += '</ul>';
-            resultsContainer.html(resultsHTML).show();
-            $('#clear-results').show();
-        } else {
-            wpcodeShowMessage('No matching snippets found.');
-        }
-    }
+		let html = '<h3>Search Results</h3><ul>';
+		for (let result of results) {
+			let id = mappingData[result.name];
+			if (id) {
+				let url = `${window.location.origin}/wp-admin/admin.php?page=wpcode-snippet-manager&snippet_id=${id}`;
+				html += `<li><a href="${url}" target="_blank">${result.name} (Line ${result.line}, Column ${result.column})</a><br><small>...${result.context}...</small></li>`;
+			}
+		}
+		html += '</ul>';
+		container.html(html);
+		$('#clear-results').show();
+	}
 
-    // Add custom buttons, checkboxes, dropdown, and result container
-    var searchSection = '<div id="wpcode-search-section" style="margin-bottom: 20px;">' +
-        '<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px;">' +
-            '<button id="search-folder" class="button">Search Snippets</button>' +
-            '<button id="select-folder" class="button">Set Search Folder</button>' +
-            '<button id="clear-results" class="button" style="display: none;">Clear Search Results</button>' +
-            '<label style="display: flex; align-items: center; gap: 5px;">' +
-                '<input type="checkbox" id="all-files-checkbox"> All Files' +
-            '</label>' +
-            '<label style="display: flex; align-items: center; gap: 5px;">' +
-                '<input type="checkbox" id="match-case-checkbox"> Match Case' +
-            '</label>' +
-            '<select id="mapping-dropdown" class="button">' +
-                '<option value="">Select a snippet</option>' +
-            '</select>' +
-            '<button id="show-mappings" class="button">Show Mappings</button>' +
-            '<button id="import-mapping" class="button">Import Mapping</button>' +
-        '</div>' +
-        '<div id="wpcode-search-results" style="display: none; background: #f1f1f1; padding: 15px; border: 1px solid #ccc; border-radius: 5px; max-height: 300px; overflow-y: auto;"></div>' +
-    '</div>';
-    $('.wpcode-code-textarea').prepend(searchSection);
+	const searchSection = `
+	<div id="wpcode-search-section" style="margin-bottom: 20px;">
+		<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px;">
+			<button id="search-folder" class="button">Search Snippets</button>
+			<button id="select-folder" class="button">Set Search Folder</button>
+			<button id="clear-results" class="button" style="display: none;">Clear Search Results</button>
+			<label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" id="all-files-checkbox"> All Files</label>
+			<label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" id="match-case-checkbox"> Match Case</label>
+			<select id="mapping-dropdown" class="button"><option value="">Select a snippet</option></select>
+			<button id="show-mappings" class="button">Show Mappings</button>
+			<button id="import-mapping" class="button">Import Mapping</button>
+			<button id="save-all-snippets" class="button">Save All</button>
+		</div>
+		<div id="wpcode-search-results" style="display: none; background: #f1f1f1; padding: 15px; border: 1px solid #ccc; border-radius: 5px; max-height: 300px; overflow-y: auto;"></div>
+	</div>`;
+	$('.wpcode-code-textarea').prepend(searchSection);
 
-    wpcodePreventAutoSave('#search-folder');
-    wpcodePreventAutoSave('#select-folder');
-    wpcodePreventAutoSave('#clear-results');
-    wpcodePreventAutoSave('#import-mapping');
-    wpcodePreventAutoSave('#show-mappings');
+	wpcodePreventAutoSave('#search-folder');
+	wpcodePreventAutoSave('#select-folder');
+	wpcodePreventAutoSave('#clear-results');
+	wpcodePreventAutoSave('#import-mapping');
+	wpcodePreventAutoSave('#show-mappings');
+	wpcodePreventAutoSave('#save-all-snippets');
 
-    // Event listener for dropdown change
-    $(document).on('change', '#mapping-dropdown', function() {
-        var snippetId = $(this).val();
-        if (snippetId) {
-            var snippetUrl = `${window.location.origin}/wp-admin/admin.php?page=wpcode-snippet-manager&snippet_id=${snippetId}`;
-            window.open(snippetUrl, '_blank');
-            $(this).val('');
-        }
-    });
+	$('#mapping-dropdown').on('change', function() {
+		var id = $(this).val();
+		if (id) {
+			window.open(`${window.location.origin}/wp-admin/admin.php?page=wpcode-snippet-manager&snippet_id=${id}`, '_blank');
+			$(this).val('');
+		}
+	});
 
-    // Attach event listeners for buttons
-    $('#search-folder').on('click', function() {
-        searchSnippetsInFolder();
-    });
+	$('#search-folder').on('click', searchSnippetsInFolder);
+	$('#select-folder').on('click', selectSearchFolder);
+	$('#clear-results').on('click', clearSearchResults);
+	$('#import-mapping').on('click', importMappingFile);
+	$('#show-mappings').on('click', showMappings);
+	$('#save-all-snippets').on('click', saveAllSnippets);
 
-    $('#select-folder').on('click', function() {
-        selectSearchFolder();
-    });
-
-    $('#clear-results').on('click', function() {
-        clearSearchResults();
-    });
-
-    $('#import-mapping').on('click', function() {
-        importMappingFile();
-    });
-
-    $('#show-mappings').on('click', function() {
-        showMappings();
-    });
-
-    // Load mappings on page load
-    loadMappingFromStorage();
+	loadMappingFromStorage();
 });
 JS;
 
-    wp_add_inline_script('jquery', $custom_js);
+	wp_add_inline_script('jquery', $custom_js);
 }
 add_action('admin_enqueue_scripts', 'my_wpcode_search_extension_enqueue');

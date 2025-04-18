@@ -115,8 +115,8 @@ const states = {
     }),
     [STATE.CAMERA_STOPPED]: createState({
         name: "Camera Stopped",
-        topButtons: [CONTROLS.TOP_TEXT, CONTROLS.BLUR_FACE, CONTROLS.TEXT_COLOR, BUTTONS.START_CAMERA],  
-        bottomButtons: [CONTROLS.BOTTOM_TEXT, CONTROLS.DISCLAIMER, BUTTONS.BACK],  
+        topButtons: [BUTTONS.START_CAMERA],  
+        bottomButtons: [BUTTONS.BACK],  
         onEnter: clickStopCamera,
         topVisible: true,
         bottomVisible: true,
@@ -224,12 +224,12 @@ const buttonStateMap = {
 };
 
 // stuff to do once the DOM is loaded
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {	
 	// Page Load Configuration
 	const path = window.location.pathname.toLowerCase();
 	const pageTitle = document.title.toLowerCase();
 	loadConfiguration(path, pageTitle);
-
+	
 	// Meme Canvas Initialization
 	const memeCanvas = document.getElementById("memeCanvas");
 	if (memeCanvas) {
@@ -265,13 +265,32 @@ document.addEventListener("DOMContentLoaded", () => {
 			if (video) adjustMemeCanvasSize(video);
 		}, 100); // Debounce time
 	});
+	
 });
 
 // Run on page load
-window.addEventListener("load", () => {
-    adjustResultContainerPosition();
-    watchForHeaderChanges(); // Start monitoring for ad injections
+window.addEventListener("load", async () => {
+	const resultExists = document.getElementById("resultContainer");
+	const canvasExists = document.getElementById("memeCanvas");
+
+	if (resultExists && canvasExists) {
+		adjustResultContainerPosition();
+	} else {
+		console.warn("⏳ Delaying result container positioning until DOM is ready...");
+		setTimeout(() => {
+			const resultRetry = document.getElementById("resultContainer");
+			const canvasRetry = document.getElementById("memeCanvas");
+			if (resultRetry && canvasRetry) {
+				adjustResultContainerPosition();
+			} else {
+				console.error("❌ Still missing resultContainer or memeCanvas after delay.");
+			}
+		}, 250); // Delay to let DOM finish building
+	}
+
+	watchForHeaderChanges();
 });
+
 	
 // Adjust memeCanvas on resize as well
 window.addEventListener("resize", () => {
