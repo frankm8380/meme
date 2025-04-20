@@ -103,90 +103,98 @@ async function updateBlurFace() {
 
 async function detectFaceAndGesture(video) {
   console.log("detectFaceAndGesture started");
-
+  
+  // Ensure MediaPipe models are loaded.
   if (!faceDetectorVideo || !gestureRecognizerCustomVideo || !handLandmarkerVideo) {
     await loadMediaPipeModels();
     if (!faceDetectorVideo || !gestureRecognizerCustomVideo || !handLandmarkerVideo) return;
   }
-
+  
   const { noGestureText } = getGestureInfo();
   displayErrorMessage(noGestureText);
-
+  
+  // Use only the memeCanvas for display.
   const canvas = getMemeCanvas();
   const ctx = canvas.getContext("2d");
-
+	
+  // ✅ Ensure proper scaling for mobile cameras
   savedVideoWidth = video.videoWidth || video.offsetWidth || 640;
   savedImageHeight = video.videoHeight || video.offsetHeight || 480;
   savedBorderThickness = borderThickness;
-
+ 
   async function processFrame() {
     if (detectionStopped || video.paused || video.ended) return;
 
-    adjustCanvasForDisclaimer(ctx, canvas);
-
+	adjustCanvasForDisclaimer(ctx,canvas);
+	
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "white";
-    ctx.fillRect(savedBorderThickness, savedBorderThickness,
-      canvas.width - 2 * savedBorderThickness,
-      canvas.height - 2 * savedBorderThickness);
-
+    ctx.fillRect(savedBorderThickness, savedBorderThickness, canvas.width - 2 * savedBorderThickness, canvas.height - 2 * savedBorderThickness);
+	  
+    // Draw the current video frame onto the offscreen canvas for processing.
     offscreenCtx.drawImage(video, 0, 0, OFFSCREEN_WIDTH, OFFSCREEN_HEIGHT);
-    ctx.drawImage(offscreenCanvas, savedBorderThickness, savedBorderThickness,
-      savedVideoWidth, savedImageHeight);
-
+    
+    // Then draw the offscreen canvas onto the memeCanvas (the only visible canvas).
+    ctx.drawImage(offscreenCanvas, savedBorderThickness, savedBorderThickness, savedVideoWidth, savedImageHeight);
+	  
+    // ✅ Render meme text and disclaimer over live feed
     drawMemeText(ctx);
-
-    await blurFaceHandler({
-      mode: "video",
-      source: video,
-      canvas: canvas,
-      ctx: ctx
-    });
-
-    const detectedGesture = await detectGesture(video, ctx);
-    if (!detectedGesture) {
+	  
+    // Run face detection on the live video.
+    const faceResults = await faceDetectorVideo.detectForVideo(video, performance.now());
+    if (!faceResults || faceResults.detections.length === 0) {
       resetDetectionState();
       requestAnimationFrame(processFrame);
       return;
     }
-
-    if (confirmGestureHold()) {
-      displayStatusMessage("Gesture Captured! Edit meme below.");
-      detectionStopped = true;
-
-      const memeCanvas = document.getElementById("memeCanvas");
-      const ctx = memeCanvas.getContext("2d");
-
-      // 🎯 Step 1: Draw clean frame (no blur)
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
-      ctx.fillStyle = "white";
-      ctx.fillRect(savedBorderThickness, savedBorderThickness,
-        memeCanvas.width - 2 * savedBorderThickness,
-        memeCanvas.height - 2 * savedBorderThickness);
-      ctx.drawImage(video, savedBorderThickness, savedBorderThickness,
-        savedVideoWidth, savedImageHeight);
-
-      // 🎯 Step 2: Save the raw image as the base
-      savedImage = new Image();
-      savedImage.onload = async function () {
-        const blurFace = document.getElementById("blurFace").checked;
-        if (blurFace) {
-          await updateBlurFace();
-        } else {
-          updateMemeText();
-        }
-        changeState(5); // STATE.GESTURE_DETECTED
-      };
-      savedImage.src = memeCanvas.toDataURL("image/png");
-
+    
+    // Overlay face detection results (bounding boxes, confidence text, etc.) on the memeCanvas.
+    if ( debug )
+    	displayFaceDetections(faceResults.detections, ctx);
+    let faceBoundingBox = faceResults.detections[0].boundingBox;
+    
+    // Run gesture detection (this is a placeholder function—ensure it's defined elsewhere).
+    let detectedGesture = detectGesture(video, ctx);
+    if (!detectedGesture) {
+      const { noGestureText } = getGestureInfo();
+	  displayErrorMessage(noGestureText);
+      resetDetectionState();
+      requestAnimationFrame(processFrame);
       return;
     }
+    
+    // If a confirmed gesture hold is detected, capture the memeCanvas (including overlays).
+if (confirmGestureHold()) {
+    displayStatusMessage("Gesture Captured! Edit meme below.");
+    detectionStopped = true;
 
+    const memeCanvas = document.getElementById("memeCanvas");
+    const ctx = memeCanvas.getContext("2d");
+
+    // ✅ Redraw ONLY the raw image (without overlays)
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(savedBorderThickness, savedBorderThickness,
+                 memeCanvas.width - 2 * savedBorderThickness,
+                 memeCanvas.height - 2 * savedBorderThickness);
+    ctx.drawImage(video, savedBorderThickness, savedBorderThickness,
+                  savedVideoWidth, savedImageHeight);
+
+    // ✅ Save only this raw image as the base layer
+    savedImage = new Image();
+    savedImage.onload = function () {
+        updateMemeText(); // Apply live text/disclaimer overlays
+        changeState(5);   // STATE.GESTURE_DETECTED
+    };
+    savedImage.src = memeCanvas.toDataURL("image/png");
+
+    return;
+}
+    
     requestAnimationFrame(processFrame);
   }
-
   processFrame();
 }
 
