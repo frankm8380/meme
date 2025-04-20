@@ -110,7 +110,7 @@ p {
 
 /* Scrollable Modal (if needed) */
 .modal-content.scrollable {
-	max-height: 70vh;
+	max-height: 80vh;
 	overflow-y: auto;
 	padding-right: 10px;
 }
