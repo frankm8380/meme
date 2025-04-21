@@ -14,7 +14,8 @@ const BUTTONS = {
     SHARE: "shareBtn",
     NEW: "newBtn",
     DONE: "doneBtn",
-    BACK: "backBtn"
+    BACK: "backBtn",
+	GOHOME: "homeBtn"
 };
 
 /** 🎛️ Define Meme Editing Controls */
@@ -43,7 +44,8 @@ const STATE = {
     SEND_MODE: 9.1,
     SHARE: 10,
     SHARE_MODE: 10.1,
-    DONATE: 11
+    DONATE: 11,
+	GOHOME: 12,
 };
 
 function createState({ 
@@ -71,7 +73,7 @@ const states = {
     [STATE.INITIAL]: createState({
         name: "Initial",
         topButtons: [BUTTONS.READ, BUTTONS.CREATE, BUTTONS.DONATE],
-        bottomButtons: [BUTTONS.BACK],
+        bottomButtons: [BUTTONS.GOHOME],
         topVisible: true,
         bottomVisible: true,
         positionTop: "default",
@@ -203,6 +205,12 @@ const states = {
         bottomVisible: false,
         topMessage: "Support Us!",
         bottomMessage: "Thank you for considering a donation."
+    }),
+	[STATE.GOHOME]: createState({
+  	    name: "Go Home",
+	    onEnter: () => {
+		    window.location.href = "https://elonandtrumpnumberone.com/";
+	    }
     })
 };
 
@@ -220,11 +228,21 @@ const buttonStateMap = {
     [BUTTONS.SHARE]: STATE.SHARE,
     [BUTTONS.NEW]: STATE.CREATE,
     [BUTTONS.DONE]: STATE.INITIAL,
-    [BUTTONS.BACK]: STATE.INITIAL
+    [BUTTONS.BACK]: STATE.INITIAL,
+    [BUTTONS.GOHOME]: STATE.GOHOME
 };
 
 // stuff to do once the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {	
+	// ✅ Hard-code the Home button to always go to site root
+	const homeBtn = document.getElementById("homeBtn");
+	if (homeBtn) {
+		homeBtn.addEventListener("click", (e) => {
+			e.preventDefault(); // prevent any default state-machine behavior
+			window.location.href = "https://elonandtrumpnumberone.com/";
+		});
+	}
+	
 	// Page Load Configuration
 	const path = window.location.pathname.toLowerCase();
 	const pageTitle = document.title.toLowerCase();
