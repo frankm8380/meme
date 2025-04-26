@@ -10,18 +10,18 @@ fetch('/wp-admin/admin-ajax.php?action=get_meme_nonce')
     .catch(error => console.error("Nonce Error:", error));
 
 // ✅ Run limit checks immediately after page load
-//document.addEventListener("DOMContentLoaded", enforceIpLimitsOnLoad);
+document.addEventListener("DOMContentLoaded", enforceIpLimitsOnLoad);
 	
 // ✅ Re-enable Upload and Email Buttons on Input Change
-//document.getElementById("memeFile").addEventListener("change", function () {
-//    document.getElementById("uploadStatus").innerText = "";
-//	previewImage();
-//});
+document.getElementById("memeFile").addEventListener("change", function () {
+    document.getElementById("uploadStatus").innerText = "";
+	previewImage();
+});
 
 // ✅ 
-//document.getElementById("postContent").addEventListener("input", function () {
-//    document.getElementById("uploadStatus").innerText = "";
-//});
+document.getElementById("postContent").addEventListener("input", function () {
+    document.getElementById("uploadStatus").innerText = "";
+});
 
 // ✅ Test Function
 async function testMeme() {

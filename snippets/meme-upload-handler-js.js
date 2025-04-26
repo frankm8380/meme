@@ -6,6 +6,50 @@ function sendMeme() {
 function shareMeme() {
 }
 
+function saveMeme() {
+  const memeCanvas = document.getElementById("memeCanvas");
+  if (!memeCanvas) {
+    console.error("❌ Meme canvas not found!");
+    return;
+  }
+
+  const fileName = `${fileNamePrefix}${Date.now()}.png`;
+  const memeDataUrl = memeCanvas.toDataURL("image/png");
+
+  // ✅ Save the high-quality image from the memeCanvas
+  console.log("✅ Saving meme...");
+  fetch(memeDataUrl)
+    .then(res => res.blob())
+    .then(blob => {
+      const file = new File([blob], fileName, { type: "image/png" });
+
+      // ✅ Embed metadata and store encoded image
+      embedMetadata(file, null, null)
+        .then(encodedImage => storeEncodedImage(encodedImage));
+
+      // ✅ Automatically trigger file selection in upload form
+      prepopulateMemeUpload(file);
+
+      // ✅ Allow the user to download it
+      const link = document.createElement("a");
+      link.href = memeDataUrl;
+      link.download = fileName;
+      link.click();
+
+      // ✅ Smooth scroll to the meme upload section
+      //scrollToSection("meme-upload-section");
+    });
+}
+
+function prepopulateMemeUpload(file) {
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(file);
+
+  const fileInput = document.getElementById("memeFile");
+  fileInput.files = dataTransfer.files;
+
+  previewImage();
+}
 
 
 // ✅ Check if IP has reached limit for a specific action and page

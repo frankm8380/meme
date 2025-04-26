@@ -24,7 +24,8 @@ const CONTROLS = {
     TEXT_COLOR: "textColor",
     BOTTOM_TEXT: "bottomText",
     DISCLAIMER: "includeDisclaimer",
-    BLUR_FACE: "blurFace"  // ✅ New Blur Face Control
+    BLUR_FACE: "blurFace",  // ✅ New Blur Face Control
+	MEME_FILE: "memeFile"
 };
 
 /** 🎭 Define State Identifiers */
@@ -36,6 +37,7 @@ const STATE = {
     CAMERA_RUNNING: 4,
     CAMERA_STOPPED: 4.1,
     GESTURE_DETECTED: 5,
+	UPLOAD_FORM: 6,
     SAVE: 7,
     SAVE_MODE: 7.1,
     UPLOAD: 8,
@@ -59,9 +61,11 @@ function createState({
     topVisible = true,  
     bottomVisible = true,
     nextState = null, // ✅ Define the next state after closing a modal
-    positionTop = null // ✅ Define top container positioning ("top" or "default")
+    positionTop = null, // ✅ Define top container positioning ("top" or "default")
+	formVisible = false,
+    canvasVisible = true
 }) {
-    return { name, topButtons, bottomButtons, topMessage, bottomMessage, modal, onEnter, topVisible, bottomVisible, nextState, positionTop };
+    return { name, topButtons, bottomButtons, topMessage, bottomMessage, modal, onEnter, topVisible, bottomVisible, nextState, positionTop, formVisible, canvasVisible };
 }
 
 
@@ -72,6 +76,8 @@ function createState({
 const states = {
     [STATE.INITIAL]: createState({
         name: "Initial",
+		formVisible: false,
+        canvasVisible: true,
         topButtons: [BUTTONS.READ, BUTTONS.CREATE, BUTTONS.DONATE],
         bottomButtons: [BUTTONS.GOHOME],
         topVisible: true,
@@ -83,6 +89,8 @@ const states = {
     [STATE.READ]: createState({
         name: "Read Modal",
         modal: "readModal",
+		formVisible: false,
+        canvasVisible: true,
         topVisible: false,
         bottomVisible: false
         // (modal states can leave messages empty)
@@ -90,6 +98,8 @@ const states = {
     [STATE.CREATE]: createState({
         name: "Create Modal",
         modal: "createModal",
+		formVisible: false,
+        canvasVisible: true,
         topVisible: false,
         bottomVisible: false,
         nextState: STATE.CAMERA_RUNNING,
@@ -97,6 +107,8 @@ const states = {
     }),
     [STATE.CREATE_MODE]: createState({
         name: "Create Mode",
+		formVisible: false,
+        canvasVisible: true,
         bottomButtons: [BUTTONS.START_CAMERA, BUTTONS.BACK],
         topVisible: true,
         bottomVisible: true,
@@ -106,6 +118,8 @@ const states = {
     }),
     [STATE.CAMERA_RUNNING]: createState({
         name: "Camera Running",
+		formVisible: false,
+        canvasVisible: true,
         topButtons: [CONTROLS.TOP_TEXT, CONTROLS.BLUR_FACE, CONTROLS.TEXT_COLOR],  
         bottomButtons: [CONTROLS.BOTTOM_TEXT, CONTROLS.DISCLAIMER, BUTTONS.STOP_CAMERA],  
         onEnter: clickStartCamera,
@@ -117,6 +131,8 @@ const states = {
     }),
     [STATE.CAMERA_STOPPED]: createState({
         name: "Camera Stopped",
+		formVisible: false,
+        canvasVisible: true,
         topButtons: [BUTTONS.START_CAMERA],  
         bottomButtons: [BUTTONS.BACK],  
         onEnter: clickStopCamera,
@@ -127,6 +143,8 @@ const states = {
     }),
     [STATE.GESTURE_DETECTED]: createState({
         name: "Gesture Detected",
+		formVisible: false,
+        canvasVisible: true,
         topButtons: [CONTROLS.TOP_TEXT, CONTROLS.BLUR_FACE, CONTROLS.TEXT_COLOR, BUTTONS.RETRY],  
         bottomButtons: [CONTROLS.BOTTOM_TEXT, CONTROLS.DISCLAIMER, BUTTONS.SAVE, BUTTONS.BACK],  
         topVisible: true,
@@ -139,10 +157,15 @@ const states = {
         modal: "saveModal",
         topVisible: false,
         bottomVisible: false,
-        nextState: STATE.SAVE_MODE
+        nextState: STATE.SAVE_MODE,
+		formVisible: true,
+        canvasVisible: false
     }),
     [STATE.SAVE_MODE]: createState({
         name: "Meme Saved",
+		formVisible: true,
+        canvasVisible: false,
+        topButtons: [CONTROLS.MEME_FILE],  
         bottomButtons: [BUTTONS.UPLOAD, BUTTONS.SEND, BUTTONS.SHARE, BUTTONS.DONATE, BUTTONS.BACK],
         onEnter: clickSaveMeme,
         topVisible: true,
@@ -153,12 +176,17 @@ const states = {
     [STATE.UPLOAD]: createState({
         name: "Upload Modal",
         modal: "uploadModal",
+		formVisible: true,
+        canvasVisible: false,
         topVisible: false,
         bottomVisible: false,
         nextState: STATE.UPLOAD_MODE
     }),
     [STATE.UPLOAD_MODE]: createState({
         name: "Meme Uploaded",
+		formVisible: true,
+        canvasVisible: false,
+        topButtons: [CONTROLS.MEME_FILE],  
         bottomButtons: [BUTTONS.SEND, BUTTONS.SHARE, BUTTONS.DONATE, BUTTONS.BACK],
         onEnter: clickUploadMeme,
         topVisible: true,
@@ -169,12 +197,17 @@ const states = {
     [STATE.SEND]: createState({
         name: "Send Modal",
         modal: "sendModal",
+		formVisible: true,
+        canvasVisible: false,
         topVisible: false,
         bottomVisible: false,
         nextState: STATE.SEND_MODE
     }),
     [STATE.SEND_MODE]: createState({
         name: "Meme Sent",
+		formVisible: true,
+        canvasVisible: false,
+        topButtons: [CONTROLS.MEME_FILE],  
         bottomButtons: [BUTTONS.UPLOAD, BUTTONS.SHARE, BUTTONS.DONATE, BUTTONS.BACK],
         onEnter: clickSendMeme,
         topVisible: true,
@@ -185,12 +218,17 @@ const states = {
     [STATE.SHARE]: createState({
         name: "Share Modal",
         modal: "shareModal",
+		formVisible: true,
+        canvasVisible: false,
         topVisible: false,
         bottomVisible: false,
         nextState: STATE.SHARE_MODE
     }),
     [STATE.SHARE_MODE]: createState({
         name: "Meme Shared",
+		formVisible: true,
+        canvasVisible: false,
+        topButtons: [CONTROLS.MEME_FILE],  
         bottomButtons: [BUTTONS.UPLOAD, BUTTONS.SEND, BUTTONS.DONATE, BUTTONS.BACK],
         onEnter: clickShareMeme,
         topVisible: true,
@@ -201,6 +239,8 @@ const states = {
     [STATE.DONATE]: createState({
         name: "Donate Modal",
         modal: "donateModal",
+		formVisible: true,
+        canvasVisible: false,
         topVisible: false,
         bottomVisible: false,
         topMessage: "Support Us!",

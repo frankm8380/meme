@@ -80,6 +80,14 @@ function updateUI(state) {
 	// 🧩 Update buttons and controls
 	updateButtons("top", state.topButtons || []);
 	updateButtons("bottom", state.bottomButtons || []);
+	
+	const form = document.getElementById("uploadFormContainer");
+	const canvas = document.getElementById("memeCanvas");
+	if (form)  
+		form.style.display = state.formVisible ? "block" : "none";
+	if (canvas) 
+		canvas.style.display = state.canvasVisible ? "block" : "none";
+
 }
 
 // 🔘 Insert Buttons + Controls into Button Rows (top or bottom)

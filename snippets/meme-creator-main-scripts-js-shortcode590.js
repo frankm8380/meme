@@ -3,35 +3,53 @@
  */
 function getTopToolbarHeight() {
     let wpAdminBarHeight = 0;
-    let highestFixedElement = 0;
+    let highestFixed = 0;
 
-    // Check if the WordPress admin bar exists and is visible
+    // 1) WordPress admin bar
     const wpAdminBar = document.getElementById("wpadminbar");
     if (wpAdminBar && window.getComputedStyle(wpAdminBar).display !== "none") {
         wpAdminBarHeight = wpAdminBar.offsetHeight;
     }
 
-	if ( !positionTopContainerBelowHeader ) {
-		return wpAdminBarHeight;
-	}
+    // 2) Find the "Advertisements" header, then its outer #atatags-* container
+    let adsHeight = 0;
+    const adLabel = Array.from(document.querySelectorAll("div"))
+        .find(el => el.textContent.trim() === "Advertisements" &&
+                    window.getComputedStyle(el).display !== "none");
+    if (adLabel) {
+        // climb up to the outer container whose id starts with "atatags-"
+        const adContainer = adLabel.closest("div[id^='atatags-']");
+        if (adContainer) {
+            adsHeight = adContainer.offsetHeight;
+        } else {
+            // fallback to just the label height
+            adsHeight = adLabel.offsetHeight;
+        }
+    }
 
-    // Find the tallest fixed-position element at the very top (excluding resultContainer)
+    // 3) If we're not stacking below all fixed headers, just return wpAdminBar + ads
+    if (!positionTopContainerBelowHeader) {
+        return wpAdminBarHeight + adsHeight;
+    }
+
+    // 4) Otherwise scan all fixed-position top:0 elements (excluding our UI)
     document.querySelectorAll("*").forEach(el => {
         const style = window.getComputedStyle(el);
         if (
             style.position === "fixed" &&
-            parseInt(style.top) === 0 &&
-            el.offsetHeight > 0 &&
+            parseInt(style.top, 10) === 0 &&
             style.display !== "none" &&
-            el.id !== "wpadminbar" && // Don't double-count wpadminbar
-            el.id !== "resultContainer" // 🚀 Fix: Don't count resultContainer itself
+            el.offsetHeight > 0 &&
+            el.id !== "wpadminbar" &&
+            el.id !== "resultContainer"
         ) {
-            highestFixedElement = Math.max(highestFixedElement, el.offsetHeight);
+            highestFixed = Math.max(highestFixed, el.offsetHeight);
         }
     });
 
-    let finalHeight = Math.max(wpAdminBarHeight, highestFixedElement);
-    return finalHeight;
+    // 5) Combine the tallest header and WP admin bar, then add ads
+    const base = Math.max(wpAdminBarHeight, highestFixed);
+    return base + adsHeight;
 }
 	
 function adjustResultContainerPosition(positionBelowHeader = true) {
