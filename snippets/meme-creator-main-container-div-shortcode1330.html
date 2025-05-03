@@ -29,12 +29,12 @@
 				<select id="bottomText" onchange="updateMemeText()"></select>
 				<input id="includeDisclaimer" type="checkbox" checked onchange="updateMemeText()">
 				<label for="includeDisclaimer">Disclaimer</label>
-      			<label for="memeFile">📁 Select Your Meme:</label>
-        		<input type="file"
-        		    id="memeFile"
-        		    accept="image/png, image/jpeg, image/gif"
-        		    required
-        		    onchange="previewImage()">
+				<label for="memeFile">📁 Select Your Meme:</label>
+				<input type="file"
+					id="memeFile"
+					accept="image/png, image/jpeg, image/gif"
+					required
+					onchange="previewImage()">
 			</div>
 		</div>
 	</div>
@@ -49,32 +49,33 @@
 	<div class="image-controls-wrapper">
 		<div class="image-container">
 			<canvas id="memeCanvas" style="display: none;"></canvas>
-<!-- 🛠️ Inline POC Upload Form (hidden by default) -->
-<div id="uploadFormContainer" style="display:none; padding:20px;">
-  <div class="meme-upload-card">
-    <!-- File + Text fields only; no POC buttons here -->
-    <div class="form-group">
-    </div>
+			<!-- 🛠️ Inline POC Upload Form (hidden by default) -->
+			<div id="uploadFormContainer" style="display:none; padding:20px;">
+				<input type="hidden" id="memeUploadNonce" value="">
+				<div class="meme-upload-card">
+					<!-- File + Text fields only; no POC buttons here -->
+					<div class="form-group">
+					</div>
 
-    <div class="form-group">
-      <label for="postContent">📝 Why are you posting this meme?</label>
-      <textarea id="postContent"
-                rows="3"
-                placeholder="Share your reason for posting..."
-                required></textarea>
-    </div>
+					<div class="form-group">
+						<label for="postContent">📝 Why are you posting this meme?</label>
+						<textarea id="postContent"
+							rows="3"
+							placeholder="Share your reason for posting..."
+							required></textarea>
+					</div>
 
-    <p id="uploadStatus" class="status-text"></p>
+					<p id="uploadStatus" class="status-text"></p>
 
-    <div id="imagePreviewContainer"
-         class="image-preview"
-         style="display: none;">
-      <img id="imagePreview"
-           src="none"
-           alt="Meme Preview">
-    </div>
-  </div>
-</div>
+					<div id="imagePreviewContainer"
+						class="image-preview"
+						style="display: none;">
+						<img id="imagePreview"
+							src="none"
+							alt="Meme Preview">
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 
