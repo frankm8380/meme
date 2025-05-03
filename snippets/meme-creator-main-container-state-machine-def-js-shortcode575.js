@@ -77,7 +77,7 @@ const states = {
     [STATE.INITIAL]: createState({
         name: "Initial",
 		formVisible: false,
-        canvasVisible: true,
+        canvasVisible: false,
         topButtons: [BUTTONS.READ, BUTTONS.CREATE, BUTTONS.DONATE],
         bottomButtons: [BUTTONS.GOHOME],
         topVisible: true,
@@ -90,7 +90,7 @@ const states = {
         name: "Read Modal",
         modal: "readModal",
 		formVisible: false,
-        canvasVisible: true,
+        canvasVisible: false,
         topVisible: false,
         bottomVisible: false
         // (modal states can leave messages empty)
@@ -99,7 +99,7 @@ const states = {
         name: "Create Modal",
         modal: "createModal",
 		formVisible: false,
-        canvasVisible: true,
+        canvasVisible: false,
         topVisible: false,
         bottomVisible: false,
         nextState: STATE.CAMERA_RUNNING,
@@ -108,7 +108,7 @@ const states = {
     [STATE.CREATE_MODE]: createState({
         name: "Create Mode",
 		formVisible: false,
-        canvasVisible: true,
+        canvasVisible: false,
         bottomButtons: [BUTTONS.START_CAMERA, BUTTONS.BACK],
         topVisible: true,
         bottomVisible: true,
@@ -145,8 +145,8 @@ const states = {
         name: "Gesture Detected",
 		formVisible: false,
         canvasVisible: true,
-        topButtons: [CONTROLS.TOP_TEXT, CONTROLS.BLUR_FACE, CONTROLS.TEXT_COLOR, BUTTONS.RETRY],  
-        bottomButtons: [CONTROLS.BOTTOM_TEXT, CONTROLS.DISCLAIMER, BUTTONS.SAVE, BUTTONS.BACK],  
+        topButtons: [CONTROLS.TOP_TEXT, CONTROLS.BLUR_FACE, CONTROLS.TEXT_COLOR, BUTTONS.SAVE],  
+        bottomButtons: [CONTROLS.BOTTOM_TEXT, CONTROLS.DISCLAIMER, BUTTONS.RETRY, BUTTONS.BACK],  
         topVisible: true,
         bottomVisible: true,
         topMessage: "Gesture Detected!",
@@ -158,7 +158,7 @@ const states = {
         topVisible: false,
         bottomVisible: false,
         nextState: STATE.SAVE_MODE,
-		formVisible: true,
+		formVisible: false,
         canvasVisible: false
     }),
     [STATE.SAVE_MODE]: createState({
@@ -176,7 +176,7 @@ const states = {
     [STATE.UPLOAD]: createState({
         name: "Upload Modal",
         modal: "uploadModal",
-		formVisible: true,
+		formVisible: false,
         canvasVisible: false,
         topVisible: false,
         bottomVisible: false,
@@ -197,7 +197,7 @@ const states = {
     [STATE.SEND]: createState({
         name: "Send Modal",
         modal: "sendModal",
-		formVisible: true,
+		formVisible: false,
         canvasVisible: false,
         topVisible: false,
         bottomVisible: false,
@@ -218,7 +218,7 @@ const states = {
     [STATE.SHARE]: createState({
         name: "Share Modal",
         modal: "shareModal",
-		formVisible: true,
+		formVisible: false,
         canvasVisible: false,
         topVisible: false,
         bottomVisible: false,
@@ -239,7 +239,7 @@ const states = {
     [STATE.DONATE]: createState({
         name: "Donate Modal",
         modal: "donateModal",
-		formVisible: true,
+		formVisible: false,
         canvasVisible: false,
         topVisible: false,
         bottomVisible: false,
