@@ -45,12 +45,6 @@ async function startCamera() {
     }
 }
 
-// ✅ Optional: Adjust on window resize
-window.addEventListener("resize", () => {
-    const video = document.getElementById("webcam");
-    if (video) adjustMemeCanvasSize(video);
-});
-
 // -------------------------------
 // Stop the camera stream.
 // -------------------------------
