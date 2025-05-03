@@ -138,6 +138,16 @@ async function detectFaceAndGesture(video) {
     // Then draw the offscreen canvas onto the memeCanvas (the only visible canvas).
     ctx.drawImage(offscreenCanvas, savedBorderThickness, savedBorderThickness, savedVideoWidth, savedImageHeight);
 	  
+    // 🔄 Optionally blur face in live video based on checkbox
+    if (document.getElementById("blurFace").checked) {
+	    await blurFaceHandler({
+		    mode: "video",
+		    source: video,
+		    canvas: canvas,
+		    ctx: ctx
+	    });
+    }
+	  
     // ✅ Render meme text and disclaimer over live feed
     drawMemeText(ctx);
 	  
@@ -166,31 +176,51 @@ async function detectFaceAndGesture(video) {
     
     // If a confirmed gesture hold is detected, capture the memeCanvas (including overlays).
 if (confirmGestureHold()) {
-    displayStatusMessage("Gesture Captured! Edit meme below.");
-    detectionStopped = true;
+	displayStatusMessage("Gesture Captured! Edit meme below.");
+	detectionStopped = true;
 
-    const memeCanvas = document.getElementById("memeCanvas");
-    const ctx = memeCanvas.getContext("2d");
+	const memeCanvas = document.getElementById("memeCanvas");
+	const ctx = memeCanvas.getContext("2d");
 
-    // ✅ Redraw ONLY the raw image (without overlays)
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
-    ctx.fillStyle = "white";
-    ctx.fillRect(savedBorderThickness, savedBorderThickness,
-                 memeCanvas.width - 2 * savedBorderThickness,
-                 memeCanvas.height - 2 * savedBorderThickness);
-    ctx.drawImage(video, savedBorderThickness, savedBorderThickness,
-                  savedVideoWidth, savedImageHeight);
+	// Draw raw video frame to memeCanvas
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, memeCanvas.width, memeCanvas.height);
+	ctx.fillStyle = "white";
+	ctx.fillRect(savedBorderThickness, savedBorderThickness,
+		memeCanvas.width - 2 * savedBorderThickness,
+		memeCanvas.height - 2 * savedBorderThickness);
+	ctx.drawImage(video, savedBorderThickness, savedBorderThickness,
+		savedVideoWidth, savedImageHeight);
 
-    // ✅ Save only this raw image as the base layer
-    savedImage = new Image();
-    savedImage.onload = function () {
-        updateMemeText(); // Apply live text/disclaimer overlays
-        changeState(5);   // STATE.GESTURE_DETECTED
-    };
-    savedImage.src = memeCanvas.toDataURL("image/png");
+	const dataUrl = memeCanvas.toDataURL("image/png");
+	const finalImage = new Image();
 
-    return;
+	finalImage.onload = async function () {
+		console.log("📸 Final image loaded for post-processing");
+		savedImage = finalImage;
+		
+		console.log("🖌️ Drawing meme text overlays...");
+		updateMemeText();
+
+		if (document.getElementById("blurFace").checked) {
+			console.log("🔍 Applying blurFaceHandler in static mode...");
+			await blurFaceHandler({
+				mode: "image",
+				source: savedImage,
+				canvas: memeCanvas,
+				ctx: ctx
+			});
+		}
+
+		changeState(STATE.GESTURE_DETECTED);
+	};
+
+	finalImage.onerror = function () {
+		console.error("❌ Failed to load captured image for post-processing");
+	};
+
+	finalImage.src = dataUrl;
+	return;
 }
     
     requestAnimationFrame(processFrame);
