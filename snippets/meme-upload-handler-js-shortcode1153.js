@@ -67,21 +67,21 @@ async function enforceIpLimitsOnLoad() {
     // Check upload limit
     const uploadAllowed = await checkIpLimit('upload', pageTitle);
     if (!uploadAllowed) {
-        document.getElementById("uploadMemeButton").disabled = true;
+        //document.getElementById("uploadMemeButton").disabled = true;
         document.getElementById("uploadStatus").innerText = `❌ Upload limit reached for "${pageTitle}". You can only upload one meme every 12 hours.`;
     } else {
-        document.getElementById("uploadMemeButton").disabled = false;
+        //document.getElementById("uploadMemeButton").disabled = false;
 	}
 
     // Check email limit
     const emailAllowed = await checkIpLimit('email', pageTitle);
     if (!emailAllowed) {
-        document.getElementById("emailMemeButton").disabled = true;
+        //document.getElementById("emailMemeButton").disabled = true;
         document.getElementById("uploadStatus").innerText += `\n❌ Email limit reached for "${pageTitle}". You can only send one email every 12 hours.`;
     } else {
-        document.getElementById("emailMemeButton").disabled = false;
+        //document.getElementById("emailMemeButton").disabled = false;
 	}
-    document.getElementById("twitterMemeButton").disabled = false;
+    //document.getElementById("twitterMemeButton").disabled = false;
 }
 
 // ✅ Log successful action after upload or email
@@ -230,9 +230,9 @@ function isSameFile(file) {
 	
 // ✅ Disable all buttons during processing
 function disableAllButtons() {
-    document.getElementById("uploadMemeButton").disabled = true;
-    document.getElementById("emailMemeButton").disabled = true;
-    document.getElementById("twitterMemeButton").disabled = true;
+    //document.getElementById("uploadMemeButton").disabled = true;
+    //document.getElementById("emailMemeButton").disabled = true;
+    //document.getElementById("twitterMemeButton").disabled = true;
 }
 
 // ✅ Restore button states after processing

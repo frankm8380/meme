@@ -1,28 +1,30 @@
-<script>
-// ✅ Get a fresh Nonce when the page loads
-fetch('/wp-admin/admin-ajax.php?action=get_meme_nonce')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById("memeUploadNonce").value = data.data.nonce;
-        }
-    })
-    .catch(error => console.error("Nonce Error:", error));
-
 // ✅ Run limit checks immediately after page load
-document.addEventListener("DOMContentLoaded", enforceIpLimitsOnLoad);
+document.addEventListener("DOMContentLoaded", () => {
+	// Refresh nonce on page load
+	fetch('/wp-admin/admin-ajax.php?action=get_meme_nonce')
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				document.getElementById("memeUploadNonce").value = data.data.nonce;
+			}
+		})
+		.catch(error => console.error("Nonce Error:", error));
+
+	// Run IP limit checks
+	enforceIpLimitsOnLoad();
+
+	// Add file change listener
+	document.getElementById("memeFile").addEventListener("change", function () {
+		document.getElementById("uploadStatus").innerText = "";
+		previewImage();
+	});
+
+	// Add post content input listener
+	document.getElementById("postContent").addEventListener("input", function () {
+		document.getElementById("uploadStatus").innerText = "";
+	});
+});
 	
-// ✅ Re-enable Upload and Email Buttons on Input Change
-document.getElementById("memeFile").addEventListener("change", function () {
-    document.getElementById("uploadStatus").innerText = "";
-	previewImage();
-});
-
-// ✅ 
-document.getElementById("postContent").addEventListener("input", function () {
-    document.getElementById("uploadStatus").innerText = "";
-});
-
 // ✅ Test Function
 async function testMeme() {
     console.log("DEBUG: testMeme invoked");
@@ -291,7 +293,3 @@ async function performUpload(file, postContent, nonce, attempt, pageTitle) {
 		}
 	}
 }
-
-
-
-</script>
