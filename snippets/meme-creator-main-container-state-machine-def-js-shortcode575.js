@@ -349,13 +349,34 @@ window.addEventListener("load", async () => {
 	watchForHeaderChanges();
 });
 
+
 	
 // Adjust memeCanvas on resize as well
 window.addEventListener("resize", () => {
-	adjustResultContainerPosition();
-	
-});
+	clearTimeout(resizeTimeout);
+	resizeTimeout = setTimeout(() => {
+		const memeCanvas = document.getElementById("memeCanvas");
+		const uploadForm = document.getElementById("uploadFormContainer");
 
+		if (memeCanvas && memeCanvas.style.display !== "none") {
+			const video = document.getElementById("webcam");
+			if (video) {
+				adjustMemeCanvasSize(video);
+			}
+		} else if (memeCanvas && uploadForm && uploadForm.style.display !== "none") {
+			uploadForm.width = memeCanvas.width;
+			uploadForm.height = memeCanvas.height;
+			uploadForm.style.width = memeCanvas.style.width;
+			uploadForm.style.height = memeCanvas.style.height;
+			uploadForm.style.position = memeCanvas.style.position;
+			uploadForm.style.top = memeCanvas.style.top;
+			uploadForm.style.left = memeCanvas.style.left;
+			uploadForm.style.transform = memeCanvas.style.transform;
+			uploadForm.style.display = memeCanvas.style.display;
+		}
+	}, 100); // Debounce time
+});
+``
 
 function clickStartCamera() {
 	startCamera();
