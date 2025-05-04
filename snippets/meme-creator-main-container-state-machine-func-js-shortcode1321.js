@@ -2,6 +2,67 @@
 /**
  * 🔄 Updates UI Based on State
  */
+
+function applyViewType(viewType) {
+	const memeCanvas = document.getElementById("memeCanvas");
+	const uploadForm = document.getElementById("uploadFormContainer");
+	const topContainer = document.getElementById("resultContainer");
+	const bottomContainer = document.getElementById("bottomResultContainer");
+	const video = document.getElementById("webcam");
+
+	if (!memeCanvas || !uploadForm) return;
+	if (!topContainer || !bottomContainer) return;
+
+    const ctx = memeCanvas.getContext("2d");
+
+	switch (viewType) {
+		case VIEW_TYPE.CAMERA:
+			// live video is on the canvas
+			memeCanvas.style.display = "none";
+			uploadForm.style.display = "none";
+	        topContainer.style.display = "block";
+	        bottomContainer.style.display = "block";
+			if (video) adjustMemeCanvasSize(video);
+			if (ctx) drawMemeText(ctx);
+			break;
+
+		case VIEW_TYPE.MEME:
+			// captured gesture is on the canvas
+			memeCanvas.style.display = "block";
+			uploadForm.style.display = "none";
+	        topContainer.style.display = "block";
+	        bottomContainer.style.display = "block";
+			if (video) adjustMemeCanvasSize(video);
+			if (ctx) drawMemeText(ctx);
+			break;
+
+		case VIEW_TYPE.UPLOAD:
+			memeCanvas.style.display = "none";
+			uploadForm.style.display = "block";
+	        topContainer.style.display = "block";
+	        bottomContainer.style.display = "block";
+			uploadForm.width = memeCanvas.width;
+			uploadForm.height = memeCanvas.height;
+			uploadForm.style.width = memeCanvas.style.width;
+			uploadForm.style.height = memeCanvas.style.height;
+			uploadForm.style.position = memeCanvas.style.position;
+			uploadForm.style.top = memeCanvas.style.top;
+			uploadForm.style.left = memeCanvas.style.left;
+			uploadForm.style.transform = memeCanvas.style.transform;
+			break;
+
+		case VIEW_TYPE.BLANK:
+		default:
+			// Nothing shown
+			memeCanvas.style.display = "none";
+			uploadForm.style.display = "none";
+	        topContainer.style.display = "block";
+	        bottomContainer.style.display = "block";
+			break;
+	}
+}
+
+
 // 🔁 Cache all original controls + labels once, so we can reuse them later
 const CONTROL_CACHE = {};
 
@@ -58,13 +119,7 @@ function updateUI(state) {
 		return;
 	}
 
-	// Handle visibility of containers
-	const topVisible = state.topVisible !== false;
-	const bottomVisible = state.bottomVisible !== false;
-	topContainer.style.display = topVisible ? "block" : "none";
-	bottomContainer.style.display = bottomVisible ? "block" : "none";
-
-	// Adjust result container vertical position
+	// Adjust result container position if needed
 	if (state.positionTop) {
 		positionTopContainerBelowHeader = state.positionTop !== "top";
 		adjustResultContainerPosition(true);
@@ -77,17 +132,11 @@ function updateUI(state) {
 	bottomMessageEl.textContent = state.bottomMessage || "";
 	bottomMessageEl.style.display = state.bottomMessage ? "block" : "none";
 
-	// 🧩 Update buttons and controls
+	applyViewType(state.viewType);
+	
+	// Render top and bottom buttons
 	updateButtons("top", state.topButtons || []);
 	updateButtons("bottom", state.bottomButtons || []);
-	
-	const form = document.getElementById("uploadFormContainer");
-	const canvas = document.getElementById("memeCanvas");
-	if (form)  
-		form.style.display = state.formVisible ? "block" : "none";
-	if (canvas) 
-		canvas.style.display = state.canvasVisible ? "block" : "none";
-
 }
 
 // 🔘 Insert Buttons + Controls into Button Rows (top or bottom)

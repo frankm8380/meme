@@ -16,7 +16,9 @@ function updateMemeText() {
   const memeCanvas = document.getElementById("memeCanvas");
   const ctx = memeCanvas.getContext("2d");
 
+	console.log("updateMemeText 1");
   if (!savedImage) return;
+	console.log("updateMemeText 2");
 
   // ✅ Adjust the canvas size, including disclaimer space
   adjustCanvasForDisclaimer(ctx, memeCanvas);
