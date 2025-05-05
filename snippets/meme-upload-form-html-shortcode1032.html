@@ -1,128 +1,55 @@
-<!-- ✅ Stylish Meme Upload Form Without Title -->
-<form id="memeUploadForm" class="meme-upload-card">
-	<div class="form-group">
-		<label for="memeFile">📁 Select Your Meme:</label>
-		<input type="file" id="memeFile" accept="image/png, image/jpeg, image/gif" required onchange="previewImage()">
-	</div>
+    <!-- BEGIN UPLOAD/SHARE FORM -->
+    <form id="memeUploadForm" class="meme-upload-card">
+      <div class="form-group">
+        <label for="memeFile">📁 Select Your Meme:</label>
+        <input type="file"
+               id="memeFile"
+               accept="image/png, image/jpeg, image/gif"
+               required
+               onchange="previewImage()">
+      </div>
 
-	<div class="form-group">
-		<label for="postContent">📝 Why are you posting this meme?</label>
-		<textarea id="postContent" rows="3" placeholder="Share your reason for posting..." required></textarea>
-	</div>
+      <div class="form-group">
+        <label for="postContent">📝 Why are you posting this meme?</label>
+        <textarea id="postContent"
+                  rows="3"
+                  placeholder="Share your reason for posting..."
+                  required></textarea>
+      </div>
 
-	<input type="hidden" id="memeUploadNonce" value="">
+      <input type="hidden" id="memeUploadNonce" value="">
 
-	<div class="button-group">
-		<button type="button" id="uploadMemeButton" class="action-btn" onclick="uploadMeme()">✅ Upload</button>
-		<button type="button" id="emailMemeButton" class="action-btn" onclick="emailMeme()">📧 Email</button>
-		<button type="button" id="twitterMemeButton" class="action-btn" onclick="twitterMeme()">🐦 Twitter</button>
-		<button type="button" id="clearLimitButton" class="action-btn clear-btn" onclick="clearLimits()">🗑️ Clear Limits (Test)</button>
-	</div>
+      <div class="button-group">
+        <button type="button"
+                id="uploadMemeButton"
+                class="action-btn"
+                onclick="uploadMeme()">✅ Upload</button>
+        <button type="button"
+                id="emailMemeButton"
+                class="action-btn"
+                onclick="emailMeme()">📧 Email</button>
+        <button type="button"
+                id="twitterMemeButton"
+                class="action-btn"
+                onclick="twitterMeme()">🐦 Twitter</button>
+        <button type="button"
+                id="clearLimitButton"
+                class="action-btn clear-btn"
+                onclick="clearLimits()">🗑️ Clear Limits (Test)</button>
+      </div>
 
-	<p id="uploadStatus" class="status-text"></p>
+      <p id="uploadStatus" class="status-text"></p>
 
-	<div id="imagePreviewContainer" class="image-preview" style="display: none;">
-		<img id="imagePreview" src="none" alt="Meme Preview">
-	</div>
-</form>
+      <div id="imagePreviewContainer"
+           class="image-preview"
+           style="display: none;">
+        <img id="imagePreview"
+             src="none"
+             alt="Meme Preview">
+      </div>
+    </form>
+    <!-- END POC FORM -->
 
-<!-- ✅ Modern Styling Without Title -->
-<style>
-	/* Main form container */
-	.meme-upload-card {
-		max-width: 500px;
-		margin: 20px auto;
-		padding: 20px;
-		background: #fff;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-		border-radius: 15px;
-		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	}
-
-	/* Group styling */
-	.form-group {
-		display: flex;
-		flex-direction: column;
-		margin-bottom: 15px;
-	}
-
-	label {
-		font-weight: 600;
-		margin-bottom: 5px;
-		color: #555;
-	}
-
-	input[type="file"],
-	textarea {
-		border: 1px solid #ccc;
-		border-radius: 8px;
-		padding: 10px;
-		font-size: 1rem;
-	}
-
-	textarea {
-		resize: vertical;
-		min-height: 100px;
-	}
-
-	/* Button group styling */
-	.button-group {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		gap: 10px;
-	}
-
-	.action-btn {
-		flex: 1;
-		padding: 10px;
-		font-size: 1rem;
-		border: none;
-		border-radius: 10px;
-		background: #007bff;
-		color: white;
-		cursor: pointer;
-		transition: background 0.3s ease;
-	}
-
-	.action-btn:hover {
-		background: #0056b3;
-	}
-
-	.clear-btn {
-		background: #dc3545;
-	}
-
-	.clear-btn:hover {
-		background: #a71d2a;
-	}
-
-	/* Disabled button */
-	.action-btn:disabled {
-		background: #ccc;
-		cursor: not-allowed;
-	}
-
-	/* Upload status text */
-	.status-text {
-		margin-top: 15px;
-		text-align: center;
-		color: #555;
-		font-style: italic;
-	}
-
-	/* Image preview container */
-	.image-preview {
-		margin-top: 20px;
-		text-align: center;
-	}
-
-	.image-preview img {
-		width: 100%;
-		max-width: 300px;
-		border-radius: 10px;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-		border: 2px solid #ddd;
-		padding: 5px;
-	}
-</style>
+    <!-- PASTE the POC form’s <style> block here, or include it in your global CSS -->
+    <style>
+    </style>

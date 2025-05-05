@@ -10,7 +10,6 @@ function my_wpcode_extension_enqueue($hook) {
 
     $custom_js = <<<JS
 jQuery(document).ready(function($) {
-    // Function to determine the correct file extension based on snippet type
     function getFileExtension(snippetType) {
         switch (snippetType.toLowerCase()) {
             case 'php':
@@ -27,11 +26,10 @@ jQuery(document).ready(function($) {
             case 'html_code':
                 return 'html';
             default:
-                return 'txt'; // Default fallback
+                return 'txt';
         }
     }
 
-    // Always prompt user for file save location with correct extension
     async function manualFileSave(fileName, fileContent) {
         try {
             const options = {
@@ -43,24 +41,20 @@ jQuery(document).ready(function($) {
             };
             const handle = await window.showSaveFilePicker(options);
             const writable = await handle.createWritable();
-
             await writable.write(fileContent);
             await writable.close();
-
-            wpcodeShowMessage(`File successfully saved as \${fileName}`);
+            wpcodeShowMessage('File successfully saved as ' + fileName);
         } catch (error) {
             console.error('Failed to manually save file:', error);
             wpcodeShowMessage('Manual save failed or was canceled.');
         }
     }
 
-    // Poll for the WPCode editor container until it appears
     var checkExist = setInterval(function() {
         var editorContainer = $('.wpcode-code-textarea');
         if (editorContainer.length) {
             clearInterval(checkExist);
 
-            // Add custom buttons for clipboard and file together without Dummy button
             var customButtons = '<div id="my-custom-buttons" style="margin-bottom: 10px;">' +
                 '<div style="display: flex; gap: 10px; align-items: center;">' +
                     '<button id="import-clipboard" class="button">Import from Clipboard</button>' +
@@ -71,13 +65,11 @@ jQuery(document).ready(function($) {
                 '</div>';
             editorContainer.prepend(customButtons);
 
-            // Prevent auto-save from triggering when clicking custom buttons
             wpcodePreventAutoSave('#export-clipboard');
             wpcodePreventAutoSave('#import-clipboard');
             wpcodePreventAutoSave('#export-file-picker');
             wpcodePreventAutoSave('#import-file');
 
-            // Import from Clipboard
             $('#import-clipboard').on('click', function() {
                 navigator.clipboard.readText().then(function(clipboardText) {
                     if (clipboardText.trim() === "") {
@@ -96,7 +88,6 @@ jQuery(document).ready(function($) {
                 });
             });
 
-            // Export to Clipboard
             $('#export-clipboard').on('click', function() {
                 var code = $('#wpcode_snippet_code').val();
                 navigator.clipboard.writeText(code).then(function() {
@@ -106,19 +97,15 @@ jQuery(document).ready(function($) {
                 });
             });
 
-            // Export using File Picker with correct file extension
             $('#export-file-picker').on('click', async function () {
                 var code = $('#wpcode_snippet_code').val();
                 var snippetName = $('input[name="wpcode_snippet_title"]').val() || 'extend_wpcode';
                 var snippetType = $('#wpcode_snippet_type').val() || 'custom_code';
                 var extension = getFileExtension(snippetType);
-
                 var fileName = snippetName + '.' + extension;
-
                 await manualFileSave(fileName, code);
             });
 
-            // Import from File (read file content and insert directly into editor)
             $('#import-file').on('click', function() {
                 var input = $('<input type="file" accept=".txt,.js,.php,.html,.css" style="display: none;">');
                 $('body').append(input);
@@ -131,22 +118,18 @@ jQuery(document).ready(function($) {
                     }
 
                     var reader = new FileReader();
-
                     reader.onload = function(e) {
                         var importedCode = e.target.result;
-                        insertCodeIntoEditor(importedCode); // Directly insert the file contents
+                        insertCodeIntoEditor(importedCode);
                     };
-
                     reader.onerror = function() {
                         wpcodeShowMessage('Error reading the file.');
                     };
-
                     reader.readAsText(file);
                     input.remove();
                 });
             });
 
-            // Directly insert code into editor
             function insertCodeIntoEditor(code) {
                 $('#wpcode_snippet_code').val(code);
                 var cmElement = $('#wpcode_snippet_code').next('.CodeMirror')[0];
@@ -156,6 +139,17 @@ jQuery(document).ready(function($) {
                 }
                 wpcodeShowMessage('Code successfully imported!');
             }
+
+            // 🔔 Message listener for Save All automation
+            window.addEventListener('message', async function(event) {
+                if (event.origin !== window.location.origin) return;
+                if (event.data.action === 'export-snippet') {
+                    const fileName = event.data.filename || 'snippet.txt';
+                    const code = $('#wpcode_snippet_code').val();
+                    await manualFileSave(fileName, code);
+                    setTimeout(() => window.close(), 1000);
+                }
+            });
         }
     }, 500);
 });

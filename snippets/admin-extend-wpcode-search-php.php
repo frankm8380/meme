@@ -85,27 +85,30 @@ jQuery(document).ready(function($) {
 	}
 
 	async function saveAllSnippets() {
-		if (!folderHandle) {
-			try {
-				folderHandle = await window.showDirectoryPicker();
-				wpcodeShowMessage('Output folder selected.');
-			} catch (error) {
-				wpcodeShowMessage('Save canceled. No folder selected.');
-				return;
-			}
+		try {
+			folderHandle = await window.showDirectoryPicker();
+			wpcodeShowMessage('Output folder selected.');
+		} catch (error) {
+			wpcodeShowMessage('Save canceled. No folder selected.');
+			return;
 		}
 
-		const total = Object.keys(mappingData).length;
-		if (total === 0) {
+		const entries = Object.entries(mappingData);
+		if (entries.length === 0) {
 			wpcodeShowMessage('No mappings available to export.');
 			return;
 		}
 
-		wpcodeShowMessage(`Exporting ${total} snippets...`);
+		wpcodeShowMessage(`Exporting ${entries.length} snippets...`);
 		let failed = [];
 
-		for (let [filename, snippetId] of Object.entries(mappingData)) {
+		for (const [filename, snippetId] of entries) {
 			try {
+				const safeFilename = filename.replace(/[<>:"/\\\\|?*]+/g, '_');
+
+				const permission = await folderHandle.requestPermission({ mode: 'readwrite' });
+				if (permission !== 'granted') throw new Error('Write permission denied');
+
 				const formData = new FormData();
 				formData.append('action', 'wpcode_get_snippet');
 				formData.append('id', snippetId);
@@ -116,19 +119,20 @@ jQuery(document).ready(function($) {
 					credentials: 'same-origin'
 				});
 
-				if (!response.ok) throw new Error(`Snippet ID ${snippetId} failed`);
+				if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
 				const data = await response.json();
-				if (!data || !data.code) throw new Error(`Snippet ${snippetId} returned no code`);
+				console.log('Fetched:', filename, data);
+				if (!data || !data.code) throw new Error('Snippet returned no code');
 
-				const fileHandle = await folderHandle.getFileHandle(filename, { create: true });
+				const fileHandle = await folderHandle.getFileHandle(safeFilename, { create: true });
 				const writable = await fileHandle.createWritable();
 				await writable.write(data.code);
 				await writable.close();
 
-				console.log(`[Save All]: Saved ${filename}`);
+				console.log(`[Save All]: ✅ Saved ${safeFilename}`);
 			} catch (err) {
-				console.error(`[Save All]: Error saving ${filename}:`, err);
+				console.error(`[Save All]: ❌ Failed to save ${filename}:`, err);
 				failed.push(`${filename} (ID ${snippetId})`);
 			}
 		}
@@ -136,7 +140,7 @@ jQuery(document).ready(function($) {
 		if (failed.length > 0) {
 			alert('Some snippets failed to save:\n\n' + failed.join('\n'));
 		} else {
-			wpcodeShowMessage('All snippets saved.');
+			wpcodeShowMessage('✅ All snippets saved.');
 		}
 	}
 
@@ -204,6 +208,7 @@ jQuery(document).ready(function($) {
 		$('#clear-results').show();
 	}
 
+	// Insert UI and hook listeners
 	const searchSection = `
 	<div id="wpcode-search-section" style="margin-bottom: 20px;">
 		<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px;">
@@ -216,6 +221,7 @@ jQuery(document).ready(function($) {
 			<button id="show-mappings" class="button">Show Mappings</button>
 			<button id="import-mapping" class="button">Import Mapping</button>
 			<button id="save-all-snippets" class="button">Save All</button>
+			<button id="open-all-snippets" class="button">Open All</button>
 		</div>
 		<div id="wpcode-search-results" style="display: none; background: #f1f1f1; padding: 15px; border: 1px solid #ccc; border-radius: 5px; max-height: 300px; overflow-y: auto;"></div>
 	</div>`;
@@ -227,6 +233,7 @@ jQuery(document).ready(function($) {
 	wpcodePreventAutoSave('#import-mapping');
 	wpcodePreventAutoSave('#show-mappings');
 	wpcodePreventAutoSave('#save-all-snippets');
+	wpcodePreventAutoSave('#open-all-snippets');
 
 	$('#mapping-dropdown').on('change', function() {
 		var id = $(this).val();
@@ -242,6 +249,23 @@ jQuery(document).ready(function($) {
 	$('#import-mapping').on('click', importMappingFile);
 	$('#show-mappings').on('click', showMappings);
 	$('#save-all-snippets').on('click', saveAllSnippets);
+
+	// ✅ NEW: Open all snippets in tabs
+	$('#open-all-snippets').on('click', function() {
+		if (Object.keys(mappingData).length === 0) {
+			wpcodeShowMessage('No mappings loaded.');
+			return;
+		}
+		let opened = 0;
+		Object.entries(mappingData).sort(([a], [b]) => a.localeCompare(b)).forEach(([filename, id]) => {
+			if (id) {
+				const url = `${window.location.origin}/wp-admin/admin.php?page=wpcode-snippet-manager&snippet_id=${id}`;
+				window.open(url, '_blank');
+				opened++;
+			}
+		});
+		wpcodeShowMessage(`Opened ${opened} snippets in new tabs.`);
+	});
 
 	loadMappingFromStorage();
 });

@@ -47,10 +47,11 @@
 	
 	<!-- Meme Image & Video Container -->
 	<div class="image-controls-wrapper">
-		<div class="image-container">
+		<div id="workspaceContainer">
+			<div id="workspaceHelpText"> Page is loading... sorry for the delay... it will be so worth the wait!</div>
+			<video id="webcam" autoplay playsinline style="display: none;"></video>
 			<canvas id="memeCanvas" style="display: none;"></canvas>
-			<!-- 🛠️ Inline POC Upload Form (hidden by default) -->
-			<div id="uploadFormContainer" style="display:none; padding:20px;">
+			<div id="uploadFormContainer" style="display: none;">
 				<input type="hidden" id="memeUploadNonce" value="">
 				<div class="meme-upload-card">
 					<!-- File + Text fields only; no POC buttons here -->

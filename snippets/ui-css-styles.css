@@ -1,9 +1,6 @@
 //<?php
 //
 
-/* ============================= */
-/* 🎨 Theme Variables */
-/* ============================= */
 :root {
 	--glass-bg: rgba(255, 255, 255, 0.2);
 	--text-color: black;
@@ -11,10 +8,12 @@
 	--button-hover: rgba(255, 255, 255, 0.5);
 	--popup-bg: rgba(0, 0, 0, 0.85);
 	--border-color: #ddd;
+	--workspace-width: 640px;
+	--workspace-height: 480px;
 }
 
 /* ============================= */
-/* 📌 Status Containers */
+/* 📌 Top & Bottom Status Bars */
 /* ============================= */
 #resultContainer,
 #bottomResultContainer {
@@ -39,7 +38,6 @@
 	align-items: center;
 	justify-content: center;
 }
-
 #resultContainer { top: 0; }
 #bottomResultContainer { bottom: 0; }
 
@@ -55,7 +53,84 @@
 }
 
 /* ============================= */
-/* 📌 Buttons & Controls */
+/* 🎯 Main Workspace */
+/* ============================= */
+#workspaceContainer {
+	position: fixed;
+	left: 50%;
+	transform: translateX(-50%);
+	width: var(--workspace-width);
+	height: var(--workspace-height);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	background: #f9f9f9;
+	border: 2px dashed #bbb;
+	border-radius: 12px;
+	overflow: hidden;
+	z-index: 500;
+	text-align: center;
+	box-sizing: border-box;
+	/* Layering target */
+	position: relative;
+}
+
+#workspaceHelpText {
+	color: #666;
+	font-size: 18px;
+	padding: 20px;
+	max-width: 90%;
+}
+
+/* ============================= */
+/* 🎥 Shared Workspace Children */
+/* ============================= */
+
+/* Layer 1: Webcam */
+#webcam {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	object-fit: cover;
+	display: none;
+}
+
+/* Layer 2: Canvas */
+#memeCanvas {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	border: none;
+	background: transparent; /* ← FIXED */
+	display: none;
+	object-fit: contain;
+	pointer-events: none; /* Prevents mouse interaction */
+}
+
+/* Layer 3: Upload Form */
+#uploadFormContainer {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 3;
+	background: white;
+	padding: 10px;
+	overflow-y: auto;
+	display: none;
+	box-sizing: border-box;
+}
+
+/* ============================= */
+/* 🔘 Controls and Buttons */
 /* ============================= */
 .button-row-wrapper {
 	width: 100%;
@@ -124,7 +199,6 @@ input[type="checkbox"] {
 	vertical-align: middle;
 }
 
-/* Buttons */
 .btn {
 	padding: 6px 10px;
 	font-size: 13px;
@@ -138,15 +212,8 @@ input[type="checkbox"] {
 	white-space: nowrap;
 	min-width: 90px;
 }
-
-.btn:hover {
-	opacity: 0.9;
-	transform: scale(1.05);
-}
-
-.btn:active {
-	transform: scale(0.95);
-}
+.btn:hover { opacity: 0.9; transform: scale(1.05); }
+.btn:active { transform: scale(0.95); }
 
 /* Unique Button Colors */
 .btn-read     { background-color: #3498db; }
@@ -164,51 +231,7 @@ input[type="checkbox"] {
 .btn-back     { background-color: #9e9e9e; }
 
 /* ============================= */
-/* 🎥 Video & Canvas Layout */
-/* ============================= */
-#videoContainer {
-	position: relative;
-	width: 640px;
-	height: 480px;
-	margin: 20px auto;
-	background: black;
-}
-
-#videoContainer video,
-#videoContainer #cameraCanvas {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	pointer-events: none;
-}
-
-.image-container,
-#infoPanel.dynamic-info-panel {
-	position: relative;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: auto;
-	max-width: 100vw;
-	padding: 0;
-}
-
-#memeCanvas {
-	border: 2px solid #ddd;
-	max-width: 100%;
-	height: auto;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 1000;
-	background: white;
-}
-
-/* ============================= */
-/* 🔒 Hidden Button Storage */
+/* 🛠️ Misc Cleanup / Hidden Stuff */
 /* ============================= */
 #allButtons {
 	position: absolute;
@@ -216,50 +239,6 @@ input[type="checkbox"] {
 	visibility: hidden;
 }
 
-
-
-/* ============================= */
-/* 📄 Meme Instructions Modal List */
-/* ============================= */
-#meme-instructions-list {
-	margin-top: 16px;
-}
-
-#meme-instructions-list p {
-	margin-bottom: 12px;
-	line-height: 1.5;
-}
-
-#meme-instructions-list a {
-	display: block;
-	font-size: 0.9em;
-	margin-top: 6px;
-	color: #1a73e8;
-	text-decoration: underline;
-}
-
-/* ============================= */
-/* 📄 Accomplishments Modal List */
-/* ============================= */
-#accomplishments-list {
-	margin-top: 16px;
-}
-
-#accomplishments-list p {
-	margin-bottom: 12px;
-	line-height: 1.5;
-}
-
-#accomplishments-list a {
-	display: block;
-	font-size: 0.9em;
-	margin-top: 6px;
-	color: #1a73e8;
-	text-decoration: underline;
-}
-/* ============================= */
-/* 🧼 Cleanup */
-/* ============================= */
 .wp-block-post-title,
 #title-list {
 	display: none !important;

@@ -113,9 +113,17 @@ async function detectFaceAndGesture(video) {
   const { noGestureText } = getGestureInfo();
   displayErrorMessage(noGestureText);
   
-  // Use only the memeCanvas for display.
-  const canvas = getMemeCanvas();
-  const ctx = canvas.getContext("2d");
+	// ✅ Use the memeCanvas for display
+	const workspace = document.getElementById("workspaceContainer");
+	const canvas = document.getElementById("memeCanvas");
+
+	if (workspace && canvas) {
+		canvas.width = workspace.offsetWidth;
+		canvas.height = workspace.offsetHeight;
+		canvas.style.width = workspace.style.width;
+		canvas.style.height = workspace.style.height;
+	}	
+	const ctx = canvas.getContext("2d");
 	
   // ✅ Ensure proper scaling for mobile cameras
   savedVideoWidth = video.videoWidth || video.offsetWidth || 640;
@@ -124,6 +132,7 @@ async function detectFaceAndGesture(video) {
  
   async function processFrame() {
     if (detectionStopped || video.paused || video.ended) return;
+  console.log("processFrame started");
 
 	adjustCanvasForDisclaimer(ctx,canvas);
 	
@@ -149,6 +158,7 @@ async function detectFaceAndGesture(video) {
     }
 	  
     // ✅ Render meme text and disclaimer over live feed
+  console.log("processFrame drawMemeText");
     drawMemeText(ctx);
 	  
     // Run face detection on the live video.

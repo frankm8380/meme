@@ -16,9 +16,7 @@ function updateMemeText() {
   const memeCanvas = document.getElementById("memeCanvas");
   const ctx = memeCanvas.getContext("2d");
 
-	console.log("updateMemeText 1");
   if (!savedImage) return;
-	console.log("updateMemeText 2");
 
   // ✅ Adjust the canvas size, including disclaimer space
   adjustCanvasForDisclaimer(ctx, memeCanvas);
@@ -43,16 +41,16 @@ function updateMemeText() {
 }
 
 function drawMemeText(ctx) {
-  const memeCanvas = document.getElementById("memeCanvas");
-  if (!memeCanvas) return;
+  let topText = document.getElementById("topText").value;
+  let bottomText = document.getElementById("bottomText").value;
+  let includeDisclaimer = document.getElementById("includeDisclaimer").checked;
+
+	if (!topText && !bottomText && !includeDisclaimer) return;
 
 let colorInput = document.querySelector("#bottomButtonsContainer input#textColor") ||
                  document.querySelector("#topButtonsContainer input#textColor") ||
                  document.querySelector("input#textColor");
   let textColor = colorInput ? colorInput.value : "#ffffff";
-  let topText = document.getElementById("topText").value;
-  let bottomText = document.getElementById("bottomText").value;
-  let includeDisclaimer = document.getElementById("includeDisclaimer").checked;
   let disclaimerLineHeight = 24;
   let fontSize = 50;
   let lineHeight = fontSize * 1.2;
